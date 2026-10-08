@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>S.G Institute of Learning</title>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -14,145 +18,576 @@
     }
 
     body {
-      background: #f4f6f9;
-      color: #222;
-    }
-
-    header {
-      background: #111827;
+      min-height: 100vh;
+      background: #07111f;
       color: white;
-      padding: 25px 15px;
-      text-align: center;
-    }
-
-    header h1 {
-      font-size: 28px;
-    }
-
-    header p {
-      margin-top: 8px;
-      color: #d1d5db;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
     }
 
     .container {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo h1 {
+      color: #d4af37;
+      font-size: 28px;
+      letter-spacing: 1px;
+    }
+
+    .logo p {
+      color: #bfc7d5;
+      margin-top: 7px;
     }
 
     .card {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      background: #101c2d;
+      border: 1px solid #263952;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,.35);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .tabs button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #18283d;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .tabs button.active {
+      background: #d4af37;
+      color: #07111f;
+    }
+
+    h2 {
+      text-align: center;
       margin-bottom: 20px;
     }
 
-    .card h2 {
-      margin-bottom: 15px;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 13px 22px;
-      background: #2563eb;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      margin-top: 15px;
-    }
-
-    .btn:hover {
-      background: #1d4ed8;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .feature {
-      padding: 20px;
-      background: #f9fafb;
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 13px;
       border-radius: 10px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid #344961;
+      background: #0b1727;
+      color: white;
+      outline: none;
     }
 
-    footer {
+    input:focus {
+      border-color: #d4af37;
+    }
+
+    .main-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #d4af37;
+      color: #07111f;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+
+    .main-btn:disabled {
+      opacity: .6;
+    }
+
+    .message {
       text-align: center;
-      padding: 25px;
-      color: #6b7280;
+      margin-top: 15px;
+      min-height: 20px;
+      color: #d4af37;
       font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .welcome {
+      text-align: center;
+    }
+
+    .welcome h2 {
+      color: #d4af37;
+    }
+
+    .logout {
+      margin-top: 20px;
+      background: #b83b3b;
+      color: white;
     }
   </style>
 </head>
 
 <body>
 
-  <header>
+<div class="container">
+
+  <div class="logo">
     <h1>S.G INSTITUTE OF LEARNING</h1>
     <p>Online Examination Portal</p>
-  </header>
+  </div>
 
-  <div class="container">
+  <div class="card">
 
-    <div class="card">
-      <h2>Welcome to S.G Institute</h2>
+    <!-- LOGIN / REGISTER -->
+    <div id="authSection">
 
-      <p>
-        Online examination portal for daily assessments,
-        performance tracking and student results.
-      </p>
+      <div class="tabs">
+        <button id="loginTab" class="active" onclick="showLogin()">
+          LOGIN
+        </button>
 
-      <button class="btn" onclick="startTest()">
-        Start Test
-      </button>
-    </div>
+        <button id="registerTab" onclick="showRegister()">
+          REGISTER
+        </button>
+      </div>
 
-    <div class="card">
-      <h2>Today's Test</h2>
+      <!-- LOGIN -->
+      <div id="loginForm">
 
-      <div class="features">
+        <h2>Student Login</h2>
 
-        <div class="feature">
-          <strong>Subject</strong>
-          <p>Computer Science</p>
-        </div>
+        <input
+          type="text"
+          id="loginStudentId"
+          placeholder="Student ID"
+          autocomplete="username"
+        >
 
-        <div class="feature">
-          <strong>Total Marks</strong>
-          <p>100</p>
-        </div>
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Password"
+          autocomplete="current-password"
+        >
 
-        <div class="feature">
-          <strong>Questions</strong>
-          <p>100 MCQs</p>
-        </div>
+        <button class="main-btn" onclick="loginStudent()">
+          LOGIN
+        </button>
 
-        <div class="feature">
-          <strong>Time</strong>
-          <p>90 Minutes</p>
-        </div>
+        <div id="loginMessage" class="message"></div>
 
       </div>
+
+
+      <!-- REGISTER -->
+      <div id="registerForm" class="hidden">
+
+        <h2>Student Registration</h2>
+
+        <input
+          type="text"
+          id="studentName"
+          placeholder="Student Name"
+        >
+
+        <input
+          type="text"
+          id="studentId"
+          placeholder="Student ID"
+        >
+
+        <input
+          type="password"
+          id="password"
+          placeholder="Password"
+        >
+
+        <input
+          type="password"
+          id="confirmPassword"
+          placeholder="Confirm Password"
+        >
+
+        <button class="main-btn" onclick="registerStudent()">
+          CREATE ACCOUNT
+        </button>
+
+        <div id="registerMessage" class="message"></div>
+
+      </div>
+
+    </div>
+
+
+    <!-- LOGGED IN -->
+    <div id="welcomeSection" class="welcome hidden">
+
+      <h2>Welcome!</h2>
+
+      <p id="welcomeText"></p>
+
+      <button class="main-btn" onclick="startTest()">
+        START TODAY'S TEST
+      </button>
+
+      <button class="main-btn logout" onclick="logoutStudent()">
+        LOGOUT
+      </button>
+
     </div>
 
   </div>
 
-  <footer>
-    S.G Institute of Learning
-  </footer>
+</div>
 
-  <script>
-    function startTest() {
-      alert("Test system will be added in the next step!");
+
+<script>
+
+  /*
+   =====================================================
+   SUPABASE CONFIGURATION
+   =====================================================
+  */
+
+  const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co/rest/v1/";
+
+  const SUPABASE_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  /*
+   =====================================================
+   LOGIN / REGISTER TABS
+   =====================================================
+  */
+
+  function showLogin() {
+
+    document.getElementById("loginForm")
+      .classList.remove("hidden");
+
+    document.getElementById("registerForm")
+      .classList.add("hidden");
+
+    document.getElementById("loginTab")
+      .classList.add("active");
+
+    document.getElementById("registerTab")
+      .classList.remove("active");
+  }
+
+
+  function showRegister() {
+
+    document.getElementById("loginForm")
+      .classList.add("hidden");
+
+    document.getElementById("registerForm")
+      .classList.remove("hidden");
+
+    document.getElementById("loginTab")
+      .classList.remove("active");
+
+    document.getElementById("registerTab")
+      .classList.add("active");
+  }
+
+
+  /*
+   =====================================================
+   STUDENT REGISTRATION
+   =====================================================
+  */
+
+  async function registerStudent() {
+
+    const name =
+      document.getElementById("studentName").value.trim();
+
+    const studentId =
+      document.getElementById("studentId").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const confirmPassword =
+      document.getElementById("confirmPassword").value;
+
+    const message =
+      document.getElementById("registerMessage");
+
+
+    message.textContent = "";
+
+
+    if (!name || !studentId || !password || !confirmPassword) {
+
+      message.textContent =
+        "Please fill all fields.";
+
+      return;
     }
-  </script>
+
+
+    if (password !== confirmPassword) {
+
+      message.textContent =
+        "Passwords do not match.";
+
+      return;
+    }
+
+
+    if (password.length < 6) {
+
+      message.textContent =
+        "Password must contain at least 6 characters.";
+
+      return;
+    }
+
+
+    /*
+      Supabase Auth uses an internal email.
+      Students only see/use Student ID.
+    */
+
+    const email =
+      studentId.toLowerCase() +
+      "@student.sginstitute.local";
+
+
+    const { data, error } =
+      await supabaseClient.auth.signUp({
+
+        email: email,
+
+        password: password,
+
+        options: {
+
+          data: {
+            full_name: name,
+            student_id: studentId
+          }
+
+        }
+
+      });
+
+
+    if (error) {
+
+      message.textContent =
+        error.message;
+
+      return;
+    }
+
+
+    message.textContent =
+      "Registration successful! You can now login.";
+
+    document.getElementById("studentName").value = "";
+    document.getElementById("studentId").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("confirmPassword").value = "";
+
+
+    setTimeout(() => {
+
+      showLogin();
+
+    }, 1500);
+
+  }
+
+
+  /*
+   =====================================================
+   STUDENT LOGIN
+   =====================================================
+  */
+
+  async function loginStudent() {
+
+    const studentId =
+      document.getElementById("loginStudentId")
+        .value.trim();
+
+    const password =
+      document.getElementById("loginPassword")
+        .value;
+
+    const message =
+      document.getElementById("loginMessage");
+
+
+    message.textContent = "";
+
+
+    if (!studentId || !password) {
+
+      message.textContent =
+        "Enter Student ID and Password.";
+
+      return;
+    }
+
+
+    const email =
+      studentId.toLowerCase() +
+      "@student.sginstitute.local";
+
+
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+
+        email: email,
+
+        password: password
+
+      });
+
+
+    if (error) {
+
+      message.textContent =
+        "Invalid Student ID or Password.";
+
+      return;
+    }
+
+
+    message.textContent =
+      "Login successful!";
+
+
+    await loadStudent();
+
+  }
+
+
+  /*
+   =====================================================
+   LOAD STUDENT
+   =====================================================
+  */
+
+  async function loadStudent() {
+
+    const {
+      data: { user }
+    } = await supabaseClient.auth.getUser();
+
+
+    if (!user) return;
+
+
+    const { data: profile } =
+      await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+
+    document.getElementById("authSection")
+      .classList.add("hidden");
+
+    document.getElementById("welcomeSection")
+      .classList.remove("hidden");
+
+
+    if (profile) {
+
+      document.getElementById("welcomeText")
+        .textContent =
+        "Welcome, " +
+        profile.full_name +
+        " (" +
+        profile.student_id +
+        ")";
+
+    }
+
+  }
+
+
+  /*
+   =====================================================
+   LOGOUT
+   =====================================================
+  */
+
+  async function logoutStudent() {
+
+    await supabaseClient.auth.signOut();
+
+    location.reload();
+
+  }
+
+
+  /*
+   =====================================================
+   START TEST
+   =====================================================
+  */
+
+  function startTest() {
+
+    alert(
+      "Today's test system will be connected in the next step."
+    );
+
+  }
+
+
+  /*
+   =====================================================
+   CHECK EXISTING LOGIN
+   =====================================================
+  */
+
+  window.addEventListener("load", async () => {
+
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+
+    if (session) {
+
+      await loadStudent();
+
+    }
+
+  });
+
+</script>
 
 </body>
 </html>
