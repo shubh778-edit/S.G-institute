@@ -1,1 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S.G Institute of Learning</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6f9;
+      color: #222;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 25px 15px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+    }
+
+    header p {
+      margin-top: 8px;
+      color: #d1d5db;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 22px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+
+    .btn:hover {
+      background: #1d4ed8;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .feature {
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+    }
+
+    footer {
+      text-align: center;
+      padding: 25px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>S.G INSTITUTE OF LEARNING</h1>
+    <p>Online Examination Portal</p>
+  </header>
+
+  <div class="container">
+
+    <div class="card">
+      <h2>Welcome to S.G Institute</h2>
+
+      <p>
+        Online examination portal for daily assessments,
+        performance tracking and student results.
+      </p>
+
+      <button class="btn" onclick="startTest()">
+        Start Test
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Today's Test</h2>
+
+      <div class="features">
+
+        <div class="feature">
+          <strong>Subject</strong>
+          <p>Computer Science</p>
+        </div>
+
+        <div class="feature">
+          <strong>Total Marks</strong>
+          <p>100</p>
+        </div>
+
+        <div class="feature">
+          <strong>Questions</strong>
+          <p>100 MCQs</p>
+        </div>
+
+        <div class="feature">
+          <strong>Time</strong>
+          <p>90 Minutes</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    S.G Institute of Learning
+  </footer>
+
+  <script>
+    function startTest() {
+      alert("Test system will be added in the next step!");
+    }
+  </script>
+
+</body>
+</html>
