@@ -3,39 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#080d19">
-
-  <title>S.G Institute | Admin Panel</title>
+  <title>Admin Dashboard | S.G Institute</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
       --bg: #080d19;
-      --panel: #111a2b;
-      --panel-light: #18243a;
-      --gold: #e9bd65;
+      --panel: #101829;
+      --panel2: #141f33;
+      --border: #263249;
+      --gold: #e7bc67;
+      --gold-light: #ffe2a0;
       --text: #f4f6fb;
-      --muted: #9ca9bf;
-      --border: rgba(255,255,255,.09);
-      --green: #43d9a3;
-      --red: #ff7185;
+      --muted: #91a0b8;
+      --green: #4ade80;
+      --red: #fb7185;
+      --blue: #60a5fa;
     }
 
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-
-    [hidden] {
-      display: none !important;
+      box-sizing: border-box;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: Arial, sans-serif;
+      font-family: Inter, sans-serif;
       min-height: 100vh;
     }
 
@@ -47,192 +47,248 @@
       cursor: pointer;
     }
 
-    .loading-screen {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      text-align: center;
-    }
-
-    .loading-card {
-      max-width: 420px;
-      width: 100%;
-      background: var(--panel);
-      border: 1px solid rgba(233,189,101,.3);
-      border-radius: 16px;
-      padding: 30px 22px;
-    }
-
-    .loading-card h2 {
-      color: var(--gold);
-      margin-bottom: 12px;
-    }
-
-    .loading-card p {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    .layout {
-      display: flex;
+    .app {
+      display: none;
       min-height: 100vh;
     }
 
     .sidebar {
-      width: 250px;
-      padding: 28px 18px;
-      background: #0d1424;
+      width: 255px;
+      background: #0c1322;
       border-right: 1px solid var(--border);
       position: fixed;
       inset: 0 auto 0 0;
-      z-index: 10;
+      padding: 25px 17px;
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
     }
 
     .brand {
-      padding: 0 12px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 8px 27px;
       border-bottom: 1px solid var(--border);
     }
 
+    .brand-logo {
+      height: 44px;
+      width: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: #15100a;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold-light), #b98937);
+      box-shadow: 0 5px 25px #e7bc6720;
+    }
+
     .brand h2 {
-      color: var(--gold);
-      font-size: 20px;
-      letter-spacing: 1px;
+      font-size: 15px;
+      line-height: 1.5;
     }
 
     .brand p {
       color: var(--muted);
       font-size: 11px;
-      margin-top: 7px;
-      letter-spacing: 1.5px;
+      margin-top: 3px;
     }
 
-    .nav-label {
-      margin: 27px 12px 12px;
-      color: #728099;
+    .menu-label {
+      color: #64748b;
       font-size: 10px;
-      letter-spacing: 2px;
+      font-weight: 800;
+      letter-spacing: 1.7px;
+      padding: 25px 12px 11px;
     }
 
     .nav-btn {
-      display: block;
-      width: 100%;
       border: 0;
-      background: transparent;
-      color: #b9c4d6;
+      width: 100%;
       text-align: left;
-      padding: 13px 14px;
-      margin-bottom: 6px;
-      border-radius: 9px;
-      font-size: 14px;
+      background: transparent;
+      color: #aab6c9;
+      padding: 13px 12px;
+      margin: 3px 0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      transition: .2s;
     }
 
-    .nav-btn:hover,
+    .nav-btn:hover {
+      background: #172238;
+      color: white;
+    }
+
     .nav-btn.active {
-      background: rgba(233,189,101,.12);
-      color: var(--gold);
+      background: linear-gradient(100deg, #e7bc671c, #e7bc6708);
+      color: var(--gold-light);
+      border: 1px solid #e7bc6730;
     }
 
-    .sidebar-note {
-      position: absolute;
-      bottom: 24px;
-      left: 25px;
-      right: 25px;
-      color: #78869d;
-      font-size: 11px;
-      line-height: 1.7;
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .admin-mini {
+      padding: 10px 8px 15px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 37px;
+      height: 37px;
+      border-radius: 50%;
+      background: #27354d;
+      border: 1px solid #42516b;
+      display: grid;
+      place-items: center;
+      color: var(--gold-light);
+      font-weight: 800;
+    }
+
+    .admin-mini strong {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .admin-mini small {
+      color: var(--green);
+      font-size: 10px;
+    }
+
+    .logout-btn {
+      width: 100%;
+      border: 1px solid #49303b;
+      color: #fda4af;
+      background: #32192340;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .logout-btn:hover {
+      background: #47202b;
     }
 
     .main {
-      width: calc(100% - 250px);
-      margin-left: 250px;
-      padding: 30px;
+      margin-left: 255px;
+      min-width: 0;
     }
 
     .topbar {
+      min-height: 82px;
+      padding: 18px 32px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 16px;
-      margin-bottom: 30px;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--border);
+      background: #0b1220c9;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(15px);
     }
 
-    .eyebrow {
-      color: var(--gold);
-      font-size: 11px;
-      letter-spacing: 2px;
-      margin-bottom: 8px;
+    .topbar h1 {
+      font-size: 21px;
+      font-weight: 800;
     }
 
-    h1 {
-      font-size: clamp(23px, 3vw, 31px);
-    }
-
-    .top-subtitle {
+    .topbar p {
+      font-size: 12px;
       color: var(--muted);
-      font-size: 13px;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
-    .admin-badge {
-      border: 1px solid rgba(233,189,101,.3);
-      color: var(--gold);
-      background: rgba(233,189,101,.08);
-      border-radius: 30px;
-      padding: 10px 14px;
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-badge {
+      color: var(--green);
+      border: 1px solid #4ade8030;
+      background: #4ade8010;
+      padding: 8px 11px;
+      border-radius: 20px;
+      font-size: 11px;
       white-space: nowrap;
-      font-size: 12px;
     }
 
-    .notice {
-      border: 1px solid rgba(233,189,101,.28);
-      background: rgba(233,189,101,.07);
-      color: #e9d5a9;
-      padding: 14px 16px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .card {
-      background: var(--panel);
+    .refresh-btn {
+      background: var(--panel2);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 21px;
+      color: white;
+      padding: 10px 13px;
+      border-radius: 9px;
     }
 
-    .stat-title {
-      color: var(--muted);
-      font-size: 12px;
-      margin-bottom: 18px;
+    .refresh-btn:hover {
+      border-color: var(--gold);
     }
 
-    .stat-value {
-      font-size: 30px;
+    .content {
+      padding: 29px 32px 45px;
+      max-width: 1600px;
+      margin: auto;
+    }
+
+    .welcome {
+      background:
+        radial-gradient(ellipse at 90% 10%, #e7bc671e, transparent 35%),
+        linear-gradient(120deg, #17243a, #111a2b);
+      border: 1px solid #33415a;
+      border-radius: 17px;
+      padding: 28px;
+      margin-bottom: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .welcome-tag {
+      display: inline-block;
+      color: var(--gold-light);
+      border: 1px solid #e7bc673b;
+      background: #e7bc6710;
+      padding: 6px 10px;
+      font-size: 10px;
       font-weight: 700;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
     }
 
-    .stat-foot {
-      color: #78869d;
-      font-size: 11px;
-      margin-top: 10px;
+    .welcome h2 {
+      font-size: clamp(22px, 3vw, 31px);
+      margin-bottom: 10px;
     }
 
-    .section {
-      display: none;
+    .welcome h2 span {
+      color: var(--gold);
     }
 
-    .section.active {
-      display: block;
+    .welcome p {
+      color: #a7b5ca;
+      font-size: 13px;
+      line-height: 1.8;
+      max-width: 650px;
     }
 
     .section-heading {
@@ -240,64 +296,229 @@
       justify-content: space-between;
       align-items: center;
       gap: 15px;
-      flex-wrap: wrap;
-      margin-bottom: 20px;
+      margin: 28px 0 17px;
     }
 
     .section-heading h2 {
-      font-size: 19px;
+      font-size: 17px;
     }
 
     .section-heading p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 6px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      padding: 20px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      min-width: 0;
+      transition: .2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: #5a4c33;
+    }
+
+    .stat-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-icon {
+      width: 43px;
+      height: 43px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 21px;
+      background: #e7bc6710;
+      border: 1px solid #e7bc6720;
+    }
+
+    .stat-type {
+      font-size: 10px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 7px;
+    }
+
+    .stat-value {
+      font-size: 29px;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-title {
       color: var(--muted);
       font-size: 12px;
       margin-top: 7px;
     }
 
-    .toolbar {
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 17px;
+      margin-top: 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 21px;
+      min-width: 0;
+    }
+
+    .panel-head {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    input, select {
-      background: #0b1322;
-      color: var(--text);
+    .panel-head h3 {
+      font-size: 14px;
+    }
+
+    .panel-head span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .quick-btn {
+      background: #141f33;
       border: 1px solid var(--border);
-      padding: 12px 13px;
-      border-radius: 8px;
-      outline: none;
-      min-width: 150px;
+      color: var(--text);
+      text-align: left;
+      padding: 17px;
+      border-radius: 12px;
+      transition: .2s;
     }
 
-    input:focus, select:focus {
+    .quick-btn:hover {
       border-color: var(--gold);
+      background: #1b2940;
     }
 
-    .search {
-      flex: 1;
-      min-width: 180px;
+    .quick-btn b {
+      display: block;
+      font-size: 13px;
+      margin: 10px 0 5px;
     }
 
-    .btn {
-      padding: 11px 15px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-light);
-      color: var(--text);
+    .quick-btn small {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .quick-emoji {
+      font-size: 22px;
+    }
+
+    .activity-list {
+      display: grid;
+      gap: 15px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .activity-dot {
+      width: 35px;
+      height: 35px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #e7bc6712;
+      font-size: 16px;
+    }
+
+    .activity-item b {
       font-size: 12px;
+      display: block;
+      margin: 2px 0 5px;
     }
 
-    .btn-gold {
-      background: var(--gold);
-      color: #15100a;
+    .activity-item p {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeIn .2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .table-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      overflow: hidden;
+      margin-top: 22px;
+    }
+
+    .table-toolbar {
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .table-toolbar h3 {
+      font-size: 14px;
+    }
+
+    .table-toolbar input {
+      width: min(100%, 310px);
+      background: #0a1220;
+      color: white;
+      border: 1px solid var(--border);
+      padding: 11px 13px;
+      border-radius: 9px;
+      outline: none;
+    }
+
+    input:focus {
       border-color: var(--gold);
-      font-weight: 700;
-    }
-
-    .btn:hover {
-      filter: brightness(1.1);
     }
 
     .table-wrap {
@@ -306,143 +527,265 @@
     }
 
     table {
-      width: 100%;
       border-collapse: collapse;
-      min-width: 650px;
+      width: 100%;
+      min-width: 620px;
+    }
+
+    th, td {
+      padding: 15px 18px;
+      text-align: left;
+      border-bottom: 1px solid #253148;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
     th {
-      text-align: left;
-      color: #8593aa;
+      background: #131e30;
+      color: #9eacc1;
       font-size: 10px;
-      letter-spacing: 1px;
-      padding: 15px 12px;
-      border-bottom: 1px solid var(--border);
+      letter-spacing: .7px;
+      text-transform: uppercase;
     }
 
     td {
-      padding: 16px 12px;
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
+      color: #d9e1ed;
     }
 
-    .empty {
-      padding: 35px 15px;
-      color: var(--muted);
-      text-align: center;
-      line-height: 1.8;
+    tr:last-child td {
+      border-bottom: 0;
     }
 
-    .status {
+    .pill {
       display: inline-block;
-      padding: 6px 9px;
+      padding: 5px 8px;
       border-radius: 20px;
       font-size: 10px;
-      background: rgba(67,217,163,.1);
+      background: #4ade8012;
+      border: 1px solid #4ade8025;
       color: var(--green);
     }
 
-    .status.blocked {
-      color: var(--red);
-      background: rgba(255,113,133,.1);
+    .empty-state {
+      padding: 38px 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.9;
     }
 
-    .quick-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .quick-card {
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .quick-card:hover {
-      border-color: rgba(233,189,101,.45);
-      transform: translateY(-2px);
-    }
-
-    .quick-icon {
-      font-size: 25px;
-      margin-bottom: 16px;
-    }
-
-    .quick-card h3 {
-      font-size: 15px;
+    .empty-state strong {
+      display: block;
+      color: var(--text);
+      font-size: 14px;
       margin-bottom: 8px;
     }
 
-    .quick-card p {
-      color: var(--muted);
+    .status-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
       font-size: 12px;
-      line-height: 1.6;
+      line-height: 1.7;
+      color: var(--muted);
+      background: #0b1322;
+      margin-top: 18px;
+      overflow-wrap: anywhere;
     }
 
-    .footer {
-      margin-top: 35px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      color: #66748b;
-      font-size: 11px;
-      text-align: center;
+    .status-box.success {
+      border-color: #4ade8035;
+      color: #a7f3c0;
+    }
+
+    .status-box.error {
+      border-color: #fb718535;
+      color: #fda4af;
+    }
+
+    .primary-btn {
+      background: linear-gradient(135deg, var(--gold-light), #d6a74d);
+      border: 0;
+      color: #191306;
+      padding: 11px 15px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    .primary-btn:hover {
+      filter: brightness(1.07);
     }
 
     .mobile-menu {
       display: none;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      color: white;
+      padding: 8px 11px;
+      border-radius: 8px;
+      font-size: 19px;
     }
 
-    @media (max-width: 1000px) {
+    .overlay {
+      display: none;
+    }
+
+    .loading-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 25px;
+    }
+
+    .loading-card {
+      max-width: 460px;
+      width: 100%;
+      padding: 30px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      text-align: center;
+    }
+
+    .loading-card h2 {
+      color: var(--gold);
+      font-size: 19px;
+      margin: 15px 0 10px;
+    }
+
+    .loading-card p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+      overflow-wrap: anywhere;
+    }
+
+    .spinner {
+      width: 35px;
+      height: 35px;
+      margin: auto;
+      border: 3px solid #334155;
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 1150px) {
       .stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .quick-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .grid-two {
+        grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 760px) {
       .sidebar {
-        display: none;
-        width: 250px;
-        box-shadow: 10px 0 30px #0008;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
       }
 
       .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .overlay.show {
         display: block;
+        position: fixed;
+        inset: 0;
+        background: #0009;
+        z-index: 15;
       }
 
       .main {
-        width: 100%;
         margin-left: 0;
-        padding: 20px 14px;
+      }
+
+      .topbar {
+        padding: 15px 17px;
+        min-height: 72px;
+      }
+
+      .topbar h1 {
+        font-size: 17px;
+      }
+
+      .topbar p {
+        font-size: 10px;
       }
 
       .mobile-menu {
         display: inline-block;
-        margin-bottom: 18px;
       }
 
-      .topbar {
-        align-items: flex-start;
+      .top-actions {
+        gap: 7px;
       }
 
-      .admin-badge {
-        font-size: 10px;
-        padding: 8px;
+      .live-badge {
+        display: none;
+      }
+
+      .refresh-btn {
+        padding: 9px;
+        font-size: 11px;
+      }
+
+      .content {
+        padding: 19px 15px 30px;
+      }
+
+      .welcome {
+        padding: 23px 19px;
       }
 
       .stats {
         gap: 10px;
       }
 
-      .card {
+      .stat-card {
         padding: 15px;
       }
 
       .stat-value {
-        font-size: 25px;
+        font-size: 24px;
+      }
+
+      .stat-top {
+        margin-bottom: 15px;
+      }
+
+      .stat-icon {
+        width: 37px;
+        height: 37px;
+      }
+
+      .stat-type {
+        display: none;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .quick-btn {
+        padding: 13px;
+      }
+
+      .section-heading {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .stats {
+        grid-template-columns: 1fr;
       }
 
       .quick-grid {
@@ -454,444 +797,921 @@
 
 <body>
 
-  <!-- Visible until authentication is checked -->
+  <!-- Shown while checking authentication -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loading-card">
+      <div class="spinner"></div>
       <h2>S.G INSTITUTE</h2>
       <p id="loadingMessage">Verifying administrator access...</p>
     </div>
   </div>
 
-  <!-- The actual admin panel remains hidden until role verification succeeds -->
-  <div class="layout" id="adminApp" hidden>
+  <div class="app" id="app">
 
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
+
       <div class="brand">
-        <h2>S.G INSTITUTE</h2>
-        <p>OF LEARNING</p>
+        <div class="brand-logo">SG</div>
+        <div>
+          <h2>S.G INSTITUTE</h2>
+          <p>ADMINISTRATION PANEL</p>
+        </div>
       </div>
 
-      <p class="nav-label">MAIN MENU</p>
+      <div class="menu-label">MAIN MENU</div>
 
-      <button class="nav-btn active" data-section="overview">▦ &nbsp; Overview</button>
-      <button class="nav-btn" data-section="students">♙ &nbsp; Students</button>
-      <button class="nav-btn" data-section="courses">▤ &nbsp; Courses</button>
-      <button class="nav-btn" data-section="exams">✎ &nbsp; Exams</button>
-      <button class="nav-btn" data-section="results">▥ &nbsp; Results</button>
-      <button class="nav-btn" data-section="certificates">♜ &nbsp; Certificates</button>
+      <button class="nav-btn active" data-page="overview" onclick="showPage('overview', this)">
+        <span class="nav-icon">▦</span> Overview
+      </button>
 
-      <p class="nav-label">SYSTEM</p>
-      <button class="nav-btn" id="logoutBtn">↪ &nbsp; Logout</button>
+      <button class="nav-btn" data-page="students" onclick="showPage('students', this)">
+        <span class="nav-icon">♙</span> Students
+      </button>
 
-      <div class="sidebar-note">
-        ADMIN CONTROL CENTER<br>
-        S.G Institute of Learning<br>
-        Secure administration portal
+      <button class="nav-btn" data-page="courses" onclick="showPage('courses', this)">
+        <span class="nav-icon">▤</span> Courses
+      </button>
+
+      <button class="nav-btn" data-page="tests" onclick="showPage('tests', this)">
+        <span class="nav-icon">✎</span> Tests
+      </button>
+
+      <button class="nav-btn" data-page="results" onclick="showPage('results', this)">
+        <span class="nav-icon">▥</span> Results
+      </button>
+
+      <button class="nav-btn" data-page="certificates" onclick="showPage('certificates', this)">
+        <span class="nav-icon">♜</span> Certificates
+      </button>
+
+      <div class="menu-label">MANAGEMENT</div>
+
+      <button class="nav-btn" data-page="imports" onclick="showPage('imports', this)">
+        <span class="nav-icon">⇧</span> Test Imports
+      </button>
+
+      <button class="nav-btn" data-page="settings" onclick="showPage('settings', this)">
+        <span class="nav-icon">⚙</span> Settings
+      </button>
+
+      <div class="sidebar-bottom">
+        <div class="admin-mini">
+          <div class="avatar" id="adminAvatar">A</div>
+          <div>
+            <strong id="adminName">Administrator</strong>
+            <small>● Admin verified</small>
+          </div>
+        </div>
+
+        <button class="logout-btn" id="logoutBtn" onclick="logout()">
+          ↪ &nbsp; Sign Out
+        </button>
       </div>
+
     </aside>
 
+    <!-- MAIN CONTENT -->
     <main class="main">
 
-      <button class="btn mobile-menu" id="menuBtn">☰ Menu</button>
-
       <header class="topbar">
-        <div>
-          <p class="eyebrow">ADMINISTRATION / CONTROL CENTER</p>
-          <h1 id="pageTitle">Dashboard Overview</h1>
-          <p class="top-subtitle">Manage your institute from one place.</p>
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="mobile-menu" onclick="toggleSidebar()" aria-label="Open menu">☰</button>
+          <div>
+            <h1 id="pageTitle">Dashboard Overview</h1>
+            <p id="pageSubtitle">Welcome to your institute control center.</p>
+          </div>
         </div>
-        <div class="admin-badge">◆ ADMIN PANEL</div>
+
+        <div class="top-actions">
+          <span class="live-badge">● SYSTEM CONNECTED</span>
+          <button class="refresh-btn" onclick="refreshCurrentPage()">↻ Refresh</button>
+        </div>
       </header>
 
-      <div class="notice">
-        <strong>Setup preview:</strong>
-        Aa dashboard nu interface ready chhe. Real student data, account blocking,
-        deletion ane exam management enable karta pela secure Supabase connection
-        ane database permissions verify karvani raheshe.
+      <div class="content">
+
+        <!-- OVERVIEW -->
+        <section class="page active" id="page-overview">
+
+          <div class="welcome">
+            <div class="welcome-tag">ADMIN CONTROL CENTER</div>
+            <h2>Welcome back, <span id="welcomeName">Administrator</span> 👋</h2>
+            <p>
+              Manage your students, courses, tests, results and certificates
+              from one organized workspace.
+            </p>
+          </div>
+
+          <div class="section-heading">
+            <div>
+              <h2>Institute Overview</h2>
+              <p>Live counts from your connected Supabase database.</p>
+            </div>
+            <span style="color:var(--muted);font-size:11px" id="lastUpdated">Not refreshed yet</span>
+          </div>
+
+          <div class="stats">
+
+            <div class="stat-card">
+              <div class="stat-top">
+                <div class="stat-icon">👨‍🎓</div>
+                <span class="stat-type">USERS</span>
+              </div>
+              <div class="stat-value" id="countStudents">—</div>
+              <div class="stat-title">Student Accounts</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-top">
+                <div class="stat-icon">📚</div>
+                <span class="stat-type">LEARNING</span>
+              </div>
+              <div class="stat-value" id="countCourses">—</div>
+              <div class="stat-title">Available Courses</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-top">
+                <div class="stat-icon">📝</div>
+                <span class="stat-type">ASSESSMENT</span>
+              </div>
+              <div class="stat-value" id="countTests">—</div>
+              <div class="stat-title">Total Tests</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-top">
+                <div class="stat-icon">🏆</div>
+                <span class="stat-type">ACHIEVEMENT</span>
+              </div>
+              <div class="stat-value" id="countCertificates">—</div>
+              <div class="stat-title">Certificates Issued</div>
+            </div>
+
+          </div>
+
+          <div class="grid-two">
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>Quick Actions</h3>
+                <span>Shortcuts</span>
+              </div>
+
+              <div class="quick-grid">
+                <button class="quick-btn" onclick="navigate('students')">
+                  <span class="quick-emoji">👨‍🎓</span>
+                  <b>Manage Students</b>
+                  <small>View registered student profiles.</small>
+                </button>
+
+                <button class="quick-btn" onclick="navigate('courses')">
+                  <span class="quick-emoji">📚</span>
+                  <b>View Courses</b>
+                  <small>Check the institute's courses.</small>
+                </button>
+
+                <button class="quick-btn" onclick="navigate('tests')">
+                  <span class="quick-emoji">📝</span>
+                  <b>Manage Tests</b>
+                  <small>Inspect existing test records.</small>
+                </button>
+
+                <button class="quick-btn" onclick="navigate('results')">
+                  <span class="quick-emoji">📈</span>
+                  <b>View Results</b>
+                  <small>Inspect student attempts.</small>
+                </button>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <h3>System Status</h3>
+                <span>Live checks</span>
+              </div>
+
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-dot">🔐</div>
+                  <div>
+                    <b>Administrator Access</b>
+                    <p id="authStatus">Verifying admin permissions...</p>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-dot">🗄️</div>
+                  <div>
+                    <b>Database Connection</b>
+                    <p id="dbStatus">Checking Supabase connection...</p>
+                  </div>
+                </div>
+
+                <div class="activity-item">
+                  <div class="activity-dot">🛡️</div>
+                  <div>
+                    <b>Database Security</b>
+                    <p>Keep Row Level Security (RLS) enabled on your tables.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="status-box" id="overviewMessage">
+                Loading dashboard information...
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- STUDENTS -->
+        <section class="page" id="page-students">
+          <div class="section-heading">
+            <div>
+              <h2>Student Management</h2>
+              <p>Registered profiles stored in your database.</p>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-toolbar">
+              <h3>Student Directory</h3>
+              <input id="studentSearch" type="search" placeholder="Search by name or student ID..." oninput="filterTable('studentSearch','studentsTable')">
+            </div>
+            <div class="table-wrap" id="studentsTableWrap">
+              <div class="empty-state">Click Students to load the directory.</div>
+            </div>
+          </div>
+          <div class="status-box" id="studentsMessage">Student records will appear here.</div>
+        </section>
+
+        <!-- COURSES -->
+        <section class="page" id="page-courses">
+          <div class="section-heading">
+            <div>
+              <h2>Course Management</h2>
+              <p>Existing course records in your database.</p>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-toolbar">
+              <h3>Course Directory</h3>
+              <input id="courseSearch" type="search" placeholder="Search courses..." oninput="filterTable('courseSearch','coursesTable')">
+            </div>
+            <div class="table-wrap" id="coursesTableWrap">
+              <div class="empty-state">Open Courses to load course records.</div>
+            </div>
+          </div>
+          <div class="status-box" id="coursesMessage">This view does not modify or delete courses.</div>
+        </section>
+
+        <!-- TESTS -->
+        <section class="page" id="page-tests">
+          <div class="section-heading">
+            <div>
+              <h2>Test Management</h2>
+              <p>Review tests currently saved in Supabase.</p>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-toolbar">
+              <h3>Test Directory</h3>
+              <input id="testSearch" type="search" placeholder="Search tests..." oninput="filterTable('testSearch','testsTable')">
+            </div>
+            <div class="table-wrap" id="testsTableWrap">
+              <div class="empty-state">Open Tests to load test records.</div>
+            </div>
+          </div>
+          <div class="status-box" id="testsMessage">Test creation and MCQ import can be added after verifying your table columns.</div>
+        </section>
+
+        <!-- RESULTS -->
+        <section class="page" id="page-results">
+          <div class="section-heading">
+            <div>
+              <h2>Student Results</h2>
+              <p>Attempt records from your existing database.</p>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-toolbar">
+              <h3>Test Attempts</h3>
+              <input id="resultSearch" type="search" placeholder="Search results..." oninput="filterTable('resultSearch','resultsTable')">
+            </div>
+            <div class="table-wrap" id="resultsTableWrap">
+              <div class="empty-state">Open Results to load attempt records.</div>
+            </div>
+          </div>
+          <div class="status-box" id="resultsMessage">Result fields depend on your existing attempts table schema.</div>
+        </section>
+
+        <!-- CERTIFICATES -->
+        <section class="page" id="page-certificates">
+          <div class="section-heading">
+            <div>
+              <h2>Certificate Management</h2>
+              <p>Review certificate records issued by the institute.</p>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-toolbar">
+              <h3>Certificate Directory</h3>
+              <input id="certificateSearch" type="search" placeholder="Search certificates..." oninput="filterTable('certificateSearch','certificatesTable')">
+            </div>
+            <div class="table-wrap" id="certificatesTableWrap">
+              <div class="empty-state">Open Certificates to load records.</div>
+            </div>
+          </div>
+          <div class="status-box" id="certificatesMessage">Certificate generation can be connected after confirming your certificate columns.</div>
+        </section>
+
+        <!-- IMPORTS -->
+        <section class="page" id="page-imports">
+          <div class="section-heading">
+            <div>
+              <h2>Test Imports</h2>
+              <p>Inspect the history of imported test data.</p>
+            </div>
+          </div>
+
+          <div class="table-panel">
+            <div class="table-toolbar">
+              <h3>Import History</h3>
+              <input id="importSearch" type="search" placeholder="Search imports..." oninput="filterTable('importSearch','importsTable')">
+            </div>
+            <div class="table-wrap" id="importsTableWrap">
+              <div class="empty-state">Open Test Imports to load records.</div>
+            </div>
+          </div>
+          <div class="status-box" id="importsMessage">This page currently displays existing import records only.</div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section class="page" id="page-settings">
+          <div class="section-heading">
+            <div>
+              <h2>Dashboard Settings</h2>
+              <p>Connection information and administrator session.</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h3>Connection Details</h3>
+              <span>Read only</span>
+            </div>
+
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-dot">🌐</div>
+                <div>
+                  <b>Institute</b>
+                  <p>S.G Institute of Learning</p>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-dot">🗄️</div>
+                <div>
+                  <b>Database Provider</b>
+                  <p>Supabase — JavaScript client v2</p>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-dot">👤</div>
+                <div>
+                  <b>Signed-in Account</b>
+                  <p id="settingsEmail">Checking account...</p>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-dot">🔑</div>
+                <div>
+                  <b>Access Level</b>
+                  <p>Administrator role verified from the profiles table.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="status-box" id="settingsMessage">
+              For security, never put a Supabase service_role or secret key in this HTML file.
+            </div>
+
+            <button class="primary-btn" style="margin-top:18px" onclick="refreshCurrentPage()">
+              Refresh Dashboard Data
+            </button>
+
+            <button class="logout-btn" style="margin-top:12px" onclick="logout()">
+              Sign Out
+            </button>
+          </div>
+        </section>
+
       </div>
-
-      <section class="section active" id="overview">
-
-        <div class="stats">
-          <div class="card">
-            <p class="stat-title">TOTAL STUDENTS</p>
-            <div class="stat-value" id="totalStudents">—</div>
-            <p class="stat-foot">Registered accounts</p>
-          </div>
-
-          <div class="card">
-            <p class="stat-title">TOTAL COURSES</p>
-            <div class="stat-value" id="totalCourses">—</div>
-            <p class="stat-foot">Institute programs</p>
-          </div>
-
-          <div class="card">
-            <p class="stat-title">TOTAL EXAMS</p>
-            <div class="stat-value" id="totalExams">—</div>
-            <p class="stat-foot">Created examinations</p>
-          </div>
-
-          <div class="card">
-            <p class="stat-title">EXAM ATTEMPTS</p>
-            <div class="stat-value" id="totalAttempts">—</div>
-            <p class="stat-foot">Submitted attempts</p>
-          </div>
-        </div>
-
-        <div class="section-heading">
-          <div>
-            <h2>Quick Actions</h2>
-            <p>Select a section to manage your institute.</p>
-          </div>
-        </div>
-
-        <div class="quick-grid">
-          <div class="card quick-card" data-go="students">
-            <div class="quick-icon">👨‍🎓</div>
-            <h3>Student Management</h3>
-            <p>Search and review student profiles and course assignments.</p>
-          </div>
-
-          <div class="card quick-card" data-go="courses">
-            <div class="quick-icon">📚</div>
-            <h3>Course Management</h3>
-            <p>View the courses configured for your institute.</p>
-          </div>
-
-          <div class="card quick-card" data-go="exams">
-            <div class="quick-icon">📝</div>
-            <h3>Exam Management</h3>
-            <p>Review the examination management section.</p>
-          </div>
-
-          <div class="card quick-card" data-go="results">
-            <div class="quick-icon">📊</div>
-            <h3>Results & Analytics</h3>
-            <p>Access the results management area.</p>
-          </div>
-
-          <div class="card quick-card" data-go="certificates">
-            <div class="quick-icon">🏆</div>
-            <h3>Certificates</h3>
-            <p>Open the certificate management section.</p>
-          </div>
-
-          <div class="card quick-card" data-go="students">
-            <div class="quick-icon">🔐</div>
-            <h3>Account Controls</h3>
-            <p>Account controls will be connected after backend security setup.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="students">
-        <div class="section-heading">
-          <div>
-            <h2>Student Management</h2>
-            <p>Search and filter student records.</p>
-          </div>
-        </div>
-
-        <div class="toolbar">
-          <input class="search" id="studentSearch"
-            placeholder="Search name or email..." autocomplete="off">
-
-          <select id="courseFilter">
-            <option value="">All Courses</option>
-            <option value="B.B.A">B.B.A</option>
-            <option value="B.C.A">B.C.A</option>
-            <option value="B.COM">B.COM</option>
-            <option value="B.A">B.A</option>
-            <option value="COMPUTER SCIENCE (GSET)">COMPUTER SCIENCE (GSET)</option>
-          </select>
-
-          <button class="btn" id="refreshStudents">Refresh</button>
-        </div>
-
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>STUDENT</th>
-                  <th>COURSE</th>
-                  <th>ROLE</th>
-                  <th>REGISTRATION DATE</th>
-                  <th>STATUS</th>
-                </tr>
-              </thead>
-              <tbody id="studentsTable">
-                <tr>
-                  <td colspan="5" class="empty">
-                    Student records are not connected yet.<br>
-                    Secure database connection required.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="courses">
-        <div class="section-heading">
-          <div>
-            <h2>Course Management</h2>
-            <p>Courses configured for S.G Institute.</p>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>COURSE NAME</th>
-                  <th>STATUS</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>B.B.A</td><td><span class="status">Configured</span></td></tr>
-                <tr><td>B.C.A</td><td><span class="status">Configured</span></td></tr>
-                <tr><td>B.COM</td><td><span class="status">Configured</span></td></tr>
-                <tr><td>B.A</td><td><span class="status">Configured</span></td></tr>
-                <tr><td>COMPUTER SCIENCE (GSET)</td><td><span class="status">Configured</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <section class="section" id="exams">
-        <div class="section-heading">
-          <div>
-            <h2>Exam Management</h2>
-            <p>Create, review, and publish examinations.</p>
-          </div>
-        </div>
-
-        <div class="card empty">
-          <h3>📝 Exam Management</h3>
-          <p>Exam creation and PDF question import will be connected in the next phase.</p>
-        </div>
-      </section>
-
-      <section class="section" id="results">
-        <div class="section-heading">
-          <div>
-            <h2>Results & Analytics</h2>
-            <p>Review student examination performance.</p>
-          </div>
-        </div>
-
-        <div class="card empty">
-          <h3>📊 Results Center</h3>
-          <p>Real results will appear here after the secure results connection is implemented.</p>
-        </div>
-      </section>
-
-      <section class="section" id="certificates">
-        <div class="section-heading">
-          <div>
-            <h2>Certificate Management</h2>
-            <p>Manage student certificate records.</p>
-          </div>
-        </div>
-
-        <div class="card empty">
-          <h3>🏆 Certificates</h3>
-          <p>Certificate generation and verification will be implemented in a later phase.</p>
-        </div>
-      </section>
-
-      <footer class="footer">
-        © 2026 S.G INSTITUTE OF LEARNING · ADMINISTRATION PORTAL
-      </footer>
-
     </main>
   </div>
 
   <script>
-    "use strict";
+    // =====================================================
+    // 1. SUPABASE CONFIGURATION
+    // Use the SAME Project URL and Publishable Key as index.html.
+    // Never use a service_role or secret key in frontend code.
+    // =====================================================
 
-    /*
-      Use the same Supabase Project URL and Publishable Key
-      already configured in index.html.
-
-      Never use a service_role or secret key in frontend code.
-    */
     const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
 
-    let client = null;
+    const configIsReady =
+      SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_URL.includes("PASTE_YOUR") &&
+      SUPABASE_PUBLISHABLE_KEY.length > 20 &&
+      !SUPABASE_PUBLISHABLE_KEY.includes("PASTE_YOUR");
 
-    const loadingScreen = document.getElementById("loadingScreen");
-    const loadingMessage = document.getElementById("loadingMessage");
-    const adminApp = document.getElementById("adminApp");
+    let db = null;
+    let currentUser = null;
+    let currentProfile = null;
+    let currentPage = "overview";
 
-    const pageTitles = {
-      overview: "Dashboard Overview",
-      students: "Student Management",
-      courses: "Course Management",
-      exams: "Exam Management",
-      results: "Results & Analytics",
-      certificates: "Certificate Management"
+    const pageDetails = {
+      overview: ["Dashboard Overview", "Welcome to your institute control center."],
+      students: ["Student Management", "View registered student profiles."],
+      courses: ["Course Management", "Review the institute's available courses."],
+      tests: ["Test Management", "Review tests stored in your database."],
+      results: ["Student Results", "Review student test attempts."],
+      certificates: ["Certificates", "Review certificate records."],
+      imports: ["Test Imports", "Review imported test data."],
+      settings: ["Dashboard Settings", "Connection and account information."]
     };
 
-    function goToLogin() {
+    function showStartupError(message) {
+      document.getElementById("loadingMessage").textContent = message;
+    }
+
+    function showStatus(id, message, type = "") {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      el.textContent = message;
+      el.className = "status-box" + (type ? " " + type : "");
+    }
+
+    function safeText(value) {
+      if (value === null || value === undefined || value === "") return "—";
+      return String(value);
+    }
+
+    // Escape text before putting database values into HTML.
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function displayDate(value) {
+      if (!value) return "—";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return safeText(value);
+
+      return d.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    async function getTableCount(tableName) {
+      const { count, error } = await db
+        .from(tableName)
+        .select("*", { count: "exact", head: true });
+
+      if (error) {
+        console.warn("Count failed for", tableName, error.message);
+        return null;
+      }
+
+      return count ?? 0;
+    }
+
+    async function updateOverview() {
+      const statusEl = document.getElementById("overviewMessage");
+      statusEl.textContent = "Loading live counts from Supabase...";
+
+      const names = ["profiles", "courses", "tests", "certificates"];
+
+      const results = await Promise.all(
+        names.map(name => getTableCount(name))
+      );
+
+      document.getElementById("countStudents").textContent =
+        results[0] === null ? "—" : results[0];
+
+      document.getElementById("countCourses").textContent =
+        results[1] === null ? "—" : results[1];
+
+      document.getElementById("countTests").textContent =
+        results[2] === null ? "—" : results[2];
+
+      document.getElementById("countCertificates").textContent =
+        results[3] === null ? "—" : results[3];
+
+      const failures = names.filter((name, i) => results[i] === null);
+
+      document.getElementById("lastUpdated").textContent =
+        "Updated " + new Date().toLocaleTimeString("en-IN");
+
+      if (failures.length) {
+        showStatus(
+          "overviewMessage",
+          "Some counts could not be loaded: " + failures.join(", ") +
+          ". Check the table permissions and RLS policies in Supabase.",
+          "error"
+        );
+
+        document.getElementById("dbStatus").textContent =
+          "Connected, but some table queries were denied or failed.";
+      } else {
+        showStatus(
+          "overviewMessage",
+          "All overview queries completed successfully.",
+          "success"
+        );
+
+        document.getElementById("dbStatus").textContent =
+          "Supabase queries completed successfully.";
+      }
+    }
+
+    async function loadStudents() {
+      const wrap = document.getElementById("studentsTableWrap");
+      wrap.innerHTML = '<div class="empty-state">Loading students...</div>';
+
+      const { data, error } = await db
+        .from("profiles")
+        .select("id, student_id, full_name, role, created_at, course_id")
+        .order("created_at", { ascending: false })
+        .limit(500);
+
+      if (error) {
+        wrap.innerHTML =
+          '<div class="empty-state"><strong>Could not load student records</strong>' +
+          escapeHTML(error.message) +
+          '<br>Check the profiles table and its admin SELECT policy.</div>';
+
+        showStatus("studentsMessage", error.message, "error");
+        return;
+      }
+
+      const students = (data || []).filter(
+        profile => String(profile.role || "").toLowerCase() !== "admin"
+      );
+
+      if (!students.length) {
+        wrap.innerHTML =
+          '<div class="empty-state"><strong>No student profiles found</strong>' +
+          'Registered student profiles will appear here.</div>';
+
+        showStatus("studentsMessage", "Query succeeded. No non-admin profiles were returned.", "success");
+        return;
+      }
+
+      let html = `
+        <table id="studentsTable">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Student ID</th>
+              <th>Course ID</th>
+              <th>Role</th>
+              <th>Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      students.forEach(s => {
+        const name = safeText(s.full_name);
+        const initials = name === "—" ? "S" : name.charAt(0).toUpperCase();
+
+        html += `
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="avatar">${escapeHTML(initials)}</div>
+                <span>${escapeHTML(name)}</span>
+              </div>
+            </td>
+            <td>${escapeHTML(safeText(s.student_id))}</td>
+            <td>${escapeHTML(safeText(s.course_id))}</td>
+            <td><span class="pill">${escapeHTML(safeText(s.role))}</span></td>
+            <td>${escapeHTML(displayDate(s.created_at))}</td>
+          </tr>
+        `;
+      });
+
+      html += "</tbody></table>";
+      wrap.innerHTML = html;
+
+      showStatus(
+        "studentsMessage",
+        `Loaded ${students.length} non-admin profile(s). Display is limited to the latest 500 records.`,
+        "success"
+      );
+
+      filterTable("studentSearch", "studentsTable");
+    }
+
+    async function loadGenericTable(tableName, wrapId, tableId, messageId) {
+      const wrap = document.getElementById(wrapId);
+      wrap.innerHTML = '<div class="empty-state">Loading records...</div>';
+
+      const { data, error } = await db
+        .from(tableName)
+        .select("*")
+        .limit(200);
+
+      if (error) {
+        wrap.innerHTML =
+          '<div class="empty-state"><strong>Could not load records</strong>' +
+          escapeHTML(error.message) +
+          '<br>Check this table and its admin SELECT policy.</div>';
+
+        showStatus(messageId, error.message, "error");
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        wrap.innerHTML =
+          '<div class="empty-state"><strong>No records found</strong>' +
+          'The query succeeded, but this table returned no visible records.</div>';
+
+        showStatus(messageId, "Query succeeded. No records were returned.", "success");
+        return;
+      }
+
+      // Build columns dynamically because each table can have different fields.
+      const columns = Object.keys(data[0]).slice(0, 7);
+
+      let html = `<table id="${tableId}"><thead><tr>`;
+
+      columns.forEach(column => {
+        html += `<th>${escapeHTML(column.replace(/_/g, " "))}</th>`;
+      });
+
+      html += "</tr></thead><tbody>";
+
+      data.forEach(row => {
+        html += "<tr>";
+
+        columns.forEach(column => {
+          let value = row[column];
+
+          if (value && typeof value === "object") {
+            value = JSON.stringify(value);
+          }
+
+          if (typeof value === "string" && value.length > 100) {
+            value = value.slice(0, 100) + "...";
+          }
+
+          html += `<td>${escapeHTML(safeText(value))}</td>`;
+        });
+
+        html += "</tr>";
+      });
+
+      html += "</tbody></table>";
+      wrap.innerHTML = html;
+
+      const extraColumns = Object.keys(data[0]).length > 7
+        ? " Only the first 7 columns are displayed."
+        : "";
+
+      showStatus(
+        messageId,
+        `Loaded ${data.length} record(s) from "${tableName}". Display is limited to 200 records.${extraColumns}`,
+        "success"
+      );
+    }
+
+    function filterTable(inputId, tableId) {
+      const input = document.getElementById(inputId);
+      const table = document.getElementById(tableId);
+
+      if (!input || !table) return;
+
+      const term = input.value.toLowerCase();
+
+      table.querySelectorAll("tbody tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(term)
+          ? ""
+          : "none";
+      });
+    }
+
+    async function showPage(page, clickedButton = null) {
+      if (!pageDetails[page]) return;
+
+      currentPage = page;
+
+      document.querySelectorAll(".page").forEach(el => {
+        el.classList.remove("active");
+      });
+
+      const target = document.getElementById("page-" + page);
+      if (target) target.classList.add("active");
+
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.page === page);
+      });
+
+      document.getElementById("pageTitle").textContent = pageDetails[page][0];
+      document.getElementById("pageSubtitle").textContent = pageDetails[page][1];
+
+      closeSidebar();
+
+      if (page === "overview") await updateOverview();
+      if (page === "students") await loadStudents();
+
+      if (page === "courses") {
+        await loadGenericTable(
+          "courses", "coursesTableWrap", "coursesTable", "coursesMessage"
+        );
+        filterTable("courseSearch", "coursesTable");
+      }
+
+      if (page === "tests") {
+        await loadGenericTable(
+          "tests", "testsTableWrap", "testsTable", "testsMessage"
+        );
+        filterTable("testSearch", "testsTable");
+      }
+
+      if (page === "results") {
+        await loadGenericTable(
+          "attempts", "resultsTableWrap", "resultsTable", "resultsMessage"
+        );
+        filterTable("resultSearch", "resultsTable");
+      }
+
+      if (page === "certificates") {
+        await loadGenericTable(
+          "certificates", "certificatesTableWrap",
+          "certificatesTable", "certificatesMessage"
+        );
+        filterTable("certificateSearch", "certificatesTable");
+      }
+
+      if (page === "imports") {
+        await loadGenericTable(
+          "test_imports", "importsTableWrap", "importsTable", "importsMessage"
+        );
+        filterTable("importSearch", "importsTable");
+      }
+    }
+
+    function navigate(page) {
+      showPage(page);
+    }
+
+    async function refreshCurrentPage() {
+      await showPage(currentPage);
+    }
+
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("overlay").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("overlay").classList.remove("show");
+    }
+
+    async function logout() {
+      const button = document.getElementById("logoutBtn");
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Signing out...";
+      }
+
+      if (db) {
+        const { error } = await db.auth.signOut();
+
+        if (error) {
+          console.error("Sign out error:", error.message);
+
+          if (button) {
+            button.disabled = false;
+            button.textContent = "↪ Sign Out";
+          }
+
+          alert("Sign out failed: " + error.message);
+          return;
+        }
+      }
+
       window.location.replace("./index.html");
     }
 
-    function getClient() {
-      if (
-        !SUPABASE_URL.startsWith("https://") ||
-        !SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_")
-      ) {
-        throw new Error(
-          "Supabase configuration is missing. Add the same Project URL and Publishable Key used in index.html."
+    async function initializeDashboard() {
+      if (!configIsReady) {
+        showStartupError(
+          "Supabase configuration is missing. Add the same Project URL and Publishable Key used in index.html, then reload this page."
         );
+        return;
       }
 
-      if (!window.supabase || !window.supabase.createClient) {
-        throw new Error(
-          "Supabase library could not load. Check your internet connection."
-        );
-      }
-
-      if (!client) {
-        client = window.supabase.createClient(
-          SUPABASE_URL,
-          SUPABASE_PUBLISHABLE_KEY
-        );
-      }
-
-      return client;
-    }
-
-    async function verifyAdminAccess() {
       try {
-        const supabase = getClient();
+        db = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_PUBLISHABLE_KEY,
+          {
+            auth: {
+              persistSession: true,
+              autoRefreshToken: true,
+              detectSessionInUrl: true
+            }
+          }
+        );
 
-        // Verify the signed-in user with Supabase Auth.
-        const {
-          data: { user },
-          error: userError
-        } = await supabase.auth.getUser();
+        const { data: userData, error: userError } = await db.auth.getUser();
 
-        if (userError || !user) {
-          goToLogin();
+        if (userError || !userData || !userData.user) {
+          window.location.replace("./index.html");
           return;
         }
 
-        // Check the role stored in the profiles table.
-        const { data: profile, error: profileError } = await supabase
+        currentUser = userData.user;
+
+        const { data: profile, error: profileError } = await db
           .from("profiles")
-          .select("role")
-          .eq("id", user.id)
-          .single();
+          .select("id, full_name, role, student_id, course_id")
+          .eq("id", currentUser.id)
+          .maybeSingle();
 
-        if (profileError || !profile || profile.role !== "admin") {
-          loadingMessage.textContent =
-            "Administrator access required. Returning to login...";
-
-          window.setTimeout(goToLogin, 900);
+        if (profileError) {
+          showStartupError(
+            "Could not verify your admin profile. Check the profiles SELECT policy. Details: " +
+            profileError.message
+          );
           return;
         }
 
-        // Reveal the panel only after both checks succeed.
-        loadingScreen.hidden = true;
-        adminApp.hidden = false;
+        if (!profile || String(profile.role).toLowerCase() !== "admin") {
+          window.location.replace("./index.html");
+          return;
+        }
 
-        initializeNavigation();
+        currentProfile = profile;
+
+        const displayName =
+          profile.full_name ||
+          currentUser.user_metadata?.full_name ||
+          currentUser.email?.split("@")[0] ||
+          "Administrator";
+
+        document.getElementById("adminName").textContent = displayName;
+        document.getElementById("adminAvatar").textContent =
+          displayName.charAt(0).toUpperCase();
+
+        document.getElementById("welcomeName").textContent = displayName;
+        document.getElementById("settingsEmail").textContent =
+          currentUser.email || "Email not available";
+
+        document.getElementById("authStatus").textContent =
+          "Signed in as " + displayName + ". Admin role verified.";
+
+        document.getElementById("loadingScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+
+        await updateOverview();
 
       } catch (error) {
-        console.error("Admin verification failed:", error);
+        console.error(error);
 
-        loadingMessage.textContent =
-          "Could not verify administrator access. Check the Supabase configuration and profiles permissions, then reload.";
+        showStartupError(
+          "Dashboard startup failed. Check your Supabase configuration and browser console. " +
+          (error.message || "")
+        );
       }
     }
 
-    function openSection(sectionId) {
-      const target = document.getElementById(sectionId);
-      if (!target) return;
-
-      document.querySelectorAll(".section").forEach(section => {
-        section.classList.remove("active");
-      });
-
-      target.classList.add("active");
-
-      document.querySelectorAll(".nav-btn[data-section]").forEach(button => {
-        button.classList.toggle(
-          "active",
-          button.dataset.section === sectionId
-        );
-      });
-
-      document.getElementById("pageTitle").textContent =
-        pageTitles[sectionId] || "Admin Panel";
-
-      document.getElementById("sidebar").classList.remove("open");
-    }
-
-    function initializeNavigation() {
-      document.querySelectorAll(".nav-btn[data-section]").forEach(button => {
-        button.addEventListener("click", () => {
-          openSection(button.dataset.section);
-        });
-      });
-
-      document.querySelectorAll("[data-go]").forEach(card => {
-        card.addEventListener("click", () => {
-          openSection(card.dataset.go);
-        });
-      });
-
-      document.getElementById("menuBtn").addEventListener("click", () => {
-        document.getElementById("sidebar").classList.toggle("open");
-      });
-
-      document.getElementById("studentSearch").addEventListener("input", () => {
-        // Search will be connected when real student records are loaded.
-      });
-
-      document.getElementById("courseFilter").addEventListener("change", () => {
-        // Filtering will be connected when real student records are loaded.
-      });
-
-      document.getElementById("refreshStudents").addEventListener("click", () => {
-        alert("Student database connection will be added in the next step.");
-      });
-
-      document.getElementById("logoutBtn").addEventListener("click", async () => {
-        const logoutButton = document.getElementById("logoutBtn");
-        logoutButton.disabled = true;
-        logoutButton.textContent = "Logging out...";
-
-        try {
-          const { error } = await client.auth.signOut();
-
-          if (error) {
-            alert("Logout failed. Please try again.");
-            logoutButton.disabled = false;
-            logoutButton.textContent = "↪   Logout";
-            return;
-          }
-
-          goToLogin();
-
-        } catch (error) {
-          console.error("Logout failed:", error);
-          alert("Could not log out. Check your internet connection.");
-          logoutButton.disabled = false;
-          logoutButton.textContent = "↪   Logout";
-        }
-      });
-    }
-
-    verifyAdminAccess();
+    // Supabase session check runs before revealing admin content.
+    initializeDashboard();
   </script>
-
 </body>
 </html>
