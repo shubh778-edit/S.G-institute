@@ -29,6 +29,10 @@
       padding: 0;
     }
 
+    [hidden] {
+      display: none !important;
+    }
+
     body {
       font-family: Arial, Helvetica, sans-serif;
       background:
@@ -340,59 +344,85 @@
       <p>OF LEARNING</p>
     </header>
 
+    <!-- LOGIN AND REGISTRATION -->
     <section class="card screen" id="authScreen">
+
       <div class="card-heading">
         <h2 id="formHeading">Welcome Back</h2>
         <p id="formSubtitle">Sign in to access your student portal.</p>
       </div>
 
       <div class="tabs" role="group" aria-label="Account options">
-        <button type="button" class="tab active"
-                id="loginTab" aria-pressed="true">
+
+        <button type="button"
+                class="tab active"
+                id="loginTab"
+                aria-pressed="true">
           Student Login
         </button>
 
-        <button type="button" class="tab"
-                id="registerTab" aria-pressed="false">
+        <button type="button"
+                class="tab"
+                id="registerTab"
+                aria-pressed="false">
           Register
         </button>
+
       </div>
 
       <!-- LOGIN FORM -->
       <form id="loginForm" class="form-panel">
+
         <div class="field">
           <label for="loginEmail">Email Address</label>
-          <input id="loginEmail" type="email"
-                 placeholder="Enter your email"
-                 autocomplete="email" required>
+          <input
+            id="loginEmail"
+            type="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required>
         </div>
 
         <div class="field">
           <label for="loginPassword">Password</label>
-          <input id="loginPassword" type="password"
-                 placeholder="Enter your password"
-                 autocomplete="current-password" required>
+          <input
+            id="loginPassword"
+            type="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required>
         </div>
 
-        <button type="submit" class="primary-btn" id="loginButton">
+        <button type="submit"
+                class="primary-btn"
+                id="loginButton">
           SIGN IN
         </button>
+
       </form>
 
       <!-- REGISTRATION FORM -->
       <form id="registerForm" class="form-panel" hidden>
+
         <div class="field">
           <label for="fullName">Full Name</label>
-          <input id="fullName" type="text"
-                 placeholder="Enter your full name"
-                 autocomplete="name" maxlength="100" required>
+          <input
+            id="fullName"
+            type="text"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            maxlength="100"
+            required>
         </div>
 
         <div class="field">
           <label for="registerEmail">Email Address</label>
-          <input id="registerEmail" type="email"
-                 placeholder="Enter a valid email address"
-                 autocomplete="email" required>
+          <input
+            id="registerEmail"
+            type="email"
+            placeholder="Enter a valid email address"
+            autocomplete="email"
+            required>
         </div>
 
         <div class="field">
@@ -411,26 +441,37 @@
 
         <div class="field">
           <label for="registerPassword">Create Password</label>
-          <input id="registerPassword" type="password"
-                 placeholder="At least 8 characters"
-                 autocomplete="new-password"
-                 minlength="8" required>
+          <input
+            id="registerPassword"
+            type="password"
+            placeholder="At least 8 characters"
+            autocomplete="new-password"
+            minlength="8"
+            required>
         </div>
 
         <div class="field">
           <label for="confirmPassword">Confirm Password</label>
-          <input id="confirmPassword" type="password"
-                 placeholder="Re-enter your password"
-                 autocomplete="new-password"
-                 minlength="8" required>
+          <input
+            id="confirmPassword"
+            type="password"
+            placeholder="Re-enter your password"
+            autocomplete="new-password"
+            minlength="8"
+            required>
         </div>
 
-        <button type="submit" class="primary-btn" id="registerButton">
+        <button type="submit"
+                class="primary-btn"
+                id="registerButton">
           CREATE ACCOUNT
         </button>
+
       </form>
 
-      <div id="message" class="message" role="status"
+      <div id="message"
+           class="message"
+           role="status"
            aria-live="polite"></div>
 
       <p class="setup-note" id="setupNote" hidden>
@@ -443,10 +484,14 @@
         S.G Institute of Learning<br>
         Student Portal · Learn Today, Lead Tomorrow
       </p>
+
     </section>
 
     <!-- STUDENT DASHBOARD -->
-    <section class="card screen welcome" id="dashboardScreen" hidden>
+    <section class="card screen welcome"
+             id="dashboardScreen"
+             hidden>
+
       <div class="welcome-badge" aria-hidden="true">✓</div>
 
       <h2>Student Dashboard</h2>
@@ -466,12 +511,14 @@
         Your account has been connected.
       </p>
 
-      <button type="button" class="primary-btn logout-btn"
+      <button type="button"
+              class="primary-btn logout-btn"
               id="logoutButton">
         LOG OUT
       </button>
 
       <p class="footer">S.G Institute of Learning</p>
+
     </section>
 
   </main>
@@ -481,10 +528,10 @@
 
     /*
       IMPORTANT:
-      Replace both placeholders below with your own Supabase
-      Project URL and Publishable Key.
+      Replace these placeholders with the SAME working
+      Supabase Project URL and Publishable Key.
 
-      Never place a secret key or service_role key here.
+      Never use a service_role or secret key in frontend code.
     */
 
     const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
@@ -550,15 +597,12 @@
       loginTab.setAttribute("aria-pressed", "false");
 
       formHeading.textContent = "Create Your Account";
-      formSubtitle.textContent = "Register to join S.G Institute of Learning.";
+      formSubtitle.textContent =
+        "Register to join S.G Institute of Learning.";
 
       clearMessage();
     }
 
-    /*
-      The registration and login tabs are initialized immediately.
-      Their operation does not depend on Supabase being configured.
-    */
     loginTab.addEventListener("click", showLogin);
     registerTab.addEventListener("click", showRegister);
 
@@ -585,7 +629,10 @@
         return "This email is already registered. Please sign in instead.";
       }
 
-      if (lower.includes("failed to fetch")) {
+      if (
+        lower.includes("failed to fetch") ||
+        lower.includes("networkerror")
+      ) {
         return "Could not connect to Supabase. Check your internet and project URL.";
       }
 
@@ -604,7 +651,7 @@
     function getClient() {
       if (!isConfigured()) {
         throw new Error(
-          "Supabase is not configured yet. Add your Project URL and Publishable Key in the code."
+          "Supabase is not configured. Add your Project URL and Publishable Key in the code."
         );
       }
 
@@ -635,18 +682,17 @@
 
       if (error || !profile) {
         showMessage(
-          "Your login worked, but your student profile could not be loaded. Please contact the institute administrator.",
+          "Your login worked, but your profile could not be loaded. Please contact the institute administrator.",
           "error"
         );
         return;
-    
-     }
-      
-if (profile.role === "admin") {
-  window.location.href = "./admin.html";
-  return;
-    }
-      
+      }
+
+      // Redirect administrators to the protected admin page.
+      if (profile.role === "admin") {
+        window.location.replace("./admin.html");
+        return;
+      }
 
       let courseName = "Course not assigned";
 
@@ -671,6 +717,7 @@ if (profile.role === "admin") {
       dashboardScreen.hidden = false;
     }
 
+    // LOGIN
     loginForm.addEventListener("submit", async function(event) {
       event.preventDefault();
       clearMessage();
@@ -700,14 +747,22 @@ if (profile.role === "admin") {
           return;
         }
 
+        if (!data.user) {
+          showMessage("Login did not return a user. Please try again.", "error");
+          return;
+        }
+
         await loadDashboard(data.user);
+
       } catch (error) {
         showMessage(explainError(error), "error");
+
       } finally {
         setBusy(loginButton, false, "SIGNING IN...", "SIGN IN");
       }
     });
 
+    // REGISTRATION
     registerForm.addEventListener("submit", async function(event) {
       event.preventDefault();
       clearMessage();
@@ -716,7 +771,8 @@ if (profile.role === "admin") {
       const email = document.getElementById("registerEmail").value.trim();
       const course = document.getElementById("course").value;
       const password = document.getElementById("registerPassword").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
+      const confirmPassword =
+        document.getElementById("confirmPassword").value;
 
       if (!fullName || !email || !course || !password || !confirmPassword) {
         showMessage("Please complete all fields.", "error");
@@ -724,7 +780,10 @@ if (profile.role === "admin") {
       }
 
       if (password.length < 8) {
-        showMessage("Your password must contain at least 8 characters.", "error");
+        showMessage(
+          "Your password must contain at least 8 characters.",
+          "error"
+        );
         return;
       }
 
@@ -742,7 +801,12 @@ if (profile.role === "admin") {
         return;
       }
 
-      setBusy(registerButton, true, "CREATING ACCOUNT...", "CREATE ACCOUNT");
+      setBusy(
+        registerButton,
+        true,
+        "CREATING ACCOUNT...",
+        "CREATE ACCOUNT"
+      );
 
       try {
         const { data, error } = await client.auth.signUp({
@@ -762,42 +826,68 @@ if (profile.role === "admin") {
         }
 
         if (data.session && data.user) {
-          showMessage("Account created. Loading your dashboard...", "success");
+          showMessage(
+            "Account created. Loading your dashboard...",
+            "success"
+          );
+
           await loadDashboard(data.user);
+
         } else {
           showMessage(
-            "Registration received. If email confirmation is enabled, check your inbox and confirm your email before logging in.",
+            "Registration received. Check your email if confirmation is enabled. After confirming, sign in to continue.",
             "success"
           );
         }
+
       } catch (error) {
         showMessage(explainError(error), "error");
+
       } finally {
-        setBusy(registerButton, false, "CREATING ACCOUNT...", "CREATE ACCOUNT");
+        setBusy(
+          registerButton,
+          false,
+          "CREATING ACCOUNT...",
+          "CREATE ACCOUNT"
+        );
       }
     });
 
-    document.getElementById("logoutButton").addEventListener("click", async function() {
-      try {
-        if (supabaseClient) {
-          const { error } = await supabaseClient.auth.signOut();
+    // LOGOUT
+    document.getElementById("logoutButton").addEventListener(
+      "click",
+      async function() {
+        const button = document.getElementById("logoutButton");
+
+        setBusy(button, true, "LOGGING OUT...", "LOG OUT");
+
+        try {
+          const client = getClient();
+          const { error } = await client.auth.signOut();
 
           if (error) {
             showMessage(explainError(error), "error");
             return;
           }
+
+          dashboardScreen.hidden = true;
+          authScreen.hidden = false;
+
+          loginForm.reset();
+          registerForm.reset();
+
+          showLogin();
+
+        } catch (error) {
+          showMessage(explainError(error), "error");
+
+        } finally {
+          setBusy(button, false, "LOGGING OUT...", "LOG OUT");
         }
-
-        dashboardScreen.hidden = true;
-        authScreen.hidden = false;
-        loginForm.reset();
-        registerForm.reset();
-        showLogin();
-      } catch (error) {
-        showMessage(explainError(error), "error");
       }
-    });
+    );
 
+    // RESTORE EXISTING SESSION
     async function restoreSession() {
       if (!isConfigured() || !window.supabase) {
         return;
@@ -805,22 +895,38 @@ if (profile.role === "admin") {
 
       try {
         const client = getClient();
-        const { data, error } = await client.auth.getSession();
 
-        if (!error && data.session) {
-          await loadDashboard(data.session.user);
+        const {
+          data: { session },
+          error
+        } = await client.auth.getSession();
+
+        if (error || !session) {
+          return;
         }
+
+        // Validate the user with Supabase before loading their profile.
+        const {
+          data: { user },
+          error: userError
+        } = await client.auth.getUser();
+
+        if (userError || !user) {
+          await client.auth.signOut();
+          return;
+        }
+
+        await loadDashboard(user);
+
       } catch (error) {
         console.error("Session restore failed:", error);
       }
     }
 
-    /*
-      Always start with the login form visible.
-      Registration tab works even before Supabase is configured.
-    */
+    // Start with the login screen.
     showLogin();
     restoreSession();
   </script>
+
 </body>
 </html>
