@@ -642,11 +642,9 @@
       }
 
       if (profile.role === "admin") {
-        showMessage(
-          "This is an administrator account. The separate admin dashboard has not been configured yet.",
-          "error"
-        );
-        return;
+  window.location.href = "./admin.html";
+  return;
+      
       }
 
       let courseName = "Course not assigned";
