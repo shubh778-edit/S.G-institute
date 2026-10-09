@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>S.G Institute | Admin Panel</title>
+
+  <style>
+    :root {
+      --bg: #080d19;
+      --panel: #111a2b;
+      --panel-light: #18243a;
+      --gold: #e9bd65;
+      --text: #f4f6fb;
+      --muted: #9ca9bf;
+      --border: rgba(255,255,255,.09);
+      --green: #43d9a3;
+      --red: #ff7185;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      padding: 28px 18px;
+      background: #0d1424;
+      border-right: 1px solid var(--border);
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 10;
+    }
+
+    .brand {
+      padding: 0 12px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand h2 {
+      color: var(--gold);
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
+    .brand p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 7px;
+      letter-spacing: 1.5px;
+    }
+
+    .nav-label {
+      margin: 27px 12px 12px;
+      color: #728099;
+      font-size: 10px;
+      letter-spacing: 2px;
+    }
+
+    .nav-btn {
+      display: block;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #b9c4d6;
+      text-align: left;
+      padding: 13px 14px;
+      margin-bottom: 6px;
+      border-radius: 9px;
+      font-size: 14px;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(233,189,101,.12);
+      color: var(--gold);
+    }
+
+    .sidebar-note {
+      position: absolute;
+      bottom: 24px;
+      left: 25px;
+      right: 25px;
+      color: #78869d;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .main {
+      width: calc(100% - 250px);
+      margin-left: 250px;
+      padding: 30px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(23px, 3vw, 31px);
+    }
+
+    .top-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .admin-badge {
+      border: 1px solid rgba(233,189,101,.3);
+      color: var(--gold);
+      background: rgba(233,189,101,.08);
+      border-radius: 30px;
+      padding: 10px 14px;
+      white-space: nowrap;
+      font-size: 12px;
+    }
+
+    .notice {
+      border: 1px solid rgba(233,189,101,.28);
+      background: rgba(233,189,101,.07);
+      color: #e9d5a9;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 21px;
+    }
+
+    .stat-title {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .stat-foot {
+      color: #78869d;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .section-heading h2 {
+      font-size: 19px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 7px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    input, select {
+      background: #0b1322;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 12px 13px;
+      border-radius: 8px;
+      outline: none;
+      min-width: 150px;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+    }
+
+    .search {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .btn {
+      padding: 11px 15px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel-light);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: #15100a;
+      border-color: var(--gold);
+      font-weight: 700;
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
+
+    th {
+      text-align: left;
+      color: #8593aa;
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 15px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .empty {
+      padding: 35px 15px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      background: rgba(67,217,163,.1);
+      color: var(--green);
+    }
+
+    .status.blocked {
+      color: var(--red);
+      background: rgba(255,113,133,.1);
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .quick-card {
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .quick-card:hover {
+      border-color: rgba(233,189,101,.45);
+      transform: translateY(-2px);
+    }
+
+    .quick-icon {
+      font-size: 25px;
+      margin-bottom: 16px;
+    }
+
+    .quick-card h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .quick-card p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .footer {
+      margin-top: 35px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: #66748b;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .mobile-menu {
+      display: none;
+    }
+
+    @media (max-width: 1000px) {
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 700px) {
+      .sidebar {
+        display: none;
+        width: 250px;
+        box-shadow: 10px 0 30px #0008;
+      }
+
+      .sidebar.open {
+        display: block;
+      }
+
+      .main {
+        width: 100%;
+        margin-left: 0;
+        padding: 20px 14px;
+      }
+
+      .mobile-menu {
+        display: inline-block;
+        margin-bottom: 18px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .admin-badge {
+        font-size: 10px;
+        padding: 8px;
+      }
+
+      .stats {
+        gap: 10px;
+      }
+
+      .card {
+        padding: 15px;
+      }
+
+      .stat-value {
+        font-size: 25px;
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <h2>S.G INSTITUTE</h2>
+      <p>OF LEARNING</p>
+    </div>
+
+    <p class="nav-label">MAIN MENU</p>
+
+    <button class="nav-btn active" data-section="overview">▦ &nbsp; Overview</button>
+    <button class="nav-btn" data-section="students">♙ &nbsp; Students</button>
+    <button class="nav-btn" data-section="courses">▤ &nbsp; Courses</button>
+    <button class="nav-btn" data-section="exams">✎ &nbsp; Exams</button>
+    <button class="nav-btn" data-section="results">▥ &nbsp; Results</button>
+    <button class="nav-btn" data-section="certificates">♜ &nbsp; Certificates</button>
+
+    <p class="nav-label">SYSTEM</p>
+    <button class="nav-btn" id="logoutBtn">↪ &nbsp; Logout</button>
+
+    <div class="sidebar-note">
+      ADMIN CONTROL CENTER<br>
+      S.G Institute of Learning<br>
+      Secure administration portal
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <button class="btn mobile-menu" id="menuBtn">☰ Menu</button>
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ADMINISTRATION / CONTROL CENTER</p>
+        <h1 id="pageTitle">Dashboard Overview</h1>
+        <p class="top-subtitle">Manage your institute from one place.</p>
+      </div>
+      <div class="admin-badge">◆ ADMIN PANEL</div>
+    </header>
+
+    <div class="notice">
+      <strong>Setup preview:</strong>
+      Aa dashboard nu interface ready chhe. Real student data, account blocking,
+      deletion ane exam management enable karta pela secure Supabase connection
+      ane database permissions verify karvani raheshe.
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="section active" id="overview">
+
+      <div class="stats">
+        <div class="card">
+          <p class="stat-title">TOTAL STUDENTS</p>
+          <div class="stat-value" id="totalStudents">—</div>
+          <p class="stat-foot">Registered accounts</p>
+        </div>
+
+        <div class="card">
+          <p class="stat-title">TOTAL COURSES</p>
+          <div class="stat-value" id="totalCourses">—</div>
+          <p class="stat-foot">Institute programs</p>
+        </div>
+
+        <div class="card">
+          <p class="stat-title">TOTAL EXAMS</p>
+          <div class="stat-value" id="totalExams">—</div>
+          <p class="stat-foot">Created examinations</p>
+        </div>
+
+        <div class="card">
+          <p class="stat-title">EXAM ATTEMPTS</p>
+          <div class="stat-value" id="totalAttempts">—</div>
+          <p class="stat-foot">Submitted attempts</p>
+        </div>
+      </div>
+
+      <div class="section-heading">
+        <div>
+          <h2>Quick Actions</h2>
+          <p>Select a section to manage your institute.</p>
+        </div>
+      </div>
+
+      <div class="quick-grid">
+        <div class="card quick-card" data-go="students">
+          <div class="quick-icon">👨‍🎓</div>
+          <h3>Student Management</h3>
+          <p>Search and review student profiles and course assignments.</p>
+        </div>
+
+        <div class="card quick-card" data-go="courses">
+          <div class="quick-icon">📚</div>
+          <h3>Course Management</h3>
+          <p>View the courses configured for your institute.</p>
+        </div>
+
+        <div class="card quick-card" data-go="exams">
+          <div class="quick-icon">📝</div>
+          <h3>Exam Management</h3>
+          <p>Review the examination management section.</p>
+        </div>
+
+        <div class="card quick-card" data-go="results">
+          <div class="quick-icon">📊</div>
+          <h3>Results & Analytics</h3>
+          <p>Access the results management area.</p>
+        </div>
+
+        <div class="card quick-card" data-go="certificates">
+          <div class="quick-icon">🏆</div>
+          <h3>Certificates</h3>
+          <p>Open the certificate management section.</p>
+        </div>
+
+        <div class="card quick-card" data-go="students">
+          <div class="quick-icon">🔐</div>
+          <h3>Account Controls</h3>
+          <p>Account controls will be connected after backend security setup.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STUDENTS -->
+    <section class="section" id="students">
+      <div class="section-heading">
+        <div>
+          <h2>Student Management</h2>
+          <p>Search and filter student records.</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input class="search" id="studentSearch"
+          placeholder="Search name or email..." autocomplete="off">
+
+        <select id="courseFilter">
+          <option value="">All Courses</option>
+          <option value="B.B.A">B.B.A</option>
+          <option value="B.C.A">B.C.A</option>
+          <option value="B.COM">B.COM</option>
+          <option value="B.A">B.A</option>
+          <option value="COMPUTER SCIENCE (GSET)">COMPUTER SCIENCE (GSET)</option>
+        </select>
+
+        <button class="btn" id="refreshStudents">Refresh</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>STUDENT</th>
+                <th>COURSE</th>
+                <th>ROLE</th>
+                <th>REGISTRATION DATE</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTable">
+              <tr>
+                <td colspan="5" class="empty">
+                  Student records are not connected yet.<br>
+                  Secure database connection required.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- COURSES -->
+    <section class="section" id="courses">
+      <div class="section-heading">
+        <div>
+          <h2>Course Management</h2>
+          <p>Courses configured for S.G Institute.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>COURSE NAME</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>B.B.A</td><td><span class="status">Configured</span></td></tr>
+              <tr><td>B.C.A</td><td><span class="status">Configured</span></td></tr>
+              <tr><td>B.COM</td><td><span class="status">Configured</span></td></tr>
+              <tr><td>B.A</td><td><span class="status">Configured</span></td></tr>
+              <tr><td>COMPUTER SCIENCE (GSET)</td><td><span class="status">Configured</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXAMS -->
+    <section class="section" id="exams">
+      <div class="section-heading">
+        <div>
+          <h2>Exam Management</h2>
+          <p>Create, review, and publish examinations.</p>
+        </div>
+      </div>
+
+      <div class="card empty">
+        <h3>📝 Exam Management</h3>
+        <p>Exam creation and PDF question import will be connected in the next phase.</p>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="section" id="results">
+      <div class="section-heading">
+        <div>
+          <h2>Results & Analytics</h2>
+          <p>Review student examination performance.</p>
+        </div>
+      </div>
+
+      <div class="card empty">
+        <h3>📊 Results Center</h3>
+        <p>Real results will appear here after the secure results connection is implemented.</p>
+      </div>
+    </section>
+
+    <!-- CERTIFICATES -->
+    <section class="section" id="certificates">
+      <div class="section-heading">
+        <div>
+          <h2>Certificate Management</h2>
+          <p>Manage student certificate records.</p>
+        </div>
+      </div>
+
+      <div class="card empty">
+        <h3>🏆 Certificates</h3>
+        <p>Certificate generation and verification will be implemented in a later phase.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      © 2026 S.G INSTITUTE OF LEARNING · ADMINISTRATION PORTAL
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  const pageTitles = {
+    overview: "Dashboard Overview",
+    students: "Student Management",
+    courses: "Course Management",
+    exams: "Exam Management",
+    results: "Results & Analytics",
+    certificates: "Certificate Management"
+  };
+
+  function openSection(sectionId) {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+
+    document.querySelectorAll(".section").forEach(section => {
+      section.classList.remove("active");
+    });
+
+    target.classList.add("active");
+
+    document.querySelectorAll(".nav-btn[data-section]").forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.dataset.section === sectionId
+      );
+    });
+
+    document.getElementById("pageTitle").textContent =
+      pageTitles[sectionId] || "Admin Panel";
+
+    document.getElementById("sidebar").classList.remove("open");
+  }
+
+  document.querySelectorAll(".nav-btn[data-section]").forEach(button => {
+    button.addEventListener("click", () => {
+      openSection(button.dataset.section);
+    });
+  });
+
+  document.querySelectorAll("[data-go]").forEach(card => {
+    card.addEventListener("click", () => {
+      openSection(card.dataset.go);
+    });
+  });
+
+  document.getElementById("menuBtn").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("open");
+  });
+
+  document.getElementById("studentSearch").addEventListener("input", () => {
+    // Search will be connected when real student records are loaded.
+  });
+
+  document.getElementById("courseFilter").addEventListener("change", () => {
+    // Course filtering will be connected to real student records.
+  });
+
+  document.getElementById("refreshStudents").addEventListener("click", () => {
+    alert("Student database connection will be added in the next step.");
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    alert("Secure admin logout will be connected with Supabase authentication in the next step.");
+  });
+</script>
+
+</body>
+</html>
