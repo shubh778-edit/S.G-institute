@@ -1,399 +1,147 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SG Institute — Admin Panel</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S.G Institute | Admin Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
- --bg:#0b1020;--sidebar:#10172a;--panel:#161f35;--panel2:#1b2740;
- --blue:#4f8cff;--purple:#8b5cf6;--text:#f8fafc;--muted:#94a3b8;
- --border:rgba(148,163,184,.16);--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
-}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select{font:inherit}button{cursor:pointer}
-.app{display:flex;min-height:100vh}
-.sidebar{width:250px;flex:0 0 250px;background:var(--sidebar);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;transition:transform .25s;z-index:20}
-.brand{display:flex;gap:12px;align-items:center;padding:0 8px 28px}.brand-mark{height:42px;width:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--purple));font-weight:900;font-size:16px;box-shadow:0 8px 24px #4f8cff30}
-.brand strong{display:block;font-size:13px;letter-spacing:.05em}.brand small{color:var(--muted);font-size:11px}
-.nav-label{color:#64748b;font-size:10px;font-weight:800;letter-spacing:.16em;padding:10px 12px}
-.nav{display:grid;gap:6px}.nav button{border:0;color:#9aa9c2;background:transparent;padding:12px;border-radius:12px;text-align:left;display:flex;align-items:center;gap:12px}.nav button:hover,.nav button.active{background:linear-gradient(100deg,#4f8cff25,#8b5cf618);color:white}.nav button.active{box-shadow:inset 3px 0 var(--blue)}.nav .ico{width:22px;text-align:center;font-size:17px}
-.sidebar-bottom{margin-top:auto;border-top:1px solid var(--border);padding-top:18px}.admin-mini{display:flex;gap:10px;align-items:center;padding:10px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#4f8cff,#8b5cf6);font-weight:800}.admin-mini small{display:block;color:var(--muted)}
-.main{min-width:0;flex:1}.topbar{height:76px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 30px;gap:16px;background:#0b1020e8;position:sticky;top:0;z-index:10;backdrop-filter:blur(16px)}.top-left{display:flex;align-items:center;gap:12px}.hamburger{display:none;background:var(--panel);border:1px solid var(--border);color:white;border-radius:10px;padding:8px 11px}.eyebrow{font-size:10px;letter-spacing:.15em;color:var(--blue);font-weight:800}.topbar h1{font-size:18px;margin:2px 0 0}.top-right{display:flex;gap:10px;align-items:center}.status{color:#86efac;background:#14532d40;border:1px solid #22c55e35;border-radius:30px;padding:7px 10px;font-size:11px}
-.content{padding:30px;max-width:1500px;margin:auto}.welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}.welcome h2{font-size:25px;margin:0 0 5px;letter-spacing:-.03em}.welcome p{margin:0;color:var(--muted)}.actions{display:flex;gap:10px;flex-wrap:wrap}
-.btn{border:1px solid var(--border);border-radius:11px;padding:10px 14px;background:var(--panel);color:var(--text);font-weight:650;transition:.18s}.btn:hover{transform:translateY(-1px);border-color:#4f8cff88}.btn.primary{border:0;background:linear-gradient(110deg,var(--blue),var(--purple));box-shadow:0 8px 22px #4f8cff28}.btn.danger{color:#fecaca;border-color:#ef444455;background:#7f1d1d30}.btn.small{padding:7px 10px;font-size:12px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}.stat{background:linear-gradient(145deg,var(--panel),#121a2d);border:1px solid var(--border);border-radius:18px;padding:20px;position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:100px;height:100px;right:-38px;top:-40px;background:var(--glow,#4f8cff);opacity:.1;filter:blur(30px);border-radius:50%}.stat-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}.stat-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:#4f8cff20;font-size:18px}.stat-number{font-size:29px;font-weight:800;letter-spacing:-.04em;margin-top:14px}.stat-foot{font-size:11px;color:var(--muted);margin-top:4px}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden}.panel-head{display:flex;justify-content:space-between;align-items:center;padding:20px 22px;border-bottom:1px solid var(--border);gap:12px}.panel-head h3{margin:0;font-size:15px}.panel-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
-.toolbar{padding:18px 22px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border)}.field{background:#0b1223;border:1px solid #334155;border-radius:10px;padding:11px 12px;color:var(--text);outline:none;min-width:0}.field:focus{border-color:var(--blue);box-shadow:0 0 0 3px #4f8cff20}.search{flex:1;min-width:200px}.toolbar select{min-width:155px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}th{text-align:left;color:#8292ad;font-size:10px;text-transform:uppercase;letter-spacing:.09em;font-weight:800;background:#111a2c;padding:14px 20px}td{padding:15px 20px;border-top:1px solid var(--border);font-size:12px}tbody tr:hover{background:#ffffff04}.student-cell{display:flex;align-items:center;gap:10px}.student-avatar{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#4f8cff24;color:#b9d2ff;font-weight:800}.student-name{font-weight:700;font-size:12px}.student-email{font-size:11px;color:var(--muted);margin-top:2px}.pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:30px;font-size:10px;font-weight:750;background:#4f8cff20;color:#a8c7ff}.muted{color:var(--muted)}.row-actions{display:flex;gap:6px}.empty{text-align:center;padding:48px 20px;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:5px}.pagination{display:flex;justify-content:space-between;align-items:center;padding:15px 22px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
-.overlay{position:fixed;inset:0;background:#020617bd;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.overlay.show{display:flex}.modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:#121b2e;border:1px solid #334155;border-radius:20px;box-shadow:0 25px 100px #0009;animation:pop .18s ease}.modal-head{padding:22px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-head h3{margin:0;font-size:18px}.modal-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.close{background:transparent;color:var(--muted);border:0;font-size:24px}.form{padding:22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:15px}.form-group{display:grid;gap:7px}.form-group.full{grid-column:1/-1}.form-group label{font-size:11px;color:#cbd5e1;font-weight:700}.form-group .field{width:100%}.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border)}.note{font-size:11px;color:var(--muted);padding:0 24px 15px}
-.toast{position:fixed;right:20px;bottom:20px;background:#15233b;border:1px solid #334155;padding:13px 16px;border-radius:12px;box-shadow:0 12px 40px #0008;z-index:100;max-width:min(380px,calc(100vw - 40px));display:none}.toast.show{display:block;animation:pop .2s}.toast.error{border-color:#ef444477}.toast.success{border-color:#22c55e66}
-.view-placeholder{padding:50px 25px;text-align:center;color:var(--muted)}.view-placeholder strong{display:block;color:var(--text);font-size:18px;margin-bottom:8px}
-@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
-@media(max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:22px}}
-@media(max-width:760px){.sidebar{position:fixed;inset:0 auto 0 0;transform:translateX(-105%);box-shadow:20px 0 60px #0006}.sidebar.open{transform:translateX(0)}.hamburger{display:block}.topbar{height:68px;padding:0 15px}.content{padding:20px 14px}.welcome{align-items:flex-start;flex-direction:column}.welcome h2{font-size:22px}.grid{gap:10px}.stat{padding:15px}.stat-number{font-size:24px}.stat-top{font-size:11px}.panel-head,.toolbar{padding:15px}.form{grid-template-columns:1fr;padding:18px}.form-group.full{grid-column:auto}.status{display:none}.topbar h1{font-size:15px}}
-@media(max-width:420px){.grid{grid-template-columns:1fr 1fr}.stat-number{font-size:22px}.actions .btn{flex:1}.pagination{padding:13px;gap:10px;flex-wrap:wrap}}
+:root{--bg:#0a1020;--panel:#111a2e;--panel2:#17223a;--line:#26334d;--gold:#e9bd69;--text:#f5f7fb;--muted:#a5b1c7;--green:#55d6a0;--red:#ff7c87;--blue:#86b8ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#17233e 0,#0a1020 55%);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel2);color:var(--text)}button:hover{border-color:var(--gold)}button.primary{background:var(--gold);color:#1a1b20;border-color:var(--gold);font-weight:800}button.danger{border-color:#713741;color:#ffabb2}button:disabled{opacity:.5;cursor:not-allowed}.app{display:none;min-height:100vh}.sidebar{width:245px;position:fixed;inset:0 auto 0 0;padding:24px 16px;background:#0c1426;border-right:1px solid var(--line);z-index:5;overflow:auto}.brand{padding:5px 10px 24px;border-bottom:1px solid var(--line);margin-bottom:18px}.brand .mark{color:var(--gold);font-weight:900;letter-spacing:2px;font-size:12px}.brand h2{font-size:19px;margin:7px 0 0}.brand small{color:var(--muted)}.nav-label{font-size:11px;color:#7888a5;text-transform:uppercase;letter-spacing:1.6px;padding:12px}.nav button{width:100%;text-align:left;background:transparent;border-color:transparent;color:var(--muted);margin:3px 0}.nav button.active,.nav button:hover{background:var(--panel2);color:var(--gold);border-color:var(--line)}.side-bottom{margin-top:30px;border-top:1px solid var(--line);padding-top:15px}.main{margin-left:245px;padding:28px;max-width:1700px}.topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:26px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:800}.topbar h1{font-size:clamp(24px,4vw,34px);margin:3px 0}.muted{color:var(--muted)}.user-chip{border:1px solid var(--line);background:#111a2e;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px}.avatar{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:#3c3040;color:var(--gold);font-weight:900}.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{background:linear-gradient(145deg,#141f35,#10182a);border:1px solid var(--line);border-radius:17px;padding:20px;min-width:0}.stat-label{color:var(--muted);font-size:13px}.stat{font-size:31px;font-weight:850;margin:9px 0 0}.stat-note{font-size:12px;color:var(--gold)}.section-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:25px 0 14px;flex-wrap:wrap}.section-head h2{margin:0;font-size:20px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.field, input,select{background:#0b1324;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}.field:focus,input:focus,select:focus{outline:1px solid var(--gold);border-color:var(--gold)}input.search{width:min(320px,100%)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#0e1729}table{width:100%;border-collapse:collapse;min-width:700px}th,td{padding:13px 15px;border-bottom:1px solid #202d44;text-align:left;vertical-align:middle}th{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#aab6cb;background:#131e33;position:sticky;top:0}td{font-size:13px;color:#e1e7f1}tr:last-child td{border-bottom:0}tbody tr:hover{background:#15213a}.pill{display:inline-flex;border-radius:30px;padding:4px 9px;background:#26364d;color:#cfe0ff;font-size:11px}.status{padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin:14px 0;color:var(--muted);background:#0f192b;white-space:pre-wrap;overflow-wrap:anywhere}.status.success{border-color:#235843;color:#9cebc7}.status.error{border-color:#67333e;color:#ffb0b7}.empty{padding:32px;text-align:center;color:var(--muted)}.page-intro{color:var(--muted);margin-top:-4px}.warning{border-color:#67512d;color:#f3d69d}.modal-backdrop{display:none;position:fixed;inset:0;background:#020611cc;z-index:20;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#111a2e;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 80px #0008}.modal h2{margin:0 0 6px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}.form-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px}.form-grid .wide{grid-column:1/-1}.modal-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px}.login-card{width:min(440px,100%);padding:28px;border:1px solid var(--line);border-radius:20px;background:#111a2e}.login-card h1{margin:6px 0}.login-card label{display:grid;gap:6px;color:var(--muted);margin:15px 0}.login-card input{width:100%}.login-card .primary{width:100%}.mobile-menu{display:none}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:20px}.sidebar{width:220px}.main{margin-left:220px}}
+@media(max-width:700px){.sidebar{transform:translateX(-100%);transition:transform .2s;width:260px}.sidebar.open{transform:translateX(0)}.main{margin-left:0;padding:16px}.mobile-menu{display:inline-block}.topbar{align-items:flex-start}.user-chip .user-text{display:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{padding:15px}.stat{font-size:26px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.topbar h1{font-size:24px}}
 </style>
 </head>
 <body>
-<div class="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="brand"><div class="brand-mark">SG</div><div><strong>S.G. INSTITUTE</strong><small>OF LEARNING · ADMIN</small></div></div>
-    <div class="nav-label">WORKSPACE</div>
-    <nav class="nav" id="nav">
-      <button class="active" data-view="students"><span class="ico">👨‍🎓</span> Student Management</button>
-      <button data-view="courses"><span class="ico">📚</span> Course Management</button>
-      <button data-view="tests"><span class="ico">📝</span> Test Management</button>
-      <button data-view="questions"><span class="ico">❓</span> MCQ Question Bank</button>
-      <button data-view="results"><span class="ico">📊</span> Results & Analytics</button>
-      <button data-view="settings"><span class="ico">⚙️</span> Settings</button>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="admin-mini"><div class="avatar">SG</div><div><strong>Institute Admin</strong><small id="connectionText">Not connected</small></div></div>
-      <button class="btn" id="logoutBtn" style="width:100%;margin-top:8px">↪ Sign out</button>
-    </div>
-  </aside>
-  <main class="main">
-    <header class="topbar">
-      <div class="top-left"><button class="hamburger" id="menuBtn" aria-label="Open menu">☰</button><div><div class="eyebrow">SG INSTITUTE / ADMIN CONSOLE</div><h1 id="topTitle">Student Management</h1></div></div>
-      <div class="top-right"><span class="status" id="statusBadge">● Awaiting connection</span><div class="avatar" style="width:34px;height:34px">SG</div></div>
-    </header>
-    <div class="content" id="mainContent">
-      <section class="welcome"><div><h2>Student Management</h2><p>Manage students, courses and accounts in one place.</p></div><div class="actions"><button class="btn" id="refreshBtn">↻ Refresh</button><button class="btn primary" id="addBtn">＋ Add Student</button></div></section>
-      <section class="grid">
-        <div class="stat" style="--glow:#4f8cff"><div class="stat-top">Total Students <span class="stat-icon">👥</span></div><div class="stat-number" id="totalCount">—</div><div class="stat-foot">Registered student accounts</div></div>
-        <div class="stat" style="--glow:#8b5cf6"><div class="stat-top">BCA Students <span class="stat-icon">💻</span></div><div class="stat-number" id="bcaCount">—</div><div class="stat-foot">Enrolled in B.C.A</div></div>
-        <div class="stat" style="--glow:#22c55e"><div class="stat-top">BBA Students <span class="stat-icon">📈</span></div><div class="stat-number" id="bbaCount">—</div><div class="stat-foot">Enrolled in B.B.A</div></div>
-        <div class="stat" style="--glow:#f59e0b"><div class="stat-top">Other Courses <span class="stat-icon">🎓</span></div><div class="stat-number" id="otherCount">—</div><div class="stat-foot">All remaining courses</div></div>
-      </section>
-      <section class="panel">
-        <div class="panel-head"><div><h3>All Students</h3><p>Search, filter and manage institute student accounts.</p></div><span class="pill" id="resultCount">0 students</span></div>
-        <div class="toolbar">
-          <input class="field search" id="searchInput" placeholder="⌕  Search name, email or student ID…" autocomplete="off">
-          <select class="field" id="courseFilter"><option value="">All courses</option></select>
-          <select class="field" id="sortFilter"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="name">Name A–Z</option></select>
-        </div>
-        <div class="table-wrap"><table><thead><tr><th>Student</th><th>Student ID</th><th>Course</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="studentRows"><tr><td colspan="5"><div class="empty"><strong>Connect Supabase to begin</strong>Add your Supabase project URL and anon key in Settings to load students.</div></td></tr></tbody></table></div>
-        <div class="pagination"><span id="tableSummary">No student records loaded</span><span>Secure institute workspace</span></div>
-      </section>
-    </div>
-  </main>
-</div>
-
-<div class="overlay" id="studentOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal">
-    <div class="modal-head"><div><h3 id="modalTitle">Add Student</h3><p>Create and assign a student account.</p></div><button class="close" data-close="studentOverlay" aria-label="Close">×</button></div>
-    <form id="studentForm">
-      <div class="form">
-        <input type="hidden" id="editId">
-        <div class="form-group full"><label for="fullName">Full name *</label><input class="field" id="fullName" required maxlength="120" placeholder="Student full name"></div>
-        <div class="form-group"><label for="email">Email address *</label><input class="field" id="email" type="email" required placeholder="student@example.com"></div>
-        <div class="form-group"><label for="studentId">Student ID</label><input class="field" id="studentId" maxlength="100" placeholder="e.g. SG001"></div>
-        <div class="form-group full"><label for="courseId">Course</label><select class="field" id="courseId"><option value="">Unassigned</option></select></div>
-        <div class="form-group"><label for="password">Password <span id="passwordRequired">*</span></label><input class="field" id="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters"></div>
-        <div class="form-group"><label for="confirmPassword">Confirm password <span id="confirmRequired">*</span></label><input class="field" id="confirmPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Re-enter password"></div>
-      </div>
-      <div class="note" id="formNote">Password is required when creating a new student. Minimum 8 characters.</div>
-      <div class="modal-foot"><button type="button" class="btn" data-close="studentOverlay">Cancel</button><button type="submit" class="btn primary" id="saveStudentBtn">Create Student</button></div>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="eyebrow">S.G Institute of Learning</div>
+    <h1>Admin sign in</h1><p class="muted">Sign in with your authorized institute administrator account.</p>
+    <div id="loginStatus" class="status">Enter your email and password.</div>
+    <form id="loginForm">
+      <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
+      <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
+      <button class="primary" id="loginButton" type="submit">Sign in securely</button>
     </form>
+    <p class="muted" style="font-size:12px">Use the same Supabase project configured for your institute website.</p>
   </div>
 </div>
-
-<div class="overlay" id="resetOverlay" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
-  <div class="modal" style="width:min(430px,100%)">
-    <div class="modal-head"><div><h3 id="resetTitle">Reset Student Password</h3><p>Choose a new password for this account.</p></div><button class="close" data-close="resetOverlay">×</button></div>
-    <form id="resetForm"><div class="form" style="grid-template-columns:1fr"><input type="hidden" id="resetId"><div class="form-group"><label for="newPassword">New password *</label><input class="field" id="newPassword" type="password" minlength="8" required autocomplete="new-password"></div><div class="form-group"><label for="newPasswordConfirm">Confirm new password *</label><input class="field" id="newPasswordConfirm" type="password" minlength="8" required autocomplete="new-password"></div></div><div class="modal-foot"><button type="button" class="btn" data-close="resetOverlay">Cancel</button><button class="btn primary" type="submit">Reset Password</button></div></form>
-  </div>
+<div id="app" class="app">
+<aside id="sidebar" class="sidebar">
+  <div class="brand"><div class="mark">S.G INSTITUTE</div><h2>Control Center</h2><small>Learning Management</small></div>
+  <div class="nav-label">Workspace</div>
+  <nav class="nav">
+    <button class="active" data-page="overview">◈ &nbsp; Overview</button>
+    <button data-page="students">♙ &nbsp; Students</button>
+    <button data-page="courses">▤ &nbsp; Courses</button>
+    <button data-page="tests">☷ &nbsp; Tests</button>
+    <button data-page="questions">≡ &nbsp; Questions</button>
+    <button data-page="results">◷ &nbsp; Results / Attempts</button>
+    <button data-page="certificates">◇ &nbsp; Certificates</button>
+    <button data-page="imports">⇧ &nbsp; Test Imports</button>
+  </nav>
+  <div class="side-bottom"><button id="logoutButton" style="width:100%">↪ Sign out</button></div>
+</aside>
+<main class="main">
+  <header class="topbar">
+    <div><button class="mobile-menu" id="menuButton">☰</button><div class="eyebrow">Administrator portal</div><h1 id="pageTitle">Dashboard Overview</h1><div id="pageSubtitle" class="muted">Live view of your institute data.</div></div>
+    <div class="user-chip"><div class="avatar" id="adminAvatar">A</div><div class="user-text"><strong id="adminName">Administrator</strong><div class="muted" style="font-size:12px">Verified admin</div></div></div>
+  </header>
+  <section id="page-overview" class="page active">
+    <div class="grid">
+      <div class="card"><div class="stat-label">Profiles</div><div class="stat" id="countProfiles">—</div><div class="stat-note">All profile records</div></div>
+      <div class="card"><div class="stat-label">Students</div><div class="stat" id="countStudents">—</div><div class="stat-note">Non-admin profiles</div></div>
+      <div class="card"><div class="stat-label">Courses</div><div class="stat" id="countCourses">—</div><div class="stat-note">Available courses</div></div>
+      <div class="card"><div class="stat-label">Tests</div><div class="stat" id="countTests">—</div><div class="stat-note">Stored tests</div></div>
+      <div class="card"><div class="stat-label">Questions</div><div class="stat" id="countQuestions">—</div><div class="stat-note">Question bank</div></div>
+      <div class="card"><div class="stat-label">Attempts</div><div class="stat" id="countAttempts">—</div><div class="stat-note">Test submissions</div></div>
+      <div class="card"><div class="stat-label">Certificates</div><div class="stat" id="countCertificates">—</div><div class="stat-note">Certificate records</div></div>
+      <div class="card"><div class="stat-label">Test imports</div><div class="stat" id="countImports">—</div><div class="stat-note">Import records</div></div>
+    </div>
+    <div id="overviewStatus" class="status">Connecting to Supabase…</div>
+    <div class="card"><h2>Quick guide</h2><p class="muted">Choose a section from the sidebar to browse records. Student profile edits are available in the Students section. Creating login accounts, deleting accounts, and changing passwords must be performed through the secured Edge Function backend—not directly from browser code.</p></div>
+  </section>
+  <section id="page-students" class="page">
+    <div class="section-head"><div><h2>Student Management</h2><div class="page-intro">Search and update existing student profile details.</div></div><div class="toolbar"><input id="studentSearch" class="search" placeholder="Search name, ID, course…" /><button id="refreshStudents">Refresh</button></div></div>
+    <div id="studentsStatus" class="status">Loading…</div><div id="studentsTable" class="table-wrap"><div class="empty">Loading students…</div></div>
+    <div class="status warning">Note: “Add login”, “delete account”, and “reset password” need corresponding secured actions implemented in the student-management Edge Function. This dashboard does not expose a service-role key.</div>
+  </section>
+  <section id="page-courses" class="page"><div class="section-head"><div><h2>Course Management</h2><div class="page-intro">Add, edit, and remove course records. Existing student/test links may prevent deletion.</div></div><div class="toolbar"><input id="coursesSearch" class="search" placeholder="Search code or course name…" /><button data-refresh="courses">Refresh</button><button class="primary" id="addCourseButton">+ Add course</button></div></div><div id="coursesStatus" class="status">Loading…</div><div id="coursesTable" class="table-wrap"></div></section>
+  <section id="page-tests" class="page"><div class="section-head"><div><h2>Tests</h2><div class="page-intro">Existing tests.</div></div><div class="toolbar"><input id="testsSearch" class="search" placeholder="Search tests…" /><button data-refresh="tests">Refresh</button></div></div><div id="testsStatus" class="status">Loading…</div><div id="testsTable" class="table-wrap"></div></section>
+  <section id="page-questions" class="page"><div class="section-head"><div><h2>Questions</h2><div class="page-intro">Question bank records.</div></div><div class="toolbar"><input id="questionsSearch" class="search" placeholder="Search questions…" /><button data-refresh="questions">Refresh</button></div></div><div id="questionsStatus" class="status">Loading…</div><div id="questionsTable" class="table-wrap"></div></section>
+  <section id="page-results" class="page"><div class="section-head"><div><h2>Results / Attempts</h2><div class="page-intro">Student test attempt records.</div></div><div class="toolbar"><input id="resultsSearch" class="search" placeholder="Search results…" /><button data-refresh="results">Refresh</button></div></div><div id="resultsStatus" class="status">Loading…</div><div id="resultsTable" class="table-wrap"></div></section>
+  <section id="page-certificates" class="page"><div class="section-head"><div><h2>Certificates</h2><div class="page-intro">Certificate records.</div></div><div class="toolbar"><input id="certificatesSearch" class="search" placeholder="Search certificates…" /><button data-refresh="certificates">Refresh</button></div></div><div id="certificatesStatus" class="status">Loading…</div><div id="certificatesTable" class="table-wrap"></div></section>
+  <section id="page-imports" class="page"><div class="section-head"><div><h2>Test Imports</h2><div class="page-intro">Imported test data records.</div></div><div class="toolbar"><input id="importsSearch" class="search" placeholder="Search imports…" /><button data-refresh="imports">Refresh</button></div></div><div id="importsStatus" class="status">Loading…</div><div id="importsTable" class="table-wrap"></div></section>
+</main>
 </div>
-<div class="overlay" id="configOverlay" role="dialog" aria-modal="true" aria-labelledby="configTitle">
- <div class="modal">
-  <div class="modal-head"><div><h3 id="configTitle">Connect Supabase</h3><p>Use your project URL and public anon key.</p></div><button class="close" data-close="configOverlay">×</button></div>
-  <form id="configForm"><div class="form" style="grid-template-columns:1fr"><div class="form-group"><label for="supabaseUrl">Supabase Project URL</label><input class="field" id="supabaseUrl" type="url" required placeholder="https://your-project.supabase.co"></div><div class="form-group"><label for="anonKey">Publishable / anon key</label><textarea class="field" id="anonKey" required rows="3" style="resize:vertical" placeholder="Paste the public anon key (not service_role)"></textarea></div><div class="form-group"><small class="muted">Next, sign in with your existing admin email and password. Never paste a service_role key here.</small></div></div><div class="modal-foot"><button type="button" class="btn" data-close="configOverlay">Cancel</button><button type="submit" class="btn primary">Save & Connect</button></div></form>
+<div id="courseBackdrop" class="modal-backdrop"><div class="modal"><h2 id="courseModalTitle">Add course</h2><p class="muted">Course code must be unique. Use a short code such as BCA, BBA, or GSET_CS.</p><div id="courseFormStatus" class="status">Enter course details.</div><form id="courseForm"><input type="hidden" id="courseEditId"><div class="form-grid"><label>Course code<input id="courseCode" maxlength="40" required placeholder="e.g. BCA"></label><label>Course name<input id="courseName" maxlength="160" required placeholder="e.g. B.C.A"></label></div><div class="modal-actions"><button type="button" id="cancelCourse">Cancel</button><button class="primary" type="submit" id="saveCourse">Save course</button></div></form></div></div>
+<div id="editBackdrop" class="modal-backdrop">
+ <div class="modal"><h2>Edit student profile</h2><p class="muted">This updates the profile row only; it does not change the user's login credentials or role.</p>
+  <div id="editStatus" class="status">Update the profile details below.</div>
+  <form id="editForm"><input type="hidden" id="editId">
+   <div class="form-grid">
+    <label class="wide">Full name<input id="editName" maxlength="160" required></label>
+    <label>Student ID<input id="editStudentId" maxlength="80"></label>
+    <label>Course<select id="editCourse"><option value="">No course assigned</option></select></label>
+   </div>
+   <div class="modal-actions"><button type="button" id="cancelEdit">Cancel</button><button class="primary" type="submit" id="saveEdit">Save profile</button></div>
+  </form>
  </div>
 </div>
-<div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
- <div class="modal"><div class="modal-head"><div><h3 id="loginTitle">Admin Sign In</h3><p>Sign in using your Supabase Auth admin account.</p></div></div>
- <form id="loginForm"><div class="form" style="grid-template-columns:1fr"><div class="form-group"><label for="loginEmail">Admin email</label><input class="field" id="loginEmail" type="email" autocomplete="username" required placeholder="admin@example.com"></div><div class="form-group"><label for="loginPassword">Password</label><input class="field" id="loginPassword" type="password" autocomplete="current-password" required></div></div><div class="modal-foot"><button type="submit" class="btn primary" id="loginBtn">Sign In</button></div></form>
- </div></div>
-<div class="toast" id="toast"></div>
+<script>
+/* IMPORTANT: Paste your project's URL and Publishable (anon) key below.
+   Never put the service_role/secret key in this browser file. */
+const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
 
-<script type="module">
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+const ready = SUPABASE_URL.startsWith("https://") &&
+  !SUPABASE_URL.includes("PASTE_YOUR") &&
+  SUPABASE_PUBLISHABLE_KEY.length > 20 &&
+  !SUPABASE_PUBLISHABLE_KEY.includes("PASTE_YOUR");
 
-const $ = (id) => document.getElementById(id);
-let supabase = null;
-let config = { url: "", anonKey: "", accessToken: "" };
-let students = [];
-let courses = [];
-let busy = false;
+let db = null, currentUser = null, profileCache = [], courseCache = [];
+const configStatus = document.getElementById("loginStatus");
 
-function toast(message, type="success") {
-  const el = $("toast");
-  el.textContent = message;
-  el.className = "toast show " + type;
-  clearTimeout(toast.timer);
-  toast.timer = setTimeout(() => el.className = "toast", 4000);
-}
-function setBusy(value) {
-  busy = value;
-  $("saveStudentBtn").disabled = value;
-  $("saveStudentBtn").textContent = value ? "Please wait…" : ($("editId").value ? "Save Changes" : "Create Student");
-}
-function openModal(id) { $(id).classList.add("show"); }
-function closeModal(id) { $(id).classList.remove("show"); }
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-  }[c]));
-}
-function initials(name) {
-  return String(name || "S").trim().split(/\s+/).slice(0,2).map(x=>x[0]||"").join("").toUpperCase();
-}
-function courseName(s) {
-  const c = s.courses;
-  return Array.isArray(c) ? (c[0]?.course_name || "Unassigned") : (c?.course_name || "Unassigned");
-}
-function setConnection(connected, label) {
-  $("statusBadge").textContent = connected ? "● Connected" : "● " + (label || "Not connected");
-  $("statusBadge").style.color = connected ? "#86efac" : "#fbbf24";
-  $("connectionText").textContent = connected ? "Supabase connected" : "Not connected";
-}
-function renderCourses() {
-  const options = courses.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.course_name)} (${escapeHtml(c.course_code)})</option>`).join("");
-  $("courseFilter").innerHTML = '<option value="">All courses</option>' + options;
-  $("courseId").innerHTML = '<option value="">Unassigned</option>' + options;
-}
-function renderStudents() {
-  const search = $("searchInput").value.trim().toLowerCase();
-  const filter = $("courseFilter").value;
-  const sort = $("sortFilter").value;
-  let rows = students.filter(s => {
-    const hay = [s.full_name, s.email, s.student_id, courseName(s)].join(" ").toLowerCase();
-    return hay.includes(search) && (!filter || s.course_id === filter);
-  });
-  if (sort === "oldest") rows.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
-  else if (sort === "name") rows.sort((a,b)=>(a.full_name||"").localeCompare(b.full_name||""));
-  else rows.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
-  $("resultCount").textContent = `${rows.length} student${rows.length===1?"":"s"}`;
-  $("tableSummary").textContent = rows.length ? `Showing ${rows.length} of ${students.length} students` : "No matching students";
-  $("totalCount").textContent = students.length;
-  const bca = courses.find(c => /b\.?c\.?a/i.test(c.course_name) || /^BCA$/i.test(c.course_code));
-  const bba = courses.find(c => /b\.?b\.?a/i.test(c.course_name) || /^BBA$/i.test(c.course_code));
-  $("bcaCount").textContent = students.filter(s=>s.course_id===bca?.id).length;
-  $("bbaCount").textContent = students.filter(s=>s.course_id===bba?.id).length;
-  $("otherCount").textContent = students.filter(s=>s.course_id!==bca?.id && s.course_id!==bba?.id).length;
-  if (!rows.length) {
-    $("studentRows").innerHTML = `<tr><td colspan="5"><div class="empty"><strong>${students.length?"No matching students":"No students yet"}</strong>${students.length?"Try a different search or course filter.":"Click “Add Student” to create the first student account."}</div></td></tr>`;
-    return;
-  }
-  $("studentRows").innerHTML = rows.map(s => `<tr>
-    <td><div class="student-cell"><div class="student-avatar">${escapeHtml(initials(s.full_name))}</div><div><div class="student-name">${escapeHtml(s.full_name)}</div><div class="student-email">${escapeHtml(s.email || "Email unavailable")}</div></div></div></td>
-    <td>${escapeHtml(s.student_id || "—")}</td>
-    <td><span class="pill">${escapeHtml(courseName(s))}</span></td>
-    <td>${s.created_at ? escapeHtml(new Date(s.created_at).toLocaleDateString()) : "—"}</td>
-    <td><div class="row-actions"><button class="btn small" data-action="edit" data-id="${escapeHtml(s.id)}">Edit</button><button class="btn small" data-action="reset" data-id="${escapeHtml(s.id)}">Password</button><button class="btn small danger" data-action="delete" data-id="${escapeHtml(s.id)}">Delete</button></div></td>
-  </tr>`).join("");
-}
-async function edge(action, method="GET", body=null) {
-  if (!config.url || !config.anonKey) throw new Error("Set Supabase URL and anon key in Settings first.");
-  if (!config.accessToken) throw new Error("Please sign in with your admin email and password.");
-  const endpoint = `${config.url.replace(/\/+$/,"")}/functions/v1/student-management?action=${encodeURIComponent(action)}`;
-  const response = await fetch(endpoint, {
-    method,
-    headers: {
-      "Content-Type":"application/json",
-      "apikey":config.anonKey,
-      "Authorization":`Bearer ${config.accessToken}`
-    },
-    body: body === null ? undefined : JSON.stringify(body)
-  });
-  const result = await response.json().catch(()=>({}));
-  if (!response.ok || result.success === false) throw new Error(result.error || `Request failed (${response.status})`);
-  return result;
-}
-async function loadCourses() {
-  try {
-    const result = await edge("courses");
-    courses = result.courses || [];
-    renderCourses();
-  } catch (e) {
-    console.warn(e);
-    if (!courses.length) $("courseId").innerHTML = '<option value="">Could not load courses</option>';
-  }
-}
-async function loadStudents() {
-  $("studentRows").innerHTML = '<tr><td colspan="5"><div class="empty">Loading student records…</div></td></tr>';
-  try {
-    const result = await edge("list");
-    students = result.students || [];
-    renderStudents();
-    setConnection(true);
-  } catch (e) {
-    $("studentRows").innerHTML = `<tr><td colspan="5"><div class="empty"><strong>Could not load students</strong>${escapeHtml(e.message)}</div></td></tr>`;
-    setConnection(false, "Connection issue");
-    toast(e.message, "error");
-  }
-}
-function resetStudentForm() {
-  $("studentForm").reset();
-  $("editId").value = "";
-  $("modalTitle").textContent = "Add Student";
-  $("saveStudentBtn").textContent = "Create Student";
-  $("password").required = true;
-  $("confirmPassword").required = true;
-  $("passwordRequired").style.display = "";
-  $("confirmRequired").style.display = "";
-  $("password").disabled = false;
-  $("confirmPassword").disabled = false;
-  $("formNote").textContent = "Password is required when creating a new student. Minimum 8 characters.";
-}
-function openAdd() {
-  if (!config.accessToken) { toast("Please sign in first.", "error"); openModal("loginOverlay"); return; }
-  resetStudentForm();
-  openModal("studentOverlay");
-}
-function openEdit(student) {
-  $("studentForm").reset();
-  $("editId").value = student.id;
-  $("modalTitle").textContent = "Edit Student";
-  $("saveStudentBtn").textContent = "Save Changes";
-  $("fullName").value = student.full_name || "";
-  $("email").value = student.email || "";
-  $("studentId").value = student.student_id || "";
-  $("courseId").value = student.course_id || "";
-  $("password").required = false; $("confirmPassword").required = false;
-  $("passwordRequired").style.display = "none"; $("confirmRequired").style.display = "none";
-  $("password").disabled = true; $("confirmPassword").disabled = true;
-  $("formNote").textContent = "Leave password changes for the Reset Password action.";
-  openModal("studentOverlay");
-}
-$("studentForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  if (busy) return;
-  const id = $("editId").value;
-  const password = $("password").value;
-  if (!id && password !== $("confirmPassword").value) return toast("Passwords do not match.", "error");
-  setBusy(true);
-  try {
-    if (id) {
-      await edge("update", "PATCH", {
-        id,
-        full_name: $("fullName").value.trim(),
-        email: $("email").value.trim(),
-        student_id: $("studentId").value.trim(),
-        course_id: $("courseId").value || null
-      });
-      toast("Student details updated.");
-    } else {
-      await edge("create", "POST", {
-        full_name: $("fullName").value.trim(),
-        email: $("email").value.trim(),
-        student_id: $("studentId").value.trim(),
-        course_id: $("courseId").value || null,
-        password
-      });
-      toast("Student created successfully.");
-    }
-    closeModal("studentOverlay");
-    await loadStudents();
-  } catch (err) {
-    toast(err.message || "Could not save student.", "error");
-  } finally { setBusy(false); }
-});
-$("resetForm").addEventListener("submit", async e => {
-  e.preventDefault();
-  const password = $("newPassword").value;
-  if (password !== $("newPasswordConfirm").value) return toast("Passwords do not match.", "error");
-  try {
-    await edge("reset-password", "POST", { id:$("resetId").value, password });
-    closeModal("resetOverlay");
-    $("resetForm").reset();
-    toast("Password reset successfully.");
-  } catch (err) { toast(err.message || "Password reset failed.", "error"); }
-});
-$("studentRows").addEventListener("click", async e => {
-  const btn = e.target.closest("button[data-action]");
-  if (!btn) return;
-  const student = students.find(s=>s.id===btn.dataset.id);
-  if (!student) return;
-  if (btn.dataset.action === "edit") openEdit(student);
-  if (btn.dataset.action === "reset") {
-    $("resetId").value = student.id;
-    $("resetForm").reset();
-    openModal("resetOverlay");
-  }
-  if (btn.dataset.action === "delete") {
-    if (!confirm(`Delete ${student.full_name}?\n\nThis cannot be undone. Students with test attempts cannot be deleted.`)) return;
-    try {
-      await edge("delete", "DELETE", { id:student.id });
-      toast("Student deleted.");
-      await loadStudents();
-    } catch (err) { toast(err.message || "Delete failed.", "error"); }
-  }
-});
-$("addBtn").addEventListener("click", openAdd);
-$("refreshBtn").addEventListener("click", async()=>{await loadCourses();await loadStudents();});
-$("searchInput").addEventListener("input",renderStudents);
-$("courseFilter").addEventListener("change",renderStudents);
-$("sortFilter").addEventListener("change",renderStudents);
-$("menuBtn").addEventListener("click",()=>$("sidebar").classList.toggle("open"));
-$("nav").addEventListener("click",e=>{
-  const btn=e.target.closest("button[data-view]");
-  if(!btn)return;
-  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b===btn));
-  const view=btn.dataset.view;
-  if(view!=="students"){
-    const names={courses:"Course Management",tests:"Test Management",questions:"MCQ Question Bank",results:"Results & Analytics",settings:"Settings"};
-    $("topTitle").textContent=names[view]||"Admin";
-    if(view==="settings"){openModal("configOverlay");}
-    else toast(`${names[view]} is planned next. Student Management is the active module.`, "error");
-  } else $("topTitle").textContent="Student Management";
-  $("sidebar").classList.remove("open");
-});
-document.querySelectorAll("[data-close]").forEach(btn=>btn.addEventListener("click",()=>closeModal(btn.dataset.close)));
-document.querySelectorAll(".overlay").forEach(overlay=>overlay.addEventListener("click",e=>{if(e.target===overlay)closeModal(overlay.id)}));
-$("configForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  config.url=$("supabaseUrl").value.trim().replace(/\/+$/,"");
-  config.anonKey=$("anonKey").value.trim();
-  if(!/^https:\/\/.+/.test(config.url)) return toast("Enter a valid HTTPS Supabase URL.", "error");
-  localStorage.setItem("sg_admin_url",config.url);
-  localStorage.setItem("sg_admin_anon",config.anonKey);
-  supabase=createClient(config.url,config.anonKey);
-  closeModal("configOverlay"); openModal("loginOverlay");
-});
-$("loginForm").addEventListener("submit",async e=>{
- e.preventDefault(); const btn=$("loginBtn"); btn.disabled=true; btn.textContent="Signing in…";
- try {
-  if(!config.url||!config.anonKey) throw new Error("First save your Supabase URL and public key in Settings.");
-  if(!supabase) supabase=createClient(config.url,config.anonKey);
-  const {data,error}=await supabase.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
-  if(error) throw error;
-  config.accessToken=data.session?.access_token||"";
-  if(!config.accessToken) throw new Error("Sign-in succeeded but no access token was returned.");
-  closeModal("loginOverlay"); toast("Signed in. Checking admin access…");
-  await loadCourses(); await loadStudents();
- } catch(err){ config.accessToken=""; toast(err.message||"Sign-in failed.","error"); }
- finally {btn.disabled=false;btn.textContent="Sign In";}
-});
-$("logoutBtn").addEventListener("click",async()=>{
- try { if(supabase) await supabase.auth.signOut(); } catch(e){}
- config.accessToken=""; students=[]; courses=[]; renderCourses(); renderStudents(); setConnection(false,"Signed out");
- openModal("loginOverlay"); toast("Signed out.");
-});
-function boot(){
-  config.url=localStorage.getItem("sg_admin_url")||"";
-  config.anonKey=localStorage.getItem("sg_admin_anon")||"";
-  $("supabaseUrl").value=config.url;
-  $("anonKey").value=config.anonKey;
-  if(config.url&&config.anonKey){
-    supabase=createClient(config.url,config.anonKey);
-    supabase.auth.getSession().then(({data})=>{
-      config.accessToken=data.session?.access_token||"";
-      if(config.accessToken){loadCourses().then(loadStudents);} else {setConnection(false,"Signed out");openModal("loginOverlay");}
-    });
-  } else {setConnection(false,"Awaiting connection");openModal("configOverlay");}
-}
-boot();
+function esc(v){return String(v ?? "—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
+function setStatus(id,msg,type=""){const e=document.getElementById(id);if(e){e.textContent=msg;e.className="status "+type;}}
+function dateFmt(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});}
+function tableHTML(rows,columns){if(!rows?.length)return '<div class="empty">No visible records found.</div>';let out='<table><thead><tr>'+columns.map(c=>`<th>${esc(c.replace(/_/g," "))}</th>`).join("")+'</tr></thead><tbody>';for(const r of rows){out+="<tr>"+columns.map(c=>{let v=r[c];if(v&&typeof v==="object")v=JSON.stringify(v);if(typeof v==="string"&&v.length>140)v=v.slice(0,140)+"…";return `<td>${esc(v===null||v===undefined||v===""?"—":v)}</td>`;}).join("")+"</tr>";}return out+"</tbody></table>";}
+async function count(table){const {count,error}=await db.from(table).select("*",{count:"exact",head:true});if(error)throw new Error(table+": "+error.message);return count??0;}
+async function loadOverview(){const ids=["profiles","profiles","courses","tests","questions","attempts","certificates","test_imports"];try{const vals=await Promise.all(ids.map(count));["countProfiles","countStudents","countCourses","countTests","countQuestions","countAttempts","countCertificates","countImports"].forEach((id,i)=>document.getElementById(id).textContent=i===1?"—":vals[i]);const {data,error}=await db.from("profiles").select("id,role").limit(1000);if(!error)document.getElementById("countStudents").textContent=(data||[]).filter(p=>String(p.role||"").toLowerCase()!=="admin").length;setStatus("overviewStatus","Live Supabase counts loaded. Updated "+new Date().toLocaleTimeString("en-IN"),"success");}catch(e){setStatus("overviewStatus","Some counts could not load: "+e.message,"error");}}
+async function loadStudents(){setStatus("studentsStatus","Loading student profiles…");const wrap=document.getElementById("studentsTable");wrap.innerHTML='<div class="empty">Loading…</div>';const {data,error}=await db.from("profiles").select("id,student_id,full_name,role,created_at,course_id").order("created_at",{ascending:false}).limit(500);if(error){setStatus("studentsStatus","Could not load profiles: "+error.message,"error");wrap.innerHTML='<div class="empty">Check the profiles SELECT policy in Supabase.</div>';return;}profileCache=(data||[]).filter(p=>String(p.role||"").toLowerCase()!=="admin");renderStudents();setStatus("studentsStatus",`Loaded ${profileCache.length} non-admin profile(s).`,"success");}
+function renderStudents(){const term=document.getElementById("studentSearch").value.toLowerCase();const rows=profileCache.filter(s=>[s.full_name,s.student_id,s.course_id,s.role].some(v=>String(v??"").toLowerCase().includes(term)));if(!rows.length){document.getElementById("studentsTable").innerHTML='<div class="empty">No students match your search.</div>';return;}let out='<table><thead><tr><th>Student</th><th>Student ID</th><th>Course ID</th><th>Role</th><th>Registered</th><th>Action</th></tr></thead><tbody>';for(const s of rows){out+=`<tr><td>${esc(s.full_name)}</td><td>${esc(s.student_id)}</td><td>${esc(s.course_id)}</td><td><span class="pill">${esc(s.role)}</span></td><td>${dateFmt(s.created_at)}</td><td><button data-edit="${esc(s.id)}">Edit profile</button></td></tr>`;}document.getElementById("studentsTable").innerHTML=out+"</tbody></table>";document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEdit(b.dataset.edit)));}
+async function loadCourses(){setStatus("coursesStatus","Loading courses…");const {data,error}=await db.from("courses").select("id,course_code,course_name,created_at").order("course_name",{ascending:true}).limit(500);if(error){setStatus("coursesStatus","Could not load courses: "+error.message,"error");document.getElementById("coursesTable").innerHTML='<div class="empty">Check the courses SELECT policy in Supabase.</div>';return;}courseCache=data||[];renderCourses();setStatus("coursesStatus",`Loaded ${courseCache.length} course(s).` ,"success");populateCourseOptions();}
+function renderCourses(){const term=(document.getElementById("coursesSearch")?.value||"").toLowerCase();const rows=courseCache.filter(c=>[c.course_code,c.course_name].some(v=>String(v||"").toLowerCase().includes(term)));if(!rows.length){document.getElementById("coursesTable").innerHTML='<div class="empty">No courses found. Use “Add course” to create one.</div>';return;}let out='<table><thead><tr><th>Course code</th><th>Course name</th><th>Created</th><th>Actions</th></tr></thead><tbody>';for(const c of rows){out+=`<tr><td><span class="pill">${esc(c.course_code)}</span></td><td>${esc(c.course_name)}</td><td>${dateFmt(c.created_at)}</td><td><div class="toolbar"><button data-course-edit="${esc(c.id)}">Edit</button><button class="danger" data-course-delete="${esc(c.id)}">Delete</button></div></td></tr>`;}document.getElementById("coursesTable").innerHTML=out+'</tbody></table>';document.querySelectorAll('[data-course-edit]').forEach(b=>b.addEventListener('click',()=>openCourseEdit(b.dataset.courseEdit)));document.querySelectorAll('[data-course-delete]').forEach(b=>b.addEventListener('click',()=>deleteCourse(b.dataset.courseDelete)));}
+function openCourseEdit(id){const c=id?courseCache.find(x=>x.id===id):null;document.getElementById('courseModalTitle').textContent=c?'Edit course':'Add course';document.getElementById('courseEditId').value=c?.id||'';document.getElementById('courseCode').value=c?.course_code||'';document.getElementById('courseName').value=c?.course_name||'';setStatus('courseFormStatus',c?'Update course details.':'Enter the new course details.');document.getElementById('courseBackdrop').classList.add('open');}
+function closeCourseModal(){document.getElementById('courseBackdrop').classList.remove('open');}
+async function saveCourse(e){e.preventDefault();const id=document.getElementById('courseEditId').value;const course_code=document.getElementById('courseCode').value.trim().toUpperCase();const course_name=document.getElementById('courseName').value.trim();if(!course_code||!course_name){setStatus('courseFormStatus','Both course code and course name are required.','error');return;}const btn=document.getElementById('saveCourse');btn.disabled=true;btn.textContent='Saving…';try{const {data:me,error:meErr}=await db.auth.getUser();if(meErr||!me.user)throw new Error('Your session expired. Please sign in again.');const {data:profile,error:profileErr}=await db.from('profiles').select('role').eq('id',me.user.id).maybeSingle();if(profileErr||String(profile?.role||'').toLowerCase()!=='admin')throw new Error('Admin role could not be verified.');let result;if(id)result=await db.from('courses').update({course_code,course_name}).eq('id',id);else result=await db.from('courses').insert({course_code,course_name});if(result.error)throw result.error;setStatus('courseFormStatus',id?'Course updated successfully.':'Course created successfully.','success');await loadCourses();await loadStudents();setTimeout(closeCourseModal,500);}catch(err){setStatus('courseFormStatus','Save failed: '+(err.message||'Unknown error'),'error');}finally{btn.disabled=false;btn.textContent='Save course';}}
+async function deleteCourse(id){const c=courseCache.find(x=>x.id===id);if(!c)return;if(!confirm(`Delete course “${c.course_name}” (${c.course_code})? If students or tests are linked, the database may block deletion. This cannot be undone.`))return;try{const {data:me,error:meErr}=await db.auth.getUser();if(meErr||!me.user)throw new Error('Your session expired. Please sign in again.');const {data:profile,error:profileErr}=await db.from('profiles').select('role').eq('id',me.user.id).maybeSingle();if(profileErr||String(profile?.role||'').toLowerCase()!=='admin')throw new Error('Admin role could not be verified.');const {error}=await db.from('courses').delete().eq('id',id);if(error)throw error;setStatus('coursesStatus','Course deleted successfully.','success');await loadCourses();await loadStudents();}catch(err){setStatus('coursesStatus','Delete failed: '+(err.message||'Unknown error')+'. Linked records or Row Level Security may block deletion.','error');}}
+async function loadGeneric(table,section){setStatus(section+"Status","Loading…");const {data,error}=await db.from(table).select("*").limit(200);const wrap=document.getElementById(section+"Table");if(error){wrap.innerHTML='<div class="empty">Unable to load records.</div>';setStatus(section+"Status",error.message,"error");return;}const rows=data||[];wrap.innerHTML=tableHTML(rows,Object.keys(rows[0]||{}).slice(0,8));setStatus(section+"Status",`Loaded ${rows.length} record(s), limited to 200.`,"success");const input=document.getElementById(section+"Search");if(input)filterRows(wrap,input.value);}
+function filterRows(wrap,term){term=(term||"").toLowerCase();wrap.querySelectorAll("tbody tr").forEach(r=>r.style.display=r.innerText.toLowerCase().includes(term)?"":"none");}
+function populateCourseOptions(){const sel=document.getElementById("editCourse");if(!sel)return;const old=sel.value;sel.innerHTML='<option value="">No course assigned</option>';for(const c of courseCache){const id=c.id??c.course_id??c.code;const label=c.name??c.course_name??c.title??c.code??id;if(id!==undefined&&id!==null)sel.add(new Option(String(label),String(id)));}sel.value=old;}
+function openEdit(id){const s=profileCache.find(x=>x.id===id);if(!s)return;document.getElementById("editId").value=s.id;document.getElementById("editName").value=s.full_name||"";document.getElementById("editStudentId").value=s.student_id||"";populateCourseOptions();document.getElementById("editCourse").value=s.course_id==null?"":String(s.course_id);setStatus("editStatus","Editing profile: "+(s.full_name||s.id));document.getElementById("editBackdrop").classList.add("open");}
+function closeEdit(){document.getElementById("editBackdrop").classList.remove("open");}
+async function saveProfile(e){e.preventDefault();const id=document.getElementById("editId").value;const full_name=document.getElementById("editName").value.trim();const student_id=document.getElementById("editStudentId").value.trim()||null;const courseVal=document.getElementById("editCourse").value;const course_id=courseVal===""?null:courseVal;if(!full_name){setStatus("editStatus","Full name is required.","error");return;}const btn=document.getElementById("saveEdit");btn.disabled=true;btn.textContent="Saving…";try{const {data:me,error:meErr}=await db.auth.getUser();if(meErr||!me.user)throw new Error("Your session expired. Sign in again.");const {data:myProfile,error:mpErr}=await db.from("profiles").select("role").eq("id",me.user.id).maybeSingle();if(mpErr||String(myProfile?.role||"").toLowerCase()!=="admin")throw new Error("Admin role could not be verified.");const {error}=await db.from("profiles").update({full_name,student_id,course_id}).eq("id",id);if(error)throw error;setStatus("editStatus","Profile saved successfully.","success");await loadStudents();setTimeout(closeEdit,600);}catch(err){setStatus("editStatus","Save failed: "+(err.message||"Unknown error"),"error");}finally{btn.disabled=false;btn.textContent="Save profile";}}
+async function navigate(page){const titles={overview:["Dashboard Overview","Live view of your institute data."],students:["Student Management","Search and update student profile details."],courses:["Course Management","Review course records."],tests:["Test Management","Review stored tests."],questions:["Question Bank","Review stored questions."],results:["Student Results","Review test attempts."],certificates:["Certificates","Review certificate records."],imports:["Test Imports","Review imported test data."]};if(!titles[page])return;document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page-"+page).classList.add("active");document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.getElementById("pageTitle").textContent=titles[page][0];document.getElementById("pageSubtitle").textContent=titles[page][1];document.getElementById("sidebar").classList.remove("open");if(page==="overview")await loadOverview();if(page==="students")await loadStudents();if(page==="courses")await loadCourses();if(page==="tests")await loadGeneric("tests","tests");if(page==="questions")await loadGeneric("questions","questions");if(page==="results")await loadGeneric("attempts","results");if(page==="certificates")await loadGeneric("certificates","certificates");if(page==="imports")await loadGeneric("test_imports","imports");}
+async function verifyAdmin(){const {data,error}=await db.auth.getUser();if(error||!data.user)throw new Error("Please sign in.");currentUser=data.user;const {data:profile,error:pe}=await db.from("profiles").select("full_name,role").eq("id",currentUser.id).maybeSingle();if(pe)throw new Error("Could not verify admin profile: "+pe.message);if(String(profile?.role||"").toLowerCase()!=="admin")throw new Error("This account does not have the admin role.");const name=profile.full_name||currentUser.email||"Administrator";document.getElementById("adminName").textContent=name;document.getElementById("adminAvatar").textContent=name.charAt(0).toUpperCase();document.getElementById("loginScreen").style.display="none";document.getElementById("app").style.display="block";await loadOverview();}
+async function start(){if(!ready){setStatus("loginStatus","Setup required: edit admin.html and enter the same Supabase Project URL and Publishable Key used by index.html.","error");return;}db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});try{const {data}=await db.auth.getSession();if(data.session)await verifyAdmin();else setStatus("loginStatus","Sign in with your admin account.");}catch(e){setStatus("loginStatus",e.message,"error");}}
+document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!ready){setStatus("loginStatus","Add your Supabase URL and Publishable Key in the code first.","error");return;}const btn=document.getElementById("loginButton");btn.disabled=true;btn.textContent="Signing in…";try{const {error}=await db.auth.signInWithPassword({email:document.getElementById("loginEmail").value.trim(),password:document.getElementById("loginPassword").value});if(error)throw error;await verifyAdmin();}catch(err){setStatus("loginStatus",err.message||"Sign-in failed.","error");}finally{btn.disabled=false;btn.textContent="Sign in securely";}});
+document.getElementById("logoutButton").addEventListener("click",async()=>{if(db)await db.auth.signOut();location.reload();});
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.page)));
+document.getElementById("menuButton").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
+document.getElementById("studentSearch").addEventListener("input",renderStudents);
+document.getElementById("coursesSearch").addEventListener("input",renderCourses);
+document.getElementById("addCourseButton").addEventListener("click",()=>openCourseEdit());
+document.getElementById("cancelCourse").addEventListener("click",closeCourseModal);
+document.getElementById("courseBackdrop").addEventListener("click",e=>{if(e.target.id==="courseBackdrop")closeCourseModal();});
+document.getElementById("courseForm").addEventListener("submit",saveCourse);
+document.getElementById("refreshStudents").addEventListener("click",loadStudents);
+document.getElementById("cancelEdit").addEventListener("click",closeEdit);
+document.getElementById("editBackdrop").addEventListener("click",e=>{if(e.target.id==="editBackdrop")closeEdit();});
+document.getElementById("editForm").addEventListener("submit",saveProfile);
+document.querySelectorAll("[data-refresh]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.refresh)));
+for(const section of ["courses","tests","questions","results","certificates","imports"]){const input=document.getElementById(section+"Search");input.addEventListener("input",()=>filterRows(document.getElementById(section+"Table"),input.value));}
+start();
 </script>
 </body>
 </html>
