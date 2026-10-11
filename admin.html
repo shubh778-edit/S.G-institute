@@ -107,9 +107,13 @@ button,input,select{font:inherit}button{cursor:pointer}
 <div class="overlay" id="configOverlay" role="dialog" aria-modal="true" aria-labelledby="configTitle">
  <div class="modal">
   <div class="modal-head"><div><h3 id="configTitle">Connect Supabase</h3><p>Use your project URL and public anon key.</p></div><button class="close" data-close="configOverlay">×</button></div>
-  <form id="configForm"><div class="form" style="grid-template-columns:1fr"><div class="form-group"><label for="supabaseUrl">Supabase Project URL</label><input class="field" id="supabaseUrl" type="url" required placeholder="https://your-project.supabase.co"></div><div class="form-group"><label for="anonKey">Publishable / anon key</label><textarea class="field" id="anonKey" required rows="3" style="resize:vertical" placeholder="Paste the public anon key (not service_role)"></textarea></div><div class="form-group"><label for="accessToken">Admin access token (optional)</label><input class="field" id="accessToken" type="password" autocomplete="off" placeholder="Optional: use signed-in session where available"><small class="muted">Prefer signing in with Supabase Auth in the real login flow. Never paste a service_role key here.</small></div></div><div class="modal-foot"><button type="button" class="btn" data-close="configOverlay">Cancel</button><button type="submit" class="btn primary">Save & Connect</button></div></form>
+  <form id="configForm"><div class="form" style="grid-template-columns:1fr"><div class="form-group"><label for="supabaseUrl">Supabase Project URL</label><input class="field" id="supabaseUrl" type="url" required placeholder="https://your-project.supabase.co"></div><div class="form-group"><label for="anonKey">Publishable / anon key</label><textarea class="field" id="anonKey" required rows="3" style="resize:vertical" placeholder="Paste the public anon key (not service_role)"></textarea></div><div class="form-group"><small class="muted">Next, sign in with your existing admin email and password. Never paste a service_role key here.</small></div></div><div class="modal-foot"><button type="button" class="btn" data-close="configOverlay">Cancel</button><button type="submit" class="btn primary">Save & Connect</button></div></form>
  </div>
 </div>
+<div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+ <div class="modal"><div class="modal-head"><div><h3 id="loginTitle">Admin Sign In</h3><p>Sign in using your Supabase Auth admin account.</p></div></div>
+ <form id="loginForm"><div class="form" style="grid-template-columns:1fr"><div class="form-group"><label for="loginEmail">Admin email</label><input class="field" id="loginEmail" type="email" autocomplete="username" required placeholder="admin@example.com"></div><div class="form-group"><label for="loginPassword">Password</label><input class="field" id="loginPassword" type="password" autocomplete="current-password" required></div></div><div class="modal-foot"><button type="submit" class="btn primary" id="loginBtn">Sign In</button></div></form>
+ </div></div>
 <div class="toast" id="toast"></div>
 
 <script type="module">
@@ -191,7 +195,7 @@ function renderStudents() {
 }
 async function edge(action, method="GET", body=null) {
   if (!config.url || !config.anonKey) throw new Error("Set Supabase URL and anon key in Settings first.");
-  if (!config.accessToken) throw new Error("Admin access token is missing. Sign in as an admin and provide the access token in Settings.");
+  if (!config.accessToken) throw new Error("Please sign in with your admin email and password.");
   const endpoint = `${config.url.replace(/\/+$/,"")}/functions/v1/student-management?action=${encodeURIComponent(action)}`;
   const response = await fetch(endpoint, {
     method,
@@ -243,7 +247,7 @@ function resetStudentForm() {
   $("formNote").textContent = "Password is required when creating a new student. Minimum 8 characters.";
 }
 function openAdd() {
-  if (!config.accessToken) { toast("Connect and add an admin access token in Settings first.", "error"); openModal("configOverlay"); return; }
+  if (!config.accessToken) { toast("Please sign in first.", "error"); openModal("loginOverlay"); return; }
   resetStudentForm();
   openModal("studentOverlay");
 }
@@ -351,37 +355,43 @@ $("configForm").addEventListener("submit",async e=>{
   e.preventDefault();
   config.url=$("supabaseUrl").value.trim().replace(/\/+$/,"");
   config.anonKey=$("anonKey").value.trim();
-  config.accessToken=$("accessToken").value.trim();
-  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(config.url) && !/^https:\/\/.+/.test(config.url)) return toast("Enter a valid HTTPS Supabase URL.", "error");
-  // Store only connection settings in this browser. The token is session-sensitive.
+  if(!/^https:\/\/.+/.test(config.url)) return toast("Enter a valid HTTPS Supabase URL.", "error");
   localStorage.setItem("sg_admin_url",config.url);
   localStorage.setItem("sg_admin_anon",config.anonKey);
-  if(config.accessToken)localStorage.setItem("sg_admin_token",config.accessToken);
-  setConnection(false,"Connecting…");
-  try{
-    const r=await fetch(`${config.url}/functions/v1/student-management?action=courses`,{headers:{"apikey":config.anonKey,"Authorization":`Bearer ${config.accessToken||config.anonKey}`}});
-    if(!r.ok) throw new Error("Could not connect. Check URL, key and admin access token.");
-    closeModal("configOverlay");
-    toast("Settings saved. Loading data…");
-    await loadCourses(); await loadStudents();
-  }catch(err){setConnection(false,"Connection issue");toast(err.message,"error");}
+  supabase=createClient(config.url,config.anonKey);
+  closeModal("configOverlay"); openModal("loginOverlay");
 });
-$("logoutBtn").addEventListener("click",()=>{
-  if(!confirm("Clear saved admin connection settings from this browser?"))return;
-  ["sg_admin_url","sg_admin_anon","sg_admin_token"].forEach(k=>localStorage.removeItem(k));
-  config={url:"",anonKey:"",accessToken:""};
-  students=[];courses=[];renderCourses();renderStudents();setConnection(false,"Not connected");
-  toast("Saved connection settings cleared.");
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault(); const btn=$("loginBtn"); btn.disabled=true; btn.textContent="Signing in…";
+ try {
+  if(!config.url||!config.anonKey) throw new Error("First save your Supabase URL and public key in Settings.");
+  if(!supabase) supabase=createClient(config.url,config.anonKey);
+  const {data,error}=await supabase.auth.signInWithPassword({email:$("loginEmail").value.trim(),password:$("loginPassword").value});
+  if(error) throw error;
+  config.accessToken=data.session?.access_token||"";
+  if(!config.accessToken) throw new Error("Sign-in succeeded but no access token was returned.");
+  closeModal("loginOverlay"); toast("Signed in. Checking admin access…");
+  await loadCourses(); await loadStudents();
+ } catch(err){ config.accessToken=""; toast(err.message||"Sign-in failed.","error"); }
+ finally {btn.disabled=false;btn.textContent="Sign In";}
+});
+$("logoutBtn").addEventListener("click",async()=>{
+ try { if(supabase) await supabase.auth.signOut(); } catch(e){}
+ config.accessToken=""; students=[]; courses=[]; renderCourses(); renderStudents(); setConnection(false,"Signed out");
+ openModal("loginOverlay"); toast("Signed out.");
 });
 function boot(){
   config.url=localStorage.getItem("sg_admin_url")||"";
   config.anonKey=localStorage.getItem("sg_admin_anon")||"";
-  config.accessToken=localStorage.getItem("sg_admin_token")||"";
   $("supabaseUrl").value=config.url;
   $("anonKey").value=config.anonKey;
-  $("accessToken").value=config.accessToken;
-  if(config.url&&config.anonKey&&config.accessToken){loadCourses().then(loadStudents);}
-  else {setConnection(false,"Awaiting connection");openModal("configOverlay");}
+  if(config.url&&config.anonKey){
+    supabase=createClient(config.url,config.anonKey);
+    supabase.auth.getSession().then(({data})=>{
+      config.accessToken=data.session?.access_token||"";
+      if(config.accessToken){loadCourses().then(loadStudents);} else {setConnection(false,"Signed out");openModal("loginOverlay");}
+    });
+  } else {setConnection(false,"Awaiting connection");openModal("configOverlay");}
 }
 boot();
 </script>
