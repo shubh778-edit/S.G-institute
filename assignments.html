@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.G Institute | Test Assignments</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#090909;--panel:#141414;--gold:#d4af37;
+  --text:#f5f5f5;--muted:#aaa;--border:#292929;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:235px;background:#101010;border-right:1px solid var(--border);padding:24px 15px;flex-shrink:0}
+.brand{color:var(--gold);font-size:21px;font-weight:bold}
+.brand-sub{font-size:11px;color:var(--muted);margin:7px 0 30px}
+.nav-title{font-size:10px;color:#777;margin:22px 10px 10px;letter-spacing:1.5px}
+.nav a{display:block;padding:12px 13px;margin:5px 0;border-radius:8px;text-decoration:none;color:#bbb;font-size:14px}
+.nav a:hover,.nav a.active{background:#29230f;color:var(--gold)}
+.main{flex:1;min-width:0;padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:25px}
+h1{font-size:26px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 18px}
+.subtitle{color:var(--muted);font-size:13px;line-height:1.6}
+.badge{border:1px solid #66531a;color:var(--gold);padding:9px 13px;border-radius:20px;font-size:12px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:17px}
+.stat strong{display:block;font-size:25px;color:var(--gold);margin-bottom:6px}
+.stat span{font-size:12px;color:var(--muted)}
+.row{display:flex;gap:13px;flex-wrap:wrap;align-items:end}
+.field{flex:1;min-width:180px;margin-bottom:15px}
+label{display:block;color:#ccc;font-size:12px;margin-bottom:8px}
+input,select{width:100%;padding:12px;background:#0c0c0c;color:white;border:1px solid #333;border-radius:8px;font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--gold)}
+button{border:0;border-radius:8px;padding:12px 15px;cursor:pointer;font-size:12px;font-weight:bold}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+.danger{background:#3b1717;color:#ffaaaa}
+button:disabled{opacity:.5;cursor:not-allowed}
+.notice{display:none;padding:12px;border-radius:8px;margin-bottom:15px;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.student-list{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:8px}
+.student-row{display:flex;gap:10px;align-items:center;padding:11px 8px;border-bottom:1px solid #252525;font-size:13px}
+.student-row:last-child{border-bottom:0}
+.student-row input{width:auto}
+.student-info{flex:1;min-width:0;overflow-wrap:anywhere}
+.student-info small{display:block;color:var(--muted);margin-top:4px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:left;padding:13px 11px;border-bottom:1px solid var(--border);font-size:12px}
+th{color:var(--muted);font-weight:normal}
+.status{display:inline-block;border-radius:5px;padding:5px 8px;background:#292929;color:#ddd;font-size:11px}
+.status.completed{background:#153526;color:#8ce5b9}
+.status.started{background:#382d12;color:#f2d58a}
+.empty{padding:25px;text-align:center;color:var(--muted);font-size:13px}
+.small{font-size:11px;color:var(--muted);line-height:1.6}
+@media(max-width:850px){
+.layout{display:block}.sidebar{width:100%;padding:17px;border-right:0;border-bottom:1px solid var(--border)}
+.brand-sub{margin-bottom:15px}.nav{display:flex;overflow-x:auto;gap:5px}.nav-title{display:none}
+.nav a{white-space:nowrap;margin:0;padding:10px}.main{padding:18px}
+}
+@media(max-width:480px){
+.stats{grid-template-columns:1fr 1fr}.topbar{align-items:start;flex-direction:column}
+h1{font-size:23px}.panel{padding:15px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">S.G INSTITUTE</div>
+  <div class="brand-sub">OF LEARNING · ADMIN</div>
+  <nav class="nav">
+    <div class="nav-title">MAIN MENU</div>
+    <a href="admin.html">▦ Dashboard</a>
+    <a href="students.html">♙ Students</a>
+    <a href="courses.html">▤ Courses</a>
+    <a href="tests.html">▣ Tests</a>
+    <a href="questions.html">☷ Questions</a>
+    <a class="active" href="assignments.html">⇧ Assignments</a>
+    <a href="reports.html">▥ Reports</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <div>
+    <h1>Test Assignments</h1>
+    <div class="subtitle">Assign examinations to students and track assignment status.</div>
+  </div>
+  <div class="badge">ADMIN PANEL</div>
+</header>
+
+<div id="notice" class="notice"></div>
+
+<section class="stats">
+  <div class="stat"><strong id="totalAssignments">0</strong><span>Total Assignments</span></div>
+  <div class="stat"><strong id="startedAssignments">0</strong><span>Started</span></div>
+  <div class="stat"><strong id="completedAssignments">0</strong><span>Completed</span></div>
+</section>
+
+<section class="panel">
+  <h2>① Create Test Assignment</h2>
+
+  <div class="field">
+    <label for="testSelect">Select Test *</label>
+    <select id="testSelect"><option value="">Loading tests...</option></select>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="dueAt">Due Date (optional)</label>
+      <input type="datetime-local" id="dueAt">
+    </div>
+    <div class="field">
+      <label for="studentSearch">Find Students</label>
+      <input type="search" id="studentSearch" placeholder="Search by name or email">
+    </div>
+  </div>
+
+  <div class="row" style="margin-bottom:12px">
+    <button class="secondary" id="selectAllBtn" type="button">Select All Visible</button>
+    <button class="secondary" id="clearAllBtn" type="button">Clear Selection</button>
+    <span class="subtitle" id="selectionCount">0 students selected</span>
+  </div>
+
+  <div class="student-list" id="studentList">
+    <div class="empty">Loading students...</div>
+  </div>
+
+  <div style="margin-top:17px">
+    <button class="primary" id="assignBtn" type="button">Assign Test to Selected Students</button>
+  </div>
+  <p class="small">
+    Only select students who should receive this test. Assignments are created in the
+    database; actual test access also depends on the student test pages and access policies.
+  </p>
+</section>
+
+<section class="panel">
+  <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:15px">
+    <div>
+      <h2 style="margin-bottom:5px">② Existing Assignments</h2>
+      <div class="subtitle">View assignment status and due dates.</div>
+    </div>
+    <button class="secondary" id="refreshBtn" type="button">Refresh</button>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="assignmentSearch">Search Assignments</label>
+      <input id="assignmentSearch" type="search" placeholder="Student, email or test">
+    </div>
+    <div class="field">
+      <label for="statusFilter">Filter by Status</label>
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="assigned">Assigned</option>
+        <option value="started">Started</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Test</th>
+          <th>Assigned</th>
+          <th>Due Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="assignmentRows">
+        <tr><td colspan="5" class="empty">Loading assignments...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $ = id => document.getElementById(id);
+let tests = [];
+let students = [];
+let assignments = [];
+let adminUser = null;
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function notify(message, type="success") {
+  $("notice").textContent = message;
+  $("notice").className = "notice " + type;
+}
+
+async function verifyAdmin() {
+  const {data:{session},error:sessionError} = await db.auth.getSession();
+
+  if (sessionError || !session) {
+    location.href = "login.html";
+    return false;
+  }
+
+  adminUser = session.user;
+
+  const {data:profile,error} = await db
+    .from("profiles")
+    .select("role")
+    .eq("id",adminUser.id)
+    .maybeSingle();
+
+  if (error || !profile || profile.role !== "admin") {
+    alert("Admin access required.");
+    await db.auth.signOut();
+    location.href = "login.html";
+    return false;
+  }
+
+  return true;
+}
+
+async function loadTests() {
+  const {data,error} = await db
+    .from("tests")
+    .select("id,title,status")
+    .order("created_at",{ascending:false});
+
+  if (error) throw error;
+
+  tests = data || [];
+  $("testSelect").innerHTML = '<option value="">-- Choose a test --</option>';
+
+  tests.forEach(test => {
+    const option = document.createElement("option");
+    option.value = test.id;
+    option.textContent = `${test.title} (${test.status})`;
+    $("testSelect").appendChild(option);
+  });
+}
+
+async function loadStudents() {
+  const {data,error} = await db
+    .from("profiles")
+    .select("id,full_name,email,role")
+    .eq("role","student")
+    .order("full_name");
+
+  if (error) throw error;
+
+  students = data || [];
+  renderStudents();
+}
+
+function renderStudents() {
+  const search = $("studentSearch").value.trim().toLowerCase();
+
+  const filtered = students.filter(s =>
+    `${s.full_name || ""} ${s.email || ""}`.toLowerCase().includes(search)
+  );
+
+  const selected = new Set(
+    [...$("studentList").querySelectorAll('input[type="checkbox"]:checked')]
+      .map(el => el.value)
+  );
+
+  const list = $("studentList");
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">No matching students found.</div>';
+    updateSelectionCount();
+    return;
+  }
+
+  list.innerHTML = filtered.map(s => `
+    <label class="student-row">
+      <input type="checkbox" value="${esc(s.id)}"
+        ${selected.has(s.id) ? "checked" : ""}>
+      <span class="student-info">
+        ${esc(s.full_name || "Unnamed Student")}
+        <small>${esc(s.email || "No email")}</small>
+      </span>
+    </label>
+  `).join("");
+
+  updateSelectionCount();
+}
+
+function selectedStudentIds() {
+  return [...$("studentList").querySelectorAll('input[type="checkbox"]:checked')]
+    .map(el => el.value);
+}
+
+function updateSelectionCount() {
+  $("selectionCount").textContent =
+    `${selectedStudentIds().length} students selected`;
+}
+
+async function createAssignments() {
+  const testId = $("testSelect").value;
+  const ids = selectedStudentIds();
+  const dueValue = $("dueAt").value;
+
+  if (!testId) {
+    notify("Please select a test first.", "error");
+    return;
+  }
+
+  if (!ids.length) {
+    notify("Please select at least one student.", "error");
+    return;
+  }
+
+  const selectedTest = tests.find(t => t.id === testId);
+
+  if (!selectedTest) {
+    notify("The selected test could not be found. Refresh and try again.", "error");
+    return;
+  }
+
+  if (selectedTest.status !== "published") {
+    notify("This test is not published yet. Publish it from Tests Management before assigning it.", "error");
+    return;
+  }
+
+  let dueAt = null;
+
+  if (dueValue) {
+    const parsed = new Date(dueValue);
+
+    if (Number.isNaN(parsed.getTime()) || parsed <= new Date()) {
+      notify("The due date must be a valid future date and time.", "error");
+      return;
+    }
+
+    dueAt = parsed.toISOString();
+  }
+
+  if (!confirm(`Assign "${selectedTest.title}" to ${ids.length} student(s)?`)) {
+    return;
+  }
+
+  $("assignBtn").disabled = true;
+  $("assignBtn").textContent = "Assigning...";
+
+  try {
+    const payload = ids.map(studentId => ({
+      test_id: testId,
+      student_id: studentId,
+      assigned_by: adminUser.id,
+      due_at: dueAt,
+      status: "assigned"
+    }));
+
+    const {data,error} = await db
+      .from("test_assignments")
+      .upsert(payload, {
+        onConflict:"test_id,student_id",
+        ignoreDuplicates:true
+      })
+      .select("id");
+
+    if (error) throw error;
+
+    notify(
+      `Assignment request completed. ${data?.length ?? 0} new assignment(s) created. Existing assignments were left unchanged.`
+    );
+
+    await loadAssignments();
+  } catch(error) {
+    notify(
+      "Could not create assignments: " + error.message +
+      "\nCheck the test_assignments table's admin INSERT policy and its unique constraint.",
+      "error"
+    );
+  } finally {
+    $("assignBtn").disabled = false;
+    $("assignBtn").textContent = "Assign Test to Selected Students";
+  }
+}
+
+async function loadAssignments() {
+  $("assignmentRows").innerHTML =
+    '<tr><td colspan="5" class="empty">Loading assignments...</td></tr>';
+
+  try {
+    const {data,error} = await db
+      .from("test_assignments")
+      .select("id,test_id,student_id,assigned_at,due_at,status")
+      .order("assigned_at",{ascending:false});
+
+    if (error) throw error;
+
+    assignments = data || [];
+    renderAssignments();
+  } catch(error) {
+    $("assignmentRows").innerHTML =
+      `<tr><td colspan="5" class="empty">Could not load assignments: ${esc(error.message)}</td></tr>`;
+    throw error;
+  }
+}
+
+function formatDate(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString();
+}
+
+function renderAssignments() {
+  const search = $("assignmentSearch").value.trim().toLowerCase();
+  const status = $("statusFilter").value;
+
+  const filtered = assignments.filter(a => {
+    const student = students.find(s => s.id === a.student_id);
+    const test = tests.find(t => t.id === a.test_id);
+
+    const text = `${student?.full_name || ""} ${student?.email || ""} ${test?.title || ""}`.toLowerCase();
+
+    return text.includes(search) && (!status || a.status === status);
+  });
+
+  $("totalAssignments").textContent = assignments.length;
+  $("startedAssignments").textContent = assignments.filter(a => a.status === "started").length;
+  $("completedAssignments").textContent = assignments.filter(a => a.status === "completed").length;
+
+  if (!filtered.length) {
+    $("assignmentRows").innerHTML =
+      '<tr><td colspan="5" class="empty">No assignments found.</td></tr>';
+    return;
+  }
+
+  $("assignmentRows").innerHTML = filtered.map(a => {
+    const student = students.find(s => s.id === a.student_id);
+    const test = tests.find(t => t.id === a.test_id);
+    const statusClass = ["assigned","started","completed"].includes(a.status) ? a.status : "";
+
+    return `
+      <tr>
+        <td>${esc(student?.full_name || "Unknown student")}
+          <br><span style="color:#999">${esc(student?.email || "")}</span>
+        </td>
+        <td>${esc(test?.title || "Unknown test")}</td>
+        <td>${esc(formatDate(a.assigned_at))}</td>
+        <td>${esc(formatDate(a.due_at))}</td>
+        <td><span class="status ${statusClass}">${esc(a.status || "unknown")}</span></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+$("studentList").addEventListener("change", updateSelectionCount);
+$("studentSearch").addEventListener("input", renderStudents);
+
+$("selectAllBtn").addEventListener("click", () => {
+  $("studentList").querySelectorAll('input[type="checkbox"]').forEach(el => {
+    el.checked = true;
+  });
+  updateSelectionCount();
+});
+
+$("clearAllBtn").addEventListener("click", () => {
+  $("studentList").querySelectorAll('input[type="checkbox"]').forEach(el => {
+    el.checked = false;
+  });
+  updateSelectionCount();
+});
+
+$("assignBtn").addEventListener("click", createAssignments);
+
+$("assignmentSearch").addEventListener("input", renderAssignments);
+$("statusFilter").addEventListener("change", renderAssignments);
+
+$("refreshBtn").addEventListener("click", async () => {
+  try {
+    await loadTests();
+    await loadStudents();
+    await loadAssignments();
+    notify("Data refreshed.");
+  } catch(error) {
+    notify("Refresh failed: " + error.message, "error");
+  }
+});
+
+(async function init() {
+  if (SUPABASE_ANON_KEY.includes("PASTE_YOUR")) {
+    $("notice").textContent = "Add your Supabase publishable/anon key in this file first.";
+    $("notice").className = "notice error";
+    return;
+  }
+
+  try {
+    if (!await verifyAdmin()) return;
+
+    await loadTests();
+    await loadStudents();
+    await loadAssignments();
+  } catch(error) {
+    notify("Initialization failed: " + error.message, "error");
+  }
+})();
+</script>
+</body>
+</html>
