@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S.G Institute | Performance Reports</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#090909;--panel:#141414;--gold:#d4af37;--text:#f5f5f5;--muted:#aaa;--border:#292929}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:235px;background:#101010;border-right:1px solid var(--border);padding:24px 15px;flex-shrink:0}
+.brand{color:var(--gold);font-size:21px;font-weight:bold}
+.brand-sub{font-size:11px;color:var(--muted);margin:7px 0 30px}
+.nav-title{font-size:10px;color:#777;margin:22px 10px 10px;letter-spacing:1.5px}
+.nav a{display:block;padding:12px 13px;margin:5px 0;border-radius:8px;text-decoration:none;color:#bbb;font-size:14px}
+.nav a:hover,.nav a.active{background:#29230f;color:var(--gold)}
+.main{flex:1;min-width:0;padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:25px}
+h1{font-size:26px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 17px}
+.subtitle{font-size:13px;color:var(--muted);line-height:1.6}
+.badge{border:1px solid #66531a;color:var(--gold);padding:9px 13px;border-radius:20px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px}
+.stat{padding:18px}
+.stat strong{display:block;font-size:25px;color:var(--gold);margin-bottom:7px;overflow-wrap:anywhere}
+.stat span{font-size:12px;color:var(--muted)}
+.panel{padding:21px;margin-bottom:20px}
+.row{display:flex;gap:13px;flex-wrap:wrap;align-items:end}
+.field{flex:1;min-width:170px;margin-bottom:13px}
+label{display:block;color:#ccc;font-size:12px;margin-bottom:8px}
+input,select{width:100%;padding:12px;background:#0c0c0c;color:white;border:1px solid #333;border-radius:8px;font:inherit}
+input:focus,select:focus{outline:none;border-color:var(--gold)}
+button{border:0;border-radius:8px;padding:12px 15px;cursor:pointer;font-size:12px;font-weight:bold}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+.notice{display:none;padding:12px;border-radius:8px;margin-bottom:15px;font-size:13px;overflow-wrap:anywhere}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:780px}
+th,td{text-align:left;padding:13px 11px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:top}
+th{color:var(--muted);font-weight:normal}
+td strong{font-size:13px}
+.pill{display:inline-block;padding:5px 8px;border-radius:5px;background:#292929;color:#ddd;font-size:11px}
+.pill.good{background:#153526;color:#8ce5b9}
+.pill.mid{background:#382d12;color:#f2d58a}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.small{font-size:11px;color:var(--muted);line-height:1.6}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){
+.layout{display:block}.sidebar{width:100%;padding:17px;border-right:0;border-bottom:1px solid var(--border)}
+.brand-sub{margin-bottom:15px}.nav{display:flex;overflow-x:auto;gap:5px}.nav-title{display:none}
+.nav a{white-space:nowrap;margin:0;padding:10px}.main{padding:18px}
+}
+@media(max-width:480px){.topbar{align-items:start;flex-direction:column}h1{font-size:23px}.panel{padding:15px}}
+@media print{
+body{background:#fff;color:#111}.sidebar,.no-print,#notice{display:none!important}
+.main{padding:0}.panel,.stat{background:#fff;border:1px solid #ddd;color:#111}
+.stat strong{color:#111}.stat span,.subtitle,th{color:#444}
+table{min-width:0}th,td{color:#111;font-size:10px}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand">S.G INSTITUTE</div>
+ <div class="brand-sub">OF LEARNING · ADMIN</div>
+ <nav class="nav">
+  <div class="nav-title">MAIN MENU</div>
+  <a href="admin.html">▦ Dashboard</a>
+  <a href="students.html">♙ Students</a>
+  <a href="courses.html">▤ Courses</a>
+  <a href="tests.html">▣ Tests</a>
+  <a href="questions.html">☷ Questions</a>
+  <a href="assignments.html">⇧ Assignments</a>
+  <a class="active" href="reports.html">▥ Reports</a>
+ </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div>
+  <h1>Performance Reports</h1>
+  <div class="subtitle">Review examination results and student performance.</div>
+ </div>
+ <div class="badge">ADMIN PANEL</div>
+</header>
+
+<div id="notice" class="notice"></div>
+
+<section class="stats">
+ <div class="stat"><strong id="attemptCount">0</strong><span>Evaluated Attempts</span></div>
+ <div class="stat"><strong id="studentCount">0</strong><span>Students With Results</span></div>
+ <div class="stat"><strong id="averageScore">—</strong><span>Average Percentage</span></div>
+ <div class="stat"><strong id="highestScore">—</strong><span>Highest Percentage</span></div>
+</section>
+
+<section class="panel no-print">
+ <h2>Filter Reports</h2>
+ <div class="row">
+  <div class="field">
+   <label for="testFilter">Test</label>
+   <select id="testFilter"><option value="">All tests</option></select>
+  </div>
+  <div class="field">
+   <label for="search">Student or email</label>
+   <input id="search" type="search" placeholder="Search reports...">
+  </div>
+  <div class="field">
+   <label for="sort">Sort by</label>
+   <select id="sort">
+    <option value="latest">Latest first</option>
+    <option value="highest">Highest percentage</option>
+    <option value="lowest">Lowest percentage</option>
+    <option value="name">Student name</option>
+   </select>
+  </div>
+  <button class="secondary" id="refreshBtn" type="button">Refresh</button>
+  <button class="primary" id="printBtn" type="button">Print Report</button>
+ </div>
+</section>
+
+<section class="panel">
+ <h2>Results Overview</h2>
+ <div class="table-wrap">
+  <table>
+   <thead>
+    <tr>
+     <th>Student</th><th>Test</th><th>Marks</th><th>Percentage</th>
+     <th>Correct</th><th>Wrong</th><th>Unanswered</th><th>Evaluated</th>
+    </tr>
+   </thead>
+   <tbody id="resultsBody">
+    <tr><td colspan="8" class="empty">Loading reports...</td></tr>
+   </tbody>
+  </table>
+ </div>
+ <p class="small">Only results available through your current database permissions can be displayed. Empty results do not necessarily mean students have never taken a test.</p>
+</section>
+</main>
+</div>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+
+let tests=[],profiles=[],results=[],attempts=[];
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function notify(msg,type="success"){$("notice").textContent=msg;$("notice").className="notice "+type;}
+function fmtDate(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?"—":d.toLocaleString();}
+
+async function verifyAdmin(){
+ const {data:{session},error:sessionError}=await db.auth.getSession();
+ if(sessionError||!session){location.href="login.html";return false;}
+ const {data:profile,error}=await db.from("profiles").select("role").eq("id",session.user.id).maybeSingle();
+ if(error||!profile||profile.role!=="admin"){
+  alert("Admin access required.");
+  await db.auth.signOut();
+  location.href="login.html";
+  return false;
+ }
+ return true;
+}
+
+async function loadData(){
+ $("resultsBody").innerHTML='<tr><td colspan="8" class="empty">Loading results...</td></tr>';
+ try{
+  const [t,p,r,a]=await Promise.all([
+   db.from("tests").select("id,title"),
+   db.from("profiles").select("id,full_name,email").eq("role","student"),
+   db.from("test_results").select("id,attempt_id,total_questions,correct_answers,wrong_answers,unanswered,marks_obtained,maximum_marks,percentage,evaluated_at"),
+   db.from("test_attempts").select("id,assignment_id,submitted_at,status")
+  ]);
+  const error=[t.error,p.error,r.error,a.error].find(Boolean);
+  if(error)throw error;
+
+  tests=t.data||[];
+  profiles=p.data||[];
+  results=r.data||[];
+  attempts=a.data||[];
+
+  const assignmentIds=[...new Set(attempts.map(x=>x.assignment_id).filter(Boolean))];
+  let assignmentRows=[];
+
+  if(assignmentIds.length){
+   const {data,error:assignmentError}=await db
+    .from("test_assignments")
+    .select("id,test_id,student_id")
+    .in("id",assignmentIds);
+   if(assignmentError)throw assignmentError;
+   assignmentRows=assignmentRows||[];
+   assignmentRows=assignmentRows.concat(data||[]);
+  }
+
+  const assignmentMap=new Map(assignmentRows.map(x=>[x.id,x]));
+  const attemptMap=new Map(attempts.map(x=>[x.id,x]));
+
+  results=results.map(result=>{
+   const attempt=attemptMap.get(result.attempt_id);
+   const assignment=attempt?assignmentMap.get(attempt.assignment_id):null;
+   return {...result,_attempt:attempt||null,_assignment:assignment||null};
+  });
+
+  const currentTest=$("testFilter").value;
+  $("testFilter").innerHTML='<option value="">All tests</option>';
+  tests.forEach(test=>{
+   const op=document.createElement("option");
+   op.value=test.id;op.textContent=test.title;
+   $("testFilter").appendChild(op);
+  });
+  if(tests.some(x=>x.id===currentTest))$("testFilter").value=currentTest;
+
+  renderReports();
+ }catch(error){
+  $("resultsBody").innerHTML=`<tr><td colspan="8" class="empty">Could not load reports: ${esc(error.message)}</td></tr>`;
+  notify("Report loading failed: "+error.message,"error");
+ }
+}
+
+function renderReports(){
+ const query=$("search").value.trim().toLowerCase();
+ const testId=$("testFilter").value;
+ let rows=results.map(r=>{
+  const student=profiles.find(p=>p.id===r._assignment?.student_id);
+  const test=tests.find(t=>t.id===r._assignment?.test_id);
+  return {...r,_student:student||null,_test:test||null};
+ }).filter(r=>{
+  const studentText=`${r._student?.full_name||""} ${r._student?.email||""}`.toLowerCase();
+  return studentText.includes(query)&&(!testId||r._assignment?.test_id===testId);
+ });
+
+ const sort=$("sort").value;
+ rows.sort((a,b)=>{
+  if(sort==="highest")return Number(b.percentage||0)-Number(a.percentage||0);
+  if(sort==="lowest")return Number(a.percentage||0)-Number(b.percentage||0);
+  if(sort==="name")return String(a._student?.full_name||"").localeCompare(String(b._student?.full_name||""));
+  return new Date(b.evaluated_at||b._attempt?.submitted_at||0)-new Date(a.evaluated_at||a._attempt?.submitted_at||0);
+ });
+
+ const percentages=rows.map(r=>Number(r.percentage)).filter(Number.isFinite);
+ $("attemptCount").textContent=rows.length;
+ $("studentCount").textContent=new Set(rows.map(r=>r._assignment?.student_id).filter(Boolean)).size;
+ $("averageScore").textContent=percentages.length?(percentages.reduce((a,b)=>a+b,0)/percentages.length).toFixed(1)+"%":"—";
+ $("highestScore").textContent=percentages.length?Math.max(...percentages).toFixed(1)+"%":"—";
+
+ if(!rows.length){
+  $("resultsBody").innerHTML='<tr><td colspan="8" class="empty">No matching results found.</td></tr>';
+  return;
+ }
+
+ $("resultsBody").innerHTML=rows.map(r=>{
+  const percent=Number(r.percentage||0);
+  const pill=percent>=70?"good":percent>=40?"mid":"";
+  return `<tr>
+   <td><strong>${esc(r._student?.full_name||"Student unavailable")}</strong><br><span style="color:#999">${esc(r._student?.email||"")}</span></td>
+   <td>${esc(r._test?.title||"Test unavailable")}</td>
+   <td>${esc(r.marks_obtained??0)} / ${esc(r.maximum_marks??0)}</td>
+   <td><span class="pill ${pill}">${percent.toFixed(1)}%</span></td>
+   <td>${esc(r.correct_answers??0)}</td>
+   <td>${esc(r.wrong_answers??0)}</td>
+   <td>${esc(r.unanswered??0)}</td>
+   <td>${esc(fmtDate(r.evaluated_at||r._attempt?.submitted_at))}</td>
+  </tr>`;
+ }).join("");
+}
+
+$("testFilter").addEventListener("change",renderReports);
+$("search").addEventListener("input",renderReports);
+$("sort").addEventListener("change",renderReports);
+$("refreshBtn").addEventListener("click",loadData);
+$("printBtn").addEventListener("click",()=>window.print());
+
+(async function init(){
+ if(SUPABASE_ANON_KEY.includes("PASTE_YOUR")){
+  notify("Add your Supabase publishable/anon key in this file before using the page.","error");
+  return;
+ }
+ if(await verifyAdmin())await loadData();
+})();
+</script>
+</body>
+</html>
