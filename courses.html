@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S.G Institute | Course Management</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--gold:#d4af37;--bg:#090909;--panel:#141414;--border:#2c2c2c;--muted:#aaa;--white:#f7f7f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font-family:Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:#101010;border-right:1px solid var(--border);padding:22px 14px}
+.brand{font-size:18px;font-weight:bold;color:var(--gold);padding:8px 10px 23px;border-bottom:1px solid var(--border)}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:2px;margin-top:7px}
+.navtitle{font-size:10px;color:#777;letter-spacing:2px;margin:24px 10px 10px}
+.nav a{display:block;padding:12px 10px;border-radius:8px;margin:4px 0;color:#bbb;font-size:13px}
+.nav a:hover,.nav a.active{background:#292313;color:var(--gold)}
+.main{padding:28px;width:calc(100% - 230px);min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:22px}
+h1{font-size:26px;margin:0 0 7px}
+.sub{font-size:13px;color:var(--muted)}
+.badge{border:1px solid #655321;border-radius:25px;color:var(--gold);padding:9px 12px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:24px 0}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:19px}
+.stat span{font-size:11px;color:var(--muted)}
+.stat strong{display:block;font-size:27px;color:var(--gold);margin-top:12px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+input{padding:12px;background:#090909;color:white;border:1px solid var(--border);border-radius:8px;font-size:13px;min-width:0}
+#search{flex:1;min-width:160px}
+.btn{border:1px solid #51451f;border-radius:8px;padding:11px 14px;background:#211c0e;color:var(--gold);font-size:12px;cursor:pointer;font-weight:bold}
+.btn.primary{background:var(--gold);color:#111;border-color:var(--gold)}
+.btn:disabled{opacity:.5;cursor:wait}
+.status{padding:12px 14px;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;line-height:1.6;margin:16px 0}
+.status.error{background:#281414;color:#ffbaba;border-color:#733}
+.status.success{background:#102519;color:#baf0c8;border-color:#285b36}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.course{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:20px}
+.coursecode{color:var(--gold);font-size:12px;letter-spacing:1px}
+.course h3{font-size:19px;margin:12px 0 8px;overflow-wrap:anywhere}
+.course p{color:var(--muted);font-size:12px;line-height:1.6}
+.coursefoot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:14px;margin-top:15px}
+.pill{display:inline-block;border:1px solid #4c4020;color:var(--gold);padding:6px 9px;border-radius:20px;font-size:10px}
+footer{margin-top:35px;border-top:1px solid var(--border);padding-top:18px;color:#777;font-size:11px}
+dialog{width:min(440px,calc(100% - 28px));border:1px solid #655321;border-radius:14px;background:#141414;color:white;padding:23px}
+dialog::backdrop{background:#000b}
+dialog h2{font-size:20px;margin-top:0}
+label{display:block;font-size:12px;color:#ccc;margin:15px 0 7px}
+dialog input{width:100%}
+.dialogactions{display:flex;gap:10px;margin-top:20px}
+@media(max-width:750px){.layout{display:block}.sidebar{width:100%;padding:13px}.brand{padding-bottom:12px}.navtitle{margin-top:13px}.nav{display:flex;overflow:auto;gap:5px}.nav a{white-space:nowrap;padding:10px}.main{width:100%;padding:18px}.stats{gap:7px}.stat{padding:12px}.stat strong{font-size:22px}.stat span{font-size:10px}.grid{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">S.G INSTITUTE<small>OF LEARNING · ADMIN</small></div>
+  <div class="navtitle">WORKSPACE</div>
+  <nav class="nav">
+    <a href="admin.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a class="active" href="courses.html">Courses</a>
+    <a href="tests.html">Tests</a>
+    <a href="questions.html">Questions</a>
+    <a href="assignments.html">Assignments</a>
+    <a href="reports.html">Reports</a>
+  </nav>
+  <div class="navtitle">ACCOUNT</div>
+  <nav class="nav"><a href="index.html">View Website ↗</a><a href="#" id="logout">Sign Out</a></nav>
+</aside>
+
+<main class="main">
+<header class="top">
+  <div><h1>Course Management</h1><div class="sub">Manage the courses offered by S.G Institute of Learning.</div></div>
+  <div class="badge">● ADMIN ACCESS</div>
+</header>
+
+<div id="message" class="status">Verifying administrator access…</div>
+
+<section class="stats">
+  <div class="stat"><span>TOTAL COURSES</span><strong id="totalCourses">—</strong></div>
+  <div class="stat"><span>REGISTERED STUDENTS</span><strong id="totalStudents">—</strong></div>
+  <div class="stat"><span>COURSES WITH STUDENTS</span><strong id="occupiedCourses">—</strong></div>
+</section>
+
+<section class="panel">
+  <h2 style="font-size:17px;margin:0">All Courses</h2>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search courses by name or code…">
+    <button class="btn primary" id="addCourse">+ ADD COURSE</button>
+    <button class="btn" id="refresh">↻ Refresh</button>
+  </div>
+  <div id="courseGrid" class="grid"><div class="sub">Loading courses…</div></div>
+</section>
+
+<footer>S.G INSTITUTE OF LEARNING · COURSE MANAGEMENT</footer>
+</main>
+</div>
+
+<dialog id="courseDialog">
+  <h2 id="dialogTitle">Add Course</h2>
+  <form id="courseForm">
+    <label for="courseCode">Course Code</label>
+    <input id="courseCode" maxlength="30" placeholder="e.g. BCA" required>
+    <label for="courseName">Course Name</label>
+    <input id="courseName" maxlength="120" placeholder="e.g. Bachelor of Computer Applications" required>
+    <div class="dialogactions">
+      <button class="btn primary" id="saveCourse" type="submit">SAVE COURSE</button>
+      <button class="btn" id="cancelDialog" type="button">CANCEL</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="PASTE_YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+let courses=[];
+let students=[];
+let verifiedAdmin=false;
+let editingCourse=null;
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function message(text,type=""){
+  $("message").textContent=text;
+  $("message").className="status"+(type?" "+type:"");
+}
+async function functionCall(action,body={}){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session)throw new Error("Session expired. Please log in again.");
+  const res=await fetch(`${SUPABASE_URL}/functions/v1/course-management`,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${session.access_token}`,
+      "apikey":SUPABASE_ANON_KEY
+    },
+    body:JSON.stringify({action,...body})
+  });
+  const result=await res.json().catch(()=>({}));
+  if(!res.ok||result.error)throw new Error(result.error||result.message||`Request failed (${res.status})`);
+  return result;
+}
+async function verifyAdmin(){
+  const {data:{session},error}=await db.auth.getSession();
+  if(error)throw error;
+  if(!session){location.replace("login.html");return false;}
+  const {data:profile,error:profileError}=await db.from("profiles")
+    .select("role").eq("id",session.user.id).maybeSingle();
+  if(profileError)throw profileError;
+  if(profile?.role!=="admin"){
+    message("Access denied. Administrator privileges are required.","error");
+    await db.auth.signOut();
+    setTimeout(()=>location.replace("login.html"),1500);
+    return false;
+  }
+  verifiedAdmin=true;
+  return true;
+}
+async function loadCourses(){
+  if(!verifiedAdmin)return;
+  $("courseGrid").innerHTML='<div class="sub">Loading course records…</div>';
+  try{
+    const result=await functionCall("list");
+    courses=result.courses||result.data?.courses||[];
+    const studentResult=await db.from("profiles").select("course_id").eq("role","student");
+    students=studentResult.data||[];
+    if(studentResult.error)throw studentResult.error;
+    $("totalCourses").textContent=courses.length;
+    $("totalStudents").textContent=students.length;
+    $("occupiedCourses").textContent=new Set(students.map(s=>s.course_id).filter(Boolean)).size;
+    renderCourses();
+    message(`Loaded ${courses.length} course record(s).`,"success");
+  }catch(error){
+    $("courseGrid").innerHTML='<div class="sub">Unable to load courses.</div>';
+    message(error.message,"error");
+  }
+}
+function renderCourses(){
+  const q=$("search").value.trim().toLowerCase();
+  const filtered=courses.filter(c=>
+    String(c.course_name||"").toLowerCase().includes(q)||
+    String(c.course_code||"").toLowerCase().includes(q)
+  );
+  if(!filtered.length){
+    $("courseGrid").innerHTML='<div class="sub">No matching courses found.</div>';return;
+  }
+  $("courseGrid").innerHTML=filtered.map(c=>{
+    const count=students.filter(s=>s.course_id===c.id).length;
+    return `<article class="course">
+      <div class="coursecode">${esc(c.course_code)}</div>
+      <h3>${esc(c.course_name)}</h3>
+      <p>Student enrolment for this course.</p>
+      <div class="coursefoot">
+        <span class="pill">${count} STUDENT${count===1?"":"S"}</span>
+        <button class="btn" data-edit="${esc(c.id)}">EDIT COURSE</button>
+      </div>
+    </article>`;
+  }).join("");
+}
+$("addCourse").addEventListener("click",()=>{
+  editingCourse=null;
+  $("dialogTitle").textContent="Add New Course";
+  $("courseCode").value="";
+  $("courseName").value="";
+  $("courseDialog").showModal();
+});
+$("courseGrid").addEventListener("click",e=>{
+  const btn=e.target.closest("[data-edit]");
+  if(!btn)return;
+  const course=courses.find(c=>c.id===btn.dataset.edit);
+  if(!course)return;
+  editingCourse=course;
+  $("dialogTitle").textContent="Edit Course";
+  $("courseCode").value=course.course_code||"";
+  $("courseName").value=course.course_name||"";
+  $("courseDialog").showModal();
+});
+$("cancelDialog").addEventListener("click",()=>$("courseDialog").close());
+$("courseForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!verifiedAdmin)return;
+  const course_code=$("courseCode").value.trim().toUpperCase();
+  const course_name=$("courseName").value.trim();
+  if(!course_code||!course_name){alert("Enter both course code and course name.");return;}
+  $("saveCourse").disabled=true;
+  try{
+    if(editingCourse){
+      await functionCall("update",{id:editingCourse.id,course_code,course_name});
+    }else{
+      await functionCall("create",{course_code,course_name});
+    }
+    $("courseDialog").close();
+    message(editingCourse?"Course updated successfully.":"Course created successfully.","success");
+    await loadCourses();
+  }catch(error){message(error.message,"error");}
+  finally{$("saveCourse").disabled=false;}
+});
+$("search").addEventListener("input",renderCourses);
+$("refresh").addEventListener("click",loadCourses);
+$("logout").addEventListener("click",async e=>{
+  e.preventDefault();await db.auth.signOut();location.replace("login.html");
+});
+(async()=>{
+  try{if(await verifyAdmin())await loadCourses();}
+  catch(error){message(error.message,"error");}
+})();
+</script>
+</body>
+</html>
