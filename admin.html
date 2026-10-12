@@ -1,150 +1,276 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>S.G Institute | Admin Dashboard</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#0a1020;--panel:#111a2e;--panel2:#17223a;--line:#26334d;--gold:#e9bd69;--text:#f5f7fb;--muted:#a5b1c7;--green:#55d6a0;--red:#ff7c87;--blue:#86b8ff}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top left,#17233e 0,#0a1020 55%);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel2);color:var(--text)}button:hover{border-color:var(--gold)}button.primary{background:var(--gold);color:#1a1b20;border-color:var(--gold);font-weight:800}button.danger{border-color:#713741;color:#ffabb2}button:disabled{opacity:.5;cursor:not-allowed}.app{display:none;min-height:100vh}.sidebar{width:245px;position:fixed;inset:0 auto 0 0;padding:24px 16px;background:#0c1426;border-right:1px solid var(--line);z-index:5;overflow:auto}.brand{padding:5px 10px 24px;border-bottom:1px solid var(--line);margin-bottom:18px}.brand .mark{color:var(--gold);font-weight:900;letter-spacing:2px;font-size:12px}.brand h2{font-size:19px;margin:7px 0 0}.brand small{color:var(--muted)}.nav-label{font-size:11px;color:#7888a5;text-transform:uppercase;letter-spacing:1.6px;padding:12px}.nav button{width:100%;text-align:left;background:transparent;border-color:transparent;color:var(--muted);margin:3px 0}.nav button.active,.nav button:hover{background:var(--panel2);color:var(--gold);border-color:var(--line)}.side-bottom{margin-top:30px;border-top:1px solid var(--line);padding-top:15px}.main{margin-left:245px;padding:28px;max-width:1700px}.topbar{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:26px}.eyebrow{color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:800}.topbar h1{font-size:clamp(24px,4vw,34px);margin:3px 0}.muted{color:var(--muted)}.user-chip{border:1px solid var(--line);background:#111a2e;border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:10px}.avatar{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:#3c3040;color:var(--gold);font-weight:900}.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.card{background:linear-gradient(145deg,#141f35,#10182a);border:1px solid var(--line);border-radius:17px;padding:20px;min-width:0}.stat-label{color:var(--muted);font-size:13px}.stat{font-size:31px;font-weight:850;margin:9px 0 0}.stat-note{font-size:12px;color:var(--gold)}.section-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:25px 0 14px;flex-wrap:wrap}.section-head h2{margin:0;font-size:20px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}.field, input,select{background:#0b1324;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}.field:focus,input:focus,select:focus{outline:1px solid var(--gold);border-color:var(--gold)}input.search{width:min(320px,100%)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:#0e1729}table{width:100%;border-collapse:collapse;min-width:700px}th,td{padding:13px 15px;border-bottom:1px solid #202d44;text-align:left;vertical-align:middle}th{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#aab6cb;background:#131e33;position:sticky;top:0}td{font-size:13px;color:#e1e7f1}tr:last-child td{border-bottom:0}tbody tr:hover{background:#15213a}.pill{display:inline-flex;border-radius:30px;padding:4px 9px;background:#26364d;color:#cfe0ff;font-size:11px}.status{padding:12px 14px;border:1px solid var(--line);border-radius:12px;margin:14px 0;color:var(--muted);background:#0f192b;white-space:pre-wrap;overflow-wrap:anywhere}.status.success{border-color:#235843;color:#9cebc7}.status.error{border-color:#67333e;color:#ffb0b7}.empty{padding:32px;text-align:center;color:var(--muted)}.page-intro{color:var(--muted);margin-top:-4px}.warning{border-color:#67512d;color:#f3d69d}.modal-backdrop{display:none;position:fixed;inset:0;background:#020611cc;z-index:20;align-items:center;justify-content:center;padding:18px}.modal-backdrop.open{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#111a2e;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 20px 80px #0008}.modal h2{margin:0 0 6px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}.form-grid label{display:grid;gap:6px;color:var(--muted);font-size:12px}.form-grid .wide{grid-column:1/-1}.modal-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px}.login-card{width:min(440px,100%);padding:28px;border:1px solid var(--line);border-radius:20px;background:#111a2e}.login-card h1{margin:6px 0}.login-card label{display:grid;gap:6px;color:var(--muted);margin:15px 0}.login-card input{width:100%}.login-card .primary{width:100%}.mobile-menu{display:none}
-@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.main{padding:20px}.sidebar{width:220px}.main{margin-left:220px}}
-@media(max-width:700px){.sidebar{transform:translateX(-100%);transition:transform .2s;width:260px}.sidebar.open{transform:translateX(0)}.main{margin-left:0;padding:16px}.mobile-menu{display:inline-block}.topbar{align-items:flex-start}.user-chip .user-text{display:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{padding:15px}.stat{font-size:26px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.topbar h1{font-size:24px}}
+:root{--gold:#d4af37;--bg:#090909;--panel:#141414;--border:#2c2c2c;--muted:#aaa;--white:#f7f7f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font-family:Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#101010;border-right:1px solid var(--border);padding:24px 16px;position:fixed;inset:0 auto 0 0;overflow-y:auto}
+.brand{font-size:19px;font-weight:bold;color:var(--gold);padding:8px 10px 24px;border-bottom:1px solid var(--border)}
+.brand small{display:block;color:var(--muted);font-size:11px;margin-top:7px;letter-spacing:2px}
+.navtitle{color:#777;font-size:10px;letter-spacing:2px;margin:25px 10px 10px}
+.nav a{display:block;padding:12px;border-radius:8px;margin:5px 0;color:#bbb;font-size:14px}
+.nav a:hover,.nav a.active{background:#292313;color:var(--gold)}
+.main{margin-left:245px;width:calc(100% - 245px);padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:22px}
+h1{font-size:27px;margin:0 0 7px}
+.subtitle{color:var(--muted);font-size:13px}
+.badge{color:var(--gold);border:1px solid #655321;border-radius:30px;padding:9px 13px;font-size:12px}
+.section{margin-top:28px}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+h2{font-size:18px;margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-top:25px}
+.stat,.box{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:20px}
+.stat .label{color:var(--muted);font-size:12px}
+.stat .num{font-size:29px;font-weight:bold;color:var(--gold);margin-top:14px}
+.stat .desc{font-size:11px;color:#888;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.box p{font-size:13px;color:var(--muted);line-height:1.6}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{display:inline-block;padding:11px 14px;border-radius:8px;border:1px solid #4a401e;background:#211c0e;color:var(--gold);cursor:pointer;font-size:12px;font-weight:bold}
+.btn.primary{background:var(--gold);color:#111;border-color:var(--gold)}
+.btn:disabled{opacity:.5}
+.status{padding:12px 14px;border:1px solid var(--border);border-radius:9px;color:var(--muted);font-size:13px;line-height:1.5;margin-top:18px}
+.status.error{border-color:#733;background:#281414;color:#ffbaba}
+.status.success{border-color:#285b36;background:#102519;color:#baf0c8}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th,td{text-align:left;padding:13px 12px;border-bottom:1px solid var(--border);font-size:12px}
+th{color:var(--gold);font-weight:600}
+td{color:#ddd}
+footer{margin-top:40px;padding:20px 0;border-top:1px solid var(--border);font-size:11px;color:#777}
+.mobilehead{display:none}
+@media(max-width:1000px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:1fr}}
+@media(max-width:700px){
+.sidebar{position:static;width:100%;border-right:0;border-bottom:1px solid var(--border);padding:14px}
+.layout{display:block}
+.brand{padding-bottom:12px}
+.navtitle{margin-top:14px}
+.nav{display:flex;gap:5px;overflow:auto}
+.nav a{white-space:nowrap;padding:10px}
+.main{margin:0;width:100%;padding:19px}
+h1{font-size:23px}
+.stats{gap:9px}
+.stat{padding:14px}
+.stat .num{font-size:24px}
+}
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login-screen">
-  <div class="login-card">
-    <div class="eyebrow">S.G Institute of Learning</div>
-    <h1>Admin sign in</h1><p class="muted">Sign in with your authorized institute administrator account.</p>
-    <div id="loginStatus" class="status">Enter your email and password.</div>
-    <form id="loginForm">
-      <label>Email<input id="loginEmail" type="email" autocomplete="username" required></label>
-      <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required></label>
-      <button class="primary" id="loginButton" type="submit">Sign in securely</button>
-    </form>
-    <p class="muted" style="font-size:12px">Supabase project URL is prefilled. Paste your project public anon/publishable key into the code before use. Never paste a service-role key here.</p>
-  </div>
-</div>
-<div id="app" class="app">
-<aside id="sidebar" class="sidebar">
-  <div class="brand"><div class="mark">S.G INSTITUTE</div><h2>Control Center</h2><small>Learning Management</small></div>
-  <div class="nav-label">Workspace</div>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">S.G INSTITUTE<small>OF LEARNING · ADMIN</small></div>
+  <div class="navtitle">WORKSPACE</div>
   <nav class="nav">
-    <button class="active" data-page="overview">◈ &nbsp; Overview</button>
-    <button data-page="students">♙ &nbsp; Students</button>
-    <button data-page="courses">▤ &nbsp; Courses</button>
-    <button data-page="tests">☷ &nbsp; Tests</button>
-    <button data-page="questions">≡ &nbsp; Questions</button>
-    <button data-page="results">◷ &nbsp; Results / Attempts</button>
-    <button data-page="certificates">◇ &nbsp; Certificates</button>
-    <button data-page="imports">⇧ &nbsp; Test Imports</button>
+    <a class="active" href="admin.html">Dashboard</a>
+    <a href="students.html">Students</a>
+    <a href="courses.html">Courses</a>
+    <a href="tests.html">Tests</a>
+    <a href="questions.html">Questions</a>
+    <a href="assignments.html">Assignments</a>
+    <a href="reports.html">Reports</a>
   </nav>
-  <div class="side-bottom"><button id="logoutButton" style="width:100%">↪ Sign out</button></div>
+  <div class="navtitle">ACCOUNT</div>
+  <nav class="nav">
+    <a href="index.html">View Website ↗</a>
+    <a href="#" id="logoutBtn">Sign Out</a>
+  </nav>
 </aside>
+
 <main class="main">
   <header class="topbar">
-    <div><button class="mobile-menu" id="menuButton">☰</button><div class="eyebrow">Administrator portal</div><h1 id="pageTitle">Dashboard Overview</h1><div id="pageSubtitle" class="muted">Live view of your institute data.</div></div>
-    <div class="user-chip"><div class="avatar" id="adminAvatar">A</div><div class="user-text"><strong id="adminName">Administrator</strong><div class="muted" style="font-size:12px">Verified admin</div></div></div>
-  </header>
-  <section id="page-overview" class="page active">
-    <div class="grid">
-      <div class="card"><div class="stat-label">Profiles</div><div class="stat" id="countProfiles">—</div><div class="stat-note">All profile records</div></div>
-      <div class="card"><div class="stat-label">Students</div><div class="stat" id="countStudents">—</div><div class="stat-note">Non-admin profiles</div></div>
-      <div class="card"><div class="stat-label">Courses</div><div class="stat" id="countCourses">—</div><div class="stat-note">Available courses</div></div>
-      <div class="card"><div class="stat-label">Tests</div><div class="stat" id="countTests">—</div><div class="stat-note">Stored tests</div></div>
-      <div class="card"><div class="stat-label">Questions</div><div class="stat" id="countQuestions">—</div><div class="stat-note">Question bank</div></div>
-      <div class="card"><div class="stat-label">Attempts</div><div class="stat" id="countAttempts">—</div><div class="stat-note">Test submissions</div></div>
-      <div class="card"><div class="stat-label">Certificates</div><div class="stat" id="countCertificates">—</div><div class="stat-note">Certificate records</div></div>
-      <div class="card"><div class="stat-label">Test imports</div><div class="stat" id="countImports">—</div><div class="stat-note">Import records</div></div>
+    <div>
+      <h1>Admin Dashboard</h1>
+      <div class="subtitle">Welcome to your institute management workspace.</div>
     </div>
-    <div id="overviewStatus" class="status">Connecting to Supabase…</div>
-    <div class="card"><h2>Quick guide</h2><p class="muted">Choose a section from the sidebar to browse records. Student profile edits are available in the Students section. Creating login accounts, deleting accounts, and changing passwords must be performed through the secured Edge Function backend—not directly from browser code.</p></div>
+    <div class="badge">● ADMIN PANEL</div>
+  </header>
+
+  <div id="pageMessage" class="status">Connecting to Supabase and verifying your admin access…</div>
+
+  <section class="stats">
+    <div class="stat"><div class="label">REGISTERED STUDENTS</div><div class="num" id="studentCount">—</div><div class="desc">Student profiles</div></div>
+    <div class="stat"><div class="label">AVAILABLE COURSES</div><div class="num" id="courseCount">—</div><div class="desc">Institute courses</div></div>
+    <div class="stat"><div class="label">TOTAL TESTS</div><div class="num" id="testCount">—</div><div class="desc">Created assessments</div></div>
+    <div class="stat"><div class="label">TEST RESULTS</div><div class="num" id="resultCount">—</div><div class="desc">Evaluated attempts</div></div>
   </section>
-  <section id="page-students" class="page">
-    <div class="section-head"><div><h2>Student Management</h2><div class="page-intro">Manage student profiles and accounts securely.</div></div><div class="toolbar"><input id="studentSearch" class="search" placeholder="Search name, ID, course…" /><button id="refreshStudents">Refresh</button></div></div>
-    <div id="studentsStatus" class="status">Loading…</div><div id="studentsTable" class="table-wrap"><div class="empty">Loading students…</div></div>
-    <div class="status warning">Delete and password reset run through the secured <code>student-management</code> Edge Function. The function must be deployed and configured with its server-side secrets. Never put a service-role key in this file.</div>
+
+  <section class="section">
+    <div class="sectionhead"><h2>Management Centre</h2></div>
+    <div class="grid">
+      <div class="box">
+        <h2>Student Management</h2>
+        <p>Review registered students, inspect test performance and manage student accounts.</p>
+        <div class="actions"><a class="btn primary" href="students.html">MANAGE STUDENTS →</a></div>
+      </div>
+      <div class="box">
+        <h2>Course Management</h2>
+        <p>View institute courses and manage the courses offered to students.</p>
+        <div class="actions"><a class="btn primary" href="courses.html">MANAGE COURSES →</a></div>
+      </div>
+      <div class="box">
+        <h2>Tests & Questions</h2>
+        <p>Create assessments, add MCQs and maintain the answer key separately.</p>
+        <div class="actions">
+          <a class="btn primary" href="tests.html">MANAGE TESTS →</a>
+          <a class="btn" href="questions.html">QUESTIONS →</a>
+        </div>
+      </div>
+      <div class="box">
+        <h2>Assignments & Reports</h2>
+        <p>Assign tests to individual students or groups and review submitted results.</p>
+        <div class="actions">
+          <a class="btn primary" href="assignments.html">ASSIGN TESTS →</a>
+          <a class="btn" href="reports.html">VIEW REPORTS →</a>
+        </div>
+      </div>
+    </div>
   </section>
-  <section id="page-courses" class="page"><div class="section-head"><div><h2>Course Management</h2><div class="page-intro">Add, edit, and remove course records. Existing student/test links may prevent deletion.</div></div><div class="toolbar"><input id="coursesSearch" class="search" placeholder="Search code or course name…" /><button data-refresh="courses">Refresh</button><button class="primary" id="addCourseButton">+ Add course</button></div></div><div id="coursesStatus" class="status">Loading…</div><div id="coursesTable" class="table-wrap"></div></section>
-  <section id="page-tests" class="page"><div class="section-head"><div><h2>Tests</h2><div class="page-intro">Existing tests.</div></div><div class="toolbar"><input id="testsSearch" class="search" placeholder="Search tests…" /><button data-refresh="tests">Refresh</button></div></div><div id="testsStatus" class="status">Loading…</div><div id="testsTable" class="table-wrap"></div></section>
-  <section id="page-questions" class="page"><div class="section-head"><div><h2>Questions</h2><div class="page-intro">Question bank records.</div></div><div class="toolbar"><input id="questionsSearch" class="search" placeholder="Search questions…" /><button data-refresh="questions">Refresh</button></div></div><div id="questionsStatus" class="status">Loading…</div><div id="questionsTable" class="table-wrap"></div></section>
-  <section id="page-results" class="page"><div class="section-head"><div><h2>Results / Attempts</h2><div class="page-intro">Student test attempt records.</div></div><div class="toolbar"><input id="resultsSearch" class="search" placeholder="Search results…" /><button data-refresh="results">Refresh</button></div></div><div id="resultsStatus" class="status">Loading…</div><div id="resultsTable" class="table-wrap"></div></section>
-  <section id="page-certificates" class="page"><div class="section-head"><div><h2>Certificates</h2><div class="page-intro">Certificate records.</div></div><div class="toolbar"><input id="certificatesSearch" class="search" placeholder="Search certificates…" /><button data-refresh="certificates">Refresh</button></div></div><div id="certificatesStatus" class="status">Loading…</div><div id="certificatesTable" class="table-wrap"></div></section>
-  <section id="page-imports" class="page"><div class="section-head"><div><h2>Test Imports</h2><div class="page-intro">Imported test data records.</div></div><div class="toolbar"><input id="importsSearch" class="search" placeholder="Search imports…" /><button data-refresh="imports">Refresh</button></div></div><div id="importsStatus" class="status">Loading…</div><div id="importsTable" class="table-wrap"></div></section>
+
+  <section class="section">
+    <div class="sectionhead">
+      <h2>Recent Tests</h2>
+      <a class="btn" href="tests.html">VIEW ALL TESTS</a>
+    </div>
+    <div class="box tablewrap">
+      <table>
+        <thead><tr><th>TEST TITLE</th><th>STATUS</th><th>MARKS</th><th>CREATED</th></tr></thead>
+        <tbody id="recentTests"><tr><td colspan="4">Waiting for secure connection…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>S.G INSTITUTE OF LEARNING · ADMIN WORKSPACE</footer>
 </main>
 </div>
-<div id="courseBackdrop" class="modal-backdrop"><div class="modal"><h2 id="courseModalTitle">Add course</h2><p class="muted">Course code must be unique. Use a short code such as BCA, BBA, or GSET_CS.</p><div id="courseFormStatus" class="status">Enter course details.</div><form id="courseForm"><input type="hidden" id="courseEditId"><div class="form-grid"><label>Course code<input id="courseCode" maxlength="40" required placeholder="e.g. BCA"></label><label>Course name<input id="courseName" maxlength="160" required placeholder="e.g. B.C.A"></label></div><div class="modal-actions"><button type="button" id="cancelCourse">Cancel</button><button class="primary" type="submit" id="saveCourse">Save course</button></div></form></div></div>
-<div id="editBackdrop" class="modal-backdrop">
- <div class="modal"><h2>Edit student profile</h2><p class="muted">This updates the profile row only; it does not change the user's login credentials or role.</p>
-  <div id="editStatus" class="status">Update the profile details below.</div>
-  <form id="editForm"><input type="hidden" id="editId">
-   <div class="form-grid">
-    <label class="wide">Full name<input id="editName" maxlength="160" required></label>
-    <label>Student ID<input id="editStudentId" maxlength="80"></label>
-    <label>Course<select id="editCourse"><option value="">No course assigned</option></select></label>
-   </div>
-   <div class="modal-actions"><button type="button" id="cancelEdit">Cancel</button><button class="primary" type="submit" id="saveEdit">Save profile</button></div>
-  </form>
- </div>
-</div>
+
 <script>
-/* IMPORTANT: Paste your project's URL and Publishable (anon) key below.
-   Never put the service_role/secret key in this browser file. */
 const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const SUPABASE_ANON_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const ready = SUPABASE_URL.startsWith("https://") &&
-  !SUPABASE_URL.includes("PASTE_YOUR") &&
-  SUPABASE_PUBLISHABLE_KEY.length > 20 &&
-  !SUPABASE_PUBLISHABLE_KEY.includes("PASTE_YOUR");
+const pageMessage = document.getElementById("pageMessage");
 
-let db = null, currentUser = null, profileCache = [], courseCache = [];
-const configStatus = document.getElementById("loginStatus");
+function setMessage(text, type="") {
+  pageMessage.textContent = text;
+  pageMessage.className = "status" + (type ? " " + type : "");
+}
 
-function esc(v){return String(v ?? "—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-function setStatus(id,msg,type=""){const e=document.getElementById(id);if(e){e.textContent=msg;e.className="status "+type;}}
-function dateFmt(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?esc(v):d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"});}
-function tableHTML(rows,columns){if(!rows?.length)return '<div class="empty">No visible records found.</div>';let out='<table><thead><tr>'+columns.map(c=>`<th>${esc(c.replace(/_/g," "))}</th>`).join("")+'</tr></thead><tbody>';for(const r of rows){out+="<tr>"+columns.map(c=>{let v=r[c];if(v&&typeof v==="object")v=JSON.stringify(v);if(typeof v==="string"&&v.length>140)v=v.slice(0,140)+"…";return `<td>${esc(v===null||v===undefined||v===""?"—":v)}</td>`;}).join("")+"</tr>";}return out+"</tbody></table>";}
-async function count(table){const {count,error}=await db.from(table).select("*",{count:"exact",head:true});if(error)throw new Error(table+": "+error.message);return count??0;}
-async function loadOverview(){const ids=["profiles","profiles","courses","tests","questions","attempts","certificates","test_imports"];try{const vals=await Promise.all(ids.map(count));["countProfiles","countStudents","countCourses","countTests","countQuestions","countAttempts","countCertificates","countImports"].forEach((id,i)=>document.getElementById(id).textContent=i===1?"—":vals[i]);const {data,error}=await db.from("profiles").select("id,role").limit(1000);if(!error)document.getElementById("countStudents").textContent=(data||[]).filter(p=>String(p.role||"").toLowerCase()!=="admin").length;setStatus("overviewStatus","Live Supabase counts loaded. Updated "+new Date().toLocaleTimeString("en-IN"),"success");}catch(e){setStatus("overviewStatus","Some counts could not load: "+e.message,"error");}}
-async function loadStudents(){setStatus("studentsStatus","Loading student profiles…");const wrap=document.getElementById("studentsTable");wrap.innerHTML='<div class="empty">Loading…</div>';try{const r=await callStudentFunction({action:"list"});const rows=Array.isArray(r)?r:(r.students||r.data||[]);profileCache=rows.filter(p=>String(p.role||"").toLowerCase()!=="admin");renderStudents();setStatus("studentsStatus",`Loaded ${profileCache.length} student account(s) from secure backend.`,"success");}catch(edgeError){const {data,error}=await db.from("profiles").select("id,student_id,full_name,role,created_at,course_id").order("created_at",{ascending:false}).limit(500);if(error){setStatus("studentsStatus","Could not load students: "+edgeError.message+" | "+error.message,"error");wrap.innerHTML='<div class="empty">Check the student-management Edge Function and profiles SELECT policy.</div>';return;}profileCache=(data||[]).filter(p=>String(p.role||"").toLowerCase()!=="admin");renderStudents();setStatus("studentsStatus",`Loaded ${profileCache.length} profile(s). Secure account actions require the student-management Edge Function.`,"warning");}}
-async function callStudentFunction(payload){const {data,error}=await db.functions.invoke("student-management",{body:payload});if(error){let detail=error.message||"Edge Function request failed.";try{const ctx=error.context;if(ctx&&typeof ctx.json==="function"){const body=await ctx.json();detail=body.error||body.message||detail;}}catch(_){}throw new Error(detail+" — confirm student-management Edge Function is deployed and secrets are configured.");}if(data?.error)throw new Error(data.error);return data;}
-async function resetStudentPassword(id){const s=profileCache.find(x=>x.id===id);if(!s)return;const password=prompt("Set a new password for "+(s.full_name||"this student")+" (minimum 8 characters):");if(password===null)return;if(password.length<8){alert("Password must be at least 8 characters.");return;}if(!confirm("Reset password for "+(s.full_name||"this student")+"?"))return;setStatus("studentsStatus","Resetting student password…");try{const r=await callStudentFunction({action:"reset_password",id,new_password:password});setStatus("studentsStatus",r.message||"Student password reset successfully.","success");alert("Password reset successfully. Share the new password with the student securely.");}catch(e){setStatus("studentsStatus","Password reset failed: "+e.message,"error");}}
-async function deleteStudent(id){const s=profileCache.find(x=>x.id===id);if(!s)return;const label=s.full_name||s.student_id||id;if(!confirm("Permanently delete student account for "+label+"? This cannot be undone."))return;if(!confirm("Final confirmation: delete this student's login and profile?"))return;setStatus("studentsStatus","Deleting student account…");try{const r=await callStudentFunction({action:"delete",id});setStatus("studentsStatus",r.message||"Student account deleted.","success");await loadStudents();await loadOverview();}catch(e){setStatus("studentsStatus","Delete failed: "+e.message,"error");}}
-function renderStudents(){const term=document.getElementById("studentSearch").value.toLowerCase();const rows=profileCache.filter(s=>[s.full_name,s.student_id,s.course_name,s.course_id,s.role,s.email].some(v=>String(v??"").toLowerCase().includes(term)));if(!rows.length){document.getElementById("studentsTable").innerHTML='<div class="empty">No students match your search.</div>';return;}let out='<table><thead><tr><th>Student</th><th>Email</th><th>Student ID</th><th>Course</th><th>Registered</th><th>Actions</th></tr></thead><tbody>';for(const s of rows){out+=`<tr><td>${esc(s.full_name)}</td><td>${esc(s.email||"—")}</td><td>${esc(s.student_id)}</td><td>${esc(s.course_name||s.course_id)}</td><td>${dateFmt(s.created_at)}</td><td><div class="toolbar"><button data-edit="${esc(s.id)}">Edit</button><button data-reset="${esc(s.id)}">Reset password</button><button class="danger" data-delete-student="${esc(s.id)}">Delete</button></div></td></tr>`;}document.getElementById("studentsTable").innerHTML=out+"</tbody></table>";document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEdit(b.dataset.edit)));document.querySelectorAll("[data-reset]").forEach(b=>b.addEventListener("click",()=>resetStudentPassword(b.dataset.reset)));document.querySelectorAll("[data-delete-student]").forEach(b=>b.addEventListener("click",()=>deleteStudent(b.dataset.deleteStudent)));}
-async function loadCourses(){setStatus("coursesStatus","Loading courses…");const {data,error}=await db.from("courses").select("id,course_code,course_name,created_at").order("course_name",{ascending:true}).limit(500);if(error){setStatus("coursesStatus","Could not load courses: "+error.message,"error");document.getElementById("coursesTable").innerHTML='<div class="empty">Check the courses SELECT policy in Supabase.</div>';return;}courseCache=data||[];renderCourses();setStatus("coursesStatus",`Loaded ${courseCache.length} course(s).` ,"success");populateCourseOptions();}
-function renderCourses(){const term=(document.getElementById("coursesSearch")?.value||"").toLowerCase();const rows=courseCache.filter(c=>[c.course_code,c.course_name].some(v=>String(v||"").toLowerCase().includes(term)));if(!rows.length){document.getElementById("coursesTable").innerHTML='<div class="empty">No courses found. Use “Add course” to create one.</div>';return;}let out='<table><thead><tr><th>Course code</th><th>Course name</th><th>Created</th><th>Actions</th></tr></thead><tbody>';for(const c of rows){out+=`<tr><td><span class="pill">${esc(c.course_code)}</span></td><td>${esc(c.course_name)}</td><td>${dateFmt(c.created_at)}</td><td><div class="toolbar"><button data-course-edit="${esc(c.id)}">Edit</button><button class="danger" data-course-delete="${esc(c.id)}">Delete</button></div></td></tr>`;}document.getElementById("coursesTable").innerHTML=out+'</tbody></table>';document.querySelectorAll('[data-course-edit]').forEach(b=>b.addEventListener('click',()=>openCourseEdit(b.dataset.courseEdit)));document.querySelectorAll('[data-course-delete]').forEach(b=>b.addEventListener('click',()=>deleteCourse(b.dataset.courseDelete)));}
-function openCourseEdit(id){const c=id?courseCache.find(x=>x.id===id):null;document.getElementById('courseModalTitle').textContent=c?'Edit course':'Add course';document.getElementById('courseEditId').value=c?.id||'';document.getElementById('courseCode').value=c?.course_code||'';document.getElementById('courseName').value=c?.course_name||'';setStatus('courseFormStatus',c?'Update course details.':'Enter the new course details.');document.getElementById('courseBackdrop').classList.add('open');}
-function closeCourseModal(){document.getElementById('courseBackdrop').classList.remove('open');}
-async function saveCourse(e){e.preventDefault();const id=document.getElementById('courseEditId').value;const course_code=document.getElementById('courseCode').value.trim().toUpperCase();const course_name=document.getElementById('courseName').value.trim();if(!course_code||!course_name){setStatus('courseFormStatus','Both course code and course name are required.','error');return;}const btn=document.getElementById('saveCourse');btn.disabled=true;btn.textContent='Saving…';try{const {data:me,error:meErr}=await db.auth.getUser();if(meErr||!me.user)throw new Error('Your session expired. Please sign in again.');const {data:profile,error:profileErr}=await db.from('profiles').select('role').eq('id',me.user.id).maybeSingle();if(profileErr||String(profile?.role||'').toLowerCase()!=='admin')throw new Error('Admin role could not be verified.');let result;if(id)result=await db.from('courses').update({course_code,course_name}).eq('id',id);else result=await db.from('courses').insert({course_code,course_name});if(result.error)throw result.error;setStatus('courseFormStatus',id?'Course updated successfully.':'Course created successfully.','success');await loadCourses();await loadStudents();setTimeout(closeCourseModal,500);}catch(err){setStatus('courseFormStatus','Save failed: '+(err.message||'Unknown error'),'error');}finally{btn.disabled=false;btn.textContent='Save course';}}
-async function deleteCourse(id){const c=courseCache.find(x=>x.id===id);if(!c)return;if(!confirm(`Delete course “${c.course_name}” (${c.course_code})? If students or tests are linked, the database may block deletion. This cannot be undone.`))return;try{const {data:me,error:meErr}=await db.auth.getUser();if(meErr||!me.user)throw new Error('Your session expired. Please sign in again.');const {data:profile,error:profileErr}=await db.from('profiles').select('role').eq('id',me.user.id).maybeSingle();if(profileErr||String(profile?.role||'').toLowerCase()!=='admin')throw new Error('Admin role could not be verified.');const {error}=await db.from('courses').delete().eq('id',id);if(error)throw error;setStatus('coursesStatus','Course deleted successfully.','success');await loadCourses();await loadStudents();}catch(err){setStatus('coursesStatus','Delete failed: '+(err.message||'Unknown error')+'. Linked records or Row Level Security may block deletion.','error');}}
-async function loadGeneric(table,section){setStatus(section+"Status","Loading…");const {data,error}=await db.from(table).select("*").limit(200);const wrap=document.getElementById(section+"Table");if(error){wrap.innerHTML='<div class="empty">Unable to load records.</div>';setStatus(section+"Status",error.message,"error");return;}const rows=data||[];wrap.innerHTML=tableHTML(rows,Object.keys(rows[0]||{}).slice(0,8));setStatus(section+"Status",`Loaded ${rows.length} record(s), limited to 200.`,"success");const input=document.getElementById(section+"Search");if(input)filterRows(wrap,input.value);}
-function filterRows(wrap,term){term=(term||"").toLowerCase();wrap.querySelectorAll("tbody tr").forEach(r=>r.style.display=r.innerText.toLowerCase().includes(term)?"":"none");}
-function populateCourseOptions(){const sel=document.getElementById("editCourse");if(!sel)return;const old=sel.value;sel.innerHTML='<option value="">No course assigned</option>';for(const c of courseCache){const id=c.id??c.course_id??c.code;const label=c.name??c.course_name??c.title??c.code??id;if(id!==undefined&&id!==null)sel.add(new Option(String(label),String(id)));}sel.value=old;}
-function openEdit(id){const s=profileCache.find(x=>x.id===id);if(!s)return;document.getElementById("editId").value=s.id;document.getElementById("editName").value=s.full_name||"";document.getElementById("editStudentId").value=s.student_id||"";populateCourseOptions();document.getElementById("editCourse").value=s.course_id==null?"":String(s.course_id);setStatus("editStatus","Editing profile: "+(s.full_name||s.id));document.getElementById("editBackdrop").classList.add("open");}
-function closeEdit(){document.getElementById("editBackdrop").classList.remove("open");}
-async function saveProfile(e){e.preventDefault();const id=document.getElementById("editId").value;const full_name=document.getElementById("editName").value.trim();const student_id=document.getElementById("editStudentId").value.trim()||null;const courseVal=document.getElementById("editCourse").value;const course_id=courseVal===""?null:courseVal;if(!full_name){setStatus("editStatus","Full name is required.","error");return;}const btn=document.getElementById("saveEdit");btn.disabled=true;btn.textContent="Saving…";try{const {data:me,error:meErr}=await db.auth.getUser();if(meErr||!me.user)throw new Error("Your session expired. Sign in again.");const {data:myProfile,error:mpErr}=await db.from("profiles").select("role").eq("id",me.user.id).maybeSingle();if(mpErr||String(myProfile?.role||"").toLowerCase()!=="admin")throw new Error("Admin role could not be verified.");const {error}=await db.from("profiles").update({full_name,student_id,course_id}).eq("id",id);if(error)throw error;setStatus("editStatus","Profile saved successfully.","success");await loadStudents();setTimeout(closeEdit,600);}catch(err){setStatus("editStatus","Save failed: "+(err.message||"Unknown error"),"error");}finally{btn.disabled=false;btn.textContent="Save profile";}}
-async function navigate(page){const titles={overview:["Dashboard Overview","Live view of your institute data."],students:["Student Management","Search and update student profile details."],courses:["Course Management","Review course records."],tests:["Test Management","Review stored tests."],questions:["Question Bank","Review stored questions."],results:["Student Results","Review test attempts."],certificates:["Certificates","Review certificate records."],imports:["Test Imports","Review imported test data."]};if(!titles[page])return;document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page-"+page).classList.add("active");document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));document.getElementById("pageTitle").textContent=titles[page][0];document.getElementById("pageSubtitle").textContent=titles[page][1];document.getElementById("sidebar").classList.remove("open");if(page==="overview")await loadOverview();if(page==="students")await loadStudents();if(page==="courses")await loadCourses();if(page==="tests")await loadGeneric("tests","tests");if(page==="questions")await loadGeneric("questions","questions");if(page==="results")await loadGeneric("attempts","results");if(page==="certificates")await loadGeneric("certificates","certificates");if(page==="imports")await loadGeneric("test_imports","imports");}
-async function verifyAdmin(){const {data,error}=await db.auth.getUser();if(error||!data.user)throw new Error("Please sign in.");currentUser=data.user;const {data:profile,error:pe}=await db.from("profiles").select("full_name,role").eq("id",currentUser.id).maybeSingle();if(pe)throw new Error("Could not verify admin profile: "+pe.message);if(String(profile?.role||"").toLowerCase()!=="admin")throw new Error("This account does not have the admin role.");const name=profile.full_name||currentUser.email||"Administrator";document.getElementById("adminName").textContent=name;document.getElementById("adminAvatar").textContent=name.charAt(0).toUpperCase();document.getElementById("loginScreen").style.display="none";document.getElementById("app").style.display="block";await loadOverview();}
-async function start(){if(!ready){setStatus("loginStatus","Setup required: edit admin.html and enter the same Supabase Project URL and Publishable Key used by index.html.","error");return;}db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});try{const {data}=await db.auth.getSession();if(data.session)await verifyAdmin();else setStatus("loginStatus","Sign in with your admin account.");}catch(e){setStatus("loginStatus",e.message,"error");}}
-document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();if(!ready){setStatus("loginStatus","Add your Supabase URL and Publishable Key in the code first.","error");return;}const btn=document.getElementById("loginButton");btn.disabled=true;btn.textContent="Signing in…";try{const {error}=await db.auth.signInWithPassword({email:document.getElementById("loginEmail").value.trim(),password:document.getElementById("loginPassword").value});if(error)throw error;await verifyAdmin();}catch(err){setStatus("loginStatus",err.message||"Sign-in failed.","error");}finally{btn.disabled=false;btn.textContent="Sign in securely";}});
-document.getElementById("logoutButton").addEventListener("click",async()=>{if(db)await db.auth.signOut();location.reload();});
-document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.page)));
-document.getElementById("menuButton").addEventListener("click",()=>document.getElementById("sidebar").classList.toggle("open"));
-document.getElementById("studentSearch").addEventListener("input",renderStudents);
-document.getElementById("coursesSearch").addEventListener("input",renderCourses);
-document.getElementById("addCourseButton").addEventListener("click",()=>openCourseEdit());
-document.getElementById("cancelCourse").addEventListener("click",closeCourseModal);
-document.getElementById("courseBackdrop").addEventListener("click",e=>{if(e.target.id==="courseBackdrop")closeCourseModal();});
-document.getElementById("courseForm").addEventListener("submit",saveCourse);
-document.getElementById("refreshStudents").addEventListener("click",loadStudents);
-document.getElementById("cancelEdit").addEventListener("click",closeEdit);
-document.getElementById("editBackdrop").addEventListener("click",e=>{if(e.target.id==="editBackdrop")closeEdit();});
-document.getElementById("editForm").addEventListener("submit",saveProfile);
-document.querySelectorAll("[data-refresh]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.refresh)));
-for(const section of ["courses","tests","questions","results","certificates","imports"]){const input=document.getElementById(section+"Search");input.addEventListener("input",()=>filterRows(document.getElementById(section+"Table"),input.value));}
-start();
+function safeText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[ch]);
+}
+
+async function countRows(table) {
+  const { count, error } = await db
+    .from(table)
+    .select("*", { count:"exact", head:true });
+
+  if (error) throw error;
+  return count ?? 0;
+}
+
+async function startDashboard() {
+  const { data: sessionData, error: sessionError } = await db.auth.getSession();
+  if (sessionError) throw sessionError;
+
+  const user = sessionData.session?.user;
+  if (!user) {
+    window.location.replace("login.html");
+    return;
+  }
+
+  const { data: profile, error: profileError } = await db
+    .from("profiles")
+    .select("role,full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  if (!profile || profile.role !== "admin") {
+    setMessage("Access denied. This dashboard is only available to authorised administrators.", "error");
+    await db.auth.signOut();
+    setTimeout(() => window.location.replace("login.html"), 1800);
+    return;
+  }
+
+  setMessage("Signed in securely as administrator.", "success");
+  await loadStats();
+  await loadRecentTests();
+}
+
+async function loadStats() {
+  const tables = [
+    ["studentCount", "profiles", "role"],
+    ["courseCount", "courses"],
+    ["testCount", "tests"],
+    ["resultCount", "test_results"]
+  ];
+
+  const results = await Promise.all(tables.map(async item => {
+    let query = db.from(item[1]).select("*", { count:"exact", head:true });
+    if (item[2]) query = query.eq(item[2], "student");
+    const { count, error } = await query;
+    if (error) throw error;
+    document.getElementById(item[0]).textContent = count ?? 0;
+  }));
+
+  return results;
+}
+
+async function loadRecentTests() {
+  const tbody = document.getElementById("recentTests");
+  const { data, error } = await db
+    .from("tests")
+    .select("id,title,status,total_marks,created_at")
+    .order("created_at", { ascending:false })
+    .limit(5);
+
+  if (error) {
+    tbody.innerHTML = '<tr><td colspan="4">Unable to load tests. Check your database permissions.</td></tr>';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4">No tests created yet.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(test => `
+    <tr>
+      <td>${safeText(test.title)}</td>
+      <td>${safeText(test.status)}</td>
+      <td>${safeText(test.total_marks)}</td>
+      <td>${test.created_at ? safeText(new Date(test.created_at).toLocaleDateString()) : "—"}</td>
+    </tr>
+  `).join("");
+}
+
+document.getElementById("logoutBtn").addEventListener("click", async event => {
+  event.preventDefault();
+  await db.auth.signOut();
+  window.location.replace("login.html");
+});
+
+db.auth.onAuthStateChange((event, session) => {
+  if (event === "SIGNED_OUT" || !session) {
+    window.location.replace("login.html");
+  }
+});
+
+startDashboard().catch(error => {
+  console.error(error);
+  setMessage("Could not load the dashboard: " + (error.message || "Unknown error") +
+    ". Check your Supabase key, database tables and admin permissions.", "error");
+});
 </script>
 </body>
 </html>
