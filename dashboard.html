@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S.G Institute | Student Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#090909;--panel:#141414;--gold:#d4af37;--text:#f5f5f5;--muted:#aaa;--border:#292929}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:235px;background:#101010;border-right:1px solid var(--border);padding:24px 15px;flex-shrink:0}
+.brand{color:var(--gold);font-size:21px;font-weight:bold}
+.brand-sub{font-size:11px;color:var(--muted);margin:7px 0 30px}
+.nav-title{font-size:10px;color:#777;margin:22px 10px 10px;letter-spacing:1.5px}
+.nav a{display:block;padding:12px 13px;margin:5px 0;border-radius:8px;text-decoration:none;color:#bbb;font-size:14px}
+.nav a:hover,.nav a.active{background:#29230f;color:var(--gold)}
+.main{flex:1;min-width:0;padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
+h1{font-size:27px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 17px}
+.subtitle{font-size:13px;color:var(--muted);line-height:1.6}
+.badge{border:1px solid #66531a;color:var(--gold);padding:9px 13px;border-radius:20px;font-size:12px}
+.hero{background:linear-gradient(120deg,#1b180d,#111 70%);border:1px solid #4b3d18;border-radius:16px;padding:27px;margin-bottom:20px}
+.hero h2{font-size:23px;margin-bottom:9px}
+.hero p{color:#c3c3c3;font-size:13px;line-height:1.7;margin:0}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px}
+.stat{padding:18px}
+.stat strong{display:block;font-size:25px;color:var(--gold);margin-bottom:7px;overflow-wrap:anywhere}
+.stat span{font-size:12px;color:var(--muted)}
+.panel{padding:21px;margin-bottom:20px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+button,.btn{display:inline-block;border:0;border-radius:8px;padding:11px 14px;cursor:pointer;font-size:12px;font-weight:bold;text-decoration:none}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--border);font-size:12px}
+th{color:var(--muted);font-weight:normal}
+.pill{display:inline-block;padding:5px 8px;border-radius:5px;background:#292929;color:#ddd;font-size:11px}
+.pill.good{background:#153526;color:#8ce5b9}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.notice{display:none;padding:12px;border-radius:8px;margin-bottom:15px;font-size:13px;overflow-wrap:anywhere}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.profile-item{background:#0d0d0d;border:1px solid #292929;border-radius:9px;padding:13px}
+.profile-item span{display:block;font-size:11px;color:var(--muted);margin-bottom:6px}
+.profile-item strong{font-size:13px;overflow-wrap:anywhere}
+.small{font-size:11px;color:var(--muted);line-height:1.6}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){
+.layout{display:block}.sidebar{width:100%;padding:17px;border-right:0;border-bottom:1px solid var(--border)}
+.brand-sub{margin-bottom:15px}.nav{display:flex;overflow-x:auto;gap:5px}.nav-title{display:none}
+.nav a{white-space:nowrap;margin:0;padding:10px}.main{padding:18px}
+}
+@media(max-width:480px){.topbar{align-items:start;flex-direction:column}h1{font-size:23px}.panel{padding:15px}.profile-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand">S.G INSTITUTE</div>
+ <div class="brand-sub">OF LEARNING · STUDENT</div>
+ <nav class="nav">
+  <div class="nav-title">MY LEARNING</div>
+  <a class="active" href="dashboard.html">▦ Dashboard</a>
+  <a href="my-tests.html">▣ My Tests</a>
+  <a href="my-results.html">▥ My Results</a>
+  <a href="#" id="logoutLink">↪ Logout</a>
+ </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div>
+  <h1>Student Dashboard</h1>
+  <div class="subtitle">Welcome to your personal learning space.</div>
+ </div>
+ <div class="badge">STUDENT PORTAL</div>
+</header>
+
+<div id="notice" class="notice"></div>
+
+<section class="hero">
+ <h2 id="welcome">Welcome, Student!</h2>
+ <p>Stay consistent, keep learning, and track your progress. Your assigned examinations and performance are available here.</p>
+</section>
+
+<section class="stats">
+ <div class="stat"><strong id="assignedCount">—</strong><span>Assigned Tests</span></div>
+ <div class="stat"><strong id="pendingCount">—</strong><span>Pending Tests</span></div>
+ <div class="stat"><strong id="completedCount">—</strong><span>Completed Tests</span></div>
+ <div class="stat"><strong id="averageScore">—</strong><span>Average Percentage</span></div>
+</section>
+
+<section class="panel">
+ <div class="row" style="margin-bottom:17px">
+  <div>
+   <h2 style="margin-bottom:5px">My Profile</h2>
+   <div class="subtitle">Your registered account information.</div>
+  </div>
+ </div>
+ <div class="profile-grid">
+  <div class="profile-item"><span>Full Name</span><strong id="profileName">Loading...</strong></div>
+  <div class="profile-item"><span>Email</span><strong id="profileEmail">Loading...</strong></div>
+  <div class="profile-item"><span>Course</span><strong id="profileCourse">Loading...</strong></div>
+  <div class="profile-item"><span>Account Type</span><strong>Student</strong></div>
+ </div>
+</section>
+
+<section class="panel">
+ <div class="row" style="margin-bottom:14px">
+  <div>
+   <h2 style="margin-bottom:5px">My Recent Tests</h2>
+   <div class="subtitle">Your latest assigned examinations.</div>
+  </div>
+  <a class="btn primary" href="my-tests.html">View All Tests</a>
+ </div>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Test</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+   <tbody id="recentTests"><tr><td colspan="4" class="empty">Loading tests...</td></tr></tbody>
+  </table>
+ </div>
+</section>
+
+<section class="panel">
+ <div class="row" style="margin-bottom:14px">
+  <div>
+   <h2 style="margin-bottom:5px">Latest Results</h2>
+   <div class="subtitle">Review your latest evaluated attempts.</div>
+  </div>
+  <a class="btn secondary" href="my-results.html">View Results</a>
+ </div>
+ <div class="table-wrap">
+  <table>
+   <thead><tr><th>Test</th><th>Marks</th><th>Percentage</th><th>Date</th></tr></thead>
+   <tbody id="recentResults"><tr><td colspan="4" class="empty">Loading results...</td></tr></tbody>
+  </table>
+ </div>
+ <p class="small">Your dashboard shows data available to your account under the configured database permissions.</p>
+</section>
+</main>
+</div>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function dateFmt(v){if(!v)return "—";const d=new Date(v);return Number.isNaN(d.getTime())?"—":d.toLocaleString();}
+function notify(msg,type="success"){$("notice").textContent=msg;$("notice").className="notice "+type;}
+
+async function logout(){
+ await db.auth.signOut();
+ location.href="login.html";
+}
+$("logoutLink").addEventListener("click",async e=>{e.preventDefault();await logout();});
+
+async function init(){
+ if(SUPABASE_ANON_KEY.includes("PASTE_YOUR")){
+  notify("Add your Supabase publishable/anon key to dashboard.html first.","error");
+  return;
+ }
+
+ const {data:{session},error:sessionError}=await db.auth.getSession();
+ if(sessionError||!session){location.href="login.html";return;}
+
+ const user=session.user;
+ const {data:profile,error:profileError}=await db
+  .from("profiles")
+  .select("id,full_name,email,role,course_id")
+  .eq("id",user.id)
+  .maybeSingle();
+
+ if(profileError||!profile){
+  notify("Could not load your profile: "+(profileError?.message||"Profile not found"),"error");
+  return;
+ }
+
+ if(profile.role==="admin"){location.href="admin.html";return;}
+
+ $("welcome").textContent="Welcome, "+(profile.full_name||"Student")+"!";
+ $("profileName").textContent=profile.full_name||"Not provided";
+ $("profileEmail").textContent=profile.email||user.email||"Not provided";
+
+ if(profile.course_id){
+  const {data:course,error:courseError}=await db
+   .from("courses").select("course_name,course_code")
+   .eq("id",profile.course_id).maybeSingle();
+  $("profileCourse").textContent=courseError?"Unavailable":(course?.course_name||course?.course_code||"Not assigned");
+ }else{
+  $("profileCourse").textContent="Not assigned";
+ }
+
+ await loadStudentData(profile.id);
+}
+
+async function loadStudentData(studentId){
+ const {data:assignments,error:assignmentError}=await db
+  .from("test_assignments")
+  .select("id,test_id,assigned_at,due_at,status")
+  .eq("student_id",studentId)
+  .order("assigned_at",{ascending:false});
+
+ if(assignmentError){
+  notify("Could not load assignments: "+assignmentError.message,"error");
+  $("recentTests").innerHTML='<tr><td colspan="4" class="empty">Assignments are unavailable.</td></tr>';
+  return;
+ }
+
+ const list=assignments||[];
+ const testIds=[...new Set(list.map(a=>a.test_id).filter(Boolean))];
+ let tests=[];
+
+ if(testIds.length){
+  const {data,error}=await db.from("tests")
+   .select("id,title,duration_minutes,total_marks,status")
+   .in("id",testIds);
+  if(error)throw error;
+  tests=data||[];
+ }
+
+ const testMap=new Map(tests.map(t=>[t.id,t]));
+ const completed=list.filter(a=>a.status==="completed");
+ const pending=list.filter(a=>a.status==="assigned");
+ const started=list.filter(a=>a.status==="started");
+
+ $("assignedCount").textContent=list.length;
+ $("pendingCount").textContent=pending.length;
+ $("completedCount").textContent=completed.length;
+
+ const attemptIdsQuery=await db
+  .from("test_attempts")
+  .select("id,assignment_id")
+  .in("assignment_id",list.map(a=>a.id).length?list.map(a=>a.id):["00000000-0000-0000-0000-000000000000"]);
+
+ if(attemptIdsQuery.error)throw attemptIdsQuery.error;
+ const attempts=attemptIdsQuery.data||[];
+ const attemptIds=attempts.map(a=>a.id);
+
+ let results=[];
+ if(attemptIds.length){
+  const {data,error}=await db.from("test_results")
+   .select("attempt_id,marks_obtained,maximum_marks,percentage,evaluated_at")
+   .in("attempt_id",attemptIds);
+  if(error)throw error;
+  results=data||[];
+ }
+
+ const percentages=results.map(r=>Number(r.percentage)).filter(Number.isFinite);
+ $("averageScore").textContent=percentages.length?
+  (percentages.reduce((sum,n)=>sum+n,0)/percentages.length).toFixed(1)+"%":"—";
+
+ const recent=list.slice(0,5);
+ $("recentTests").innerHTML=recent.length?recent.map(a=>{
+  const test=testMap.get(a.test_id);
+  const status=a.status||"assigned";
+  let action='<a class="btn secondary" href="my-tests.html">View</a>';
+  if(status==="assigned"||status==="started"){
+   action='<a class="btn primary" href="my-tests.html">Open</a>';
+  }
+  return `<tr>
+   <td>${esc(test?.title||"Test")}</td>
+   <td>${esc(dateFmt(a.due_at))}</td>
+   <td><span class="pill ${status==="completed"?"good":""}">${esc(status)}</span></td>
+   <td>${action}</td>
+  </tr>`;
+ }).join(""):'<tr><td colspan="4" class="empty">No tests assigned yet.</td></tr>';
+
+ const recentResults=results.slice().sort((a,b)=>
+  new Date(b.evaluated_at||0)-new Date(a.evaluated_at||0)
+ ).slice(0,5);
+
+ const attemptMap=new Map(attempts.map(a=>[a.id,a]));
+ const assignmentMap=new Map(list.map(a=>[a.id,a]));
+
+ $("recentResults").innerHTML=recentResults.length?recentResults.map(r=>{
+  const attempt=attemptMap.get(r.attempt_id);
+  const assignment=attempt?assignmentMap.get(attempt.assignment_id):null;
+  const test=assignment?testMap.get(assignment.test_id):null;
+  return `<tr>
+   <td>${esc(test?.title||"Test")}</td>
+   <td>${esc(r.marks_obtained??0)} / ${esc(r.maximum_marks??0)}</td>
+   <td><span class="pill ${Number(r.percentage)>=70?"good":""}">${Number(r.percentage||0).toFixed(1)}%</span></td>
+   <td>${esc(dateFmt(r.evaluated_at))}</td>
+  </tr>`;
+ }).join(""):'<tr><td colspan="4" class="empty">No evaluated results yet.</td></tr>';
+}
+
+init().catch(error=>notify("Dashboard error: "+error.message,"error"));
+</script>
+</body>
+</html>
