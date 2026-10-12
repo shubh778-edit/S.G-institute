@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S.G Institute | Student Management</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--gold:#d4af37;--bg:#090909;--panel:#141414;--border:#2c2c2c;--muted:#aaa;--white:#f7f7f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font-family:Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:230px;flex-shrink:0;background:#101010;border-right:1px solid var(--border);padding:22px 14px}
+.brand{font-size:18px;font-weight:bold;color:var(--gold);padding:8px 10px 23px;border-bottom:1px solid var(--border)}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:2px;margin-top:7px}
+.navtitle{font-size:10px;color:#777;letter-spacing:2px;margin:24px 10px 10px}
+.nav a{display:block;padding:12px 10px;border-radius:8px;margin:4px 0;color:#bbb;font-size:13px}
+.nav a:hover,.nav a.active{background:#292313;color:var(--gold)}
+.main{padding:28px;width:calc(100% - 230px);min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:22px}
+h1{font-size:26px;margin:0 0 7px}
+.sub{font-size:13px;color:var(--muted)}
+.badge{border:1px solid #655321;border-radius:25px;color:var(--gold);padding:9px 12px;font-size:11px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:24px 0}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+.stat span{font-size:11px;color:var(--muted)}
+.stat strong{display:block;font-size:27px;color:var(--gold);margin-top:12px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+input,select{padding:12px;background:#090909;color:white;border:1px solid var(--border);border-radius:8px;font-size:13px;min-width:0}
+#search{flex:1;min-width:170px}
+.btn{border:1px solid #51451f;border-radius:8px;padding:11px 14px;background:#211c0e;color:var(--gold);font-size:12px;cursor:pointer;font-weight:bold}
+.btn.primary{background:var(--gold);color:#111;border-color:var(--gold)}
+.btn.danger{background:#2c1414;border-color:#6a3030;color:#ffbaba}
+.btn:disabled{opacity:.5}
+.status{padding:12px 14px;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;line-height:1.6;margin:16px 0}
+.status.error{background:#281414;color:#ffbaba;border-color:#733}
+.status.success{background:#102519;color:#baf0c8;border-color:#285b36}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:top}
+th{color:var(--gold);font-weight:600;white-space:nowrap}
+td{color:#ddd}
+.name{font-weight:bold;color:#fff;margin-bottom:5px}
+.email{color:var(--muted);overflow-wrap:anywhere}
+.pill{display:inline-block;border:1px solid #4c4020;color:var(--gold);padding:5px 8px;border-radius:20px;font-size:10px}
+.rowactions{display:flex;gap:6px;flex-wrap:wrap}
+.rowactions .btn{padding:8px;font-size:10px}
+footer{margin-top:35px;border-top:1px solid var(--border);padding-top:18px;color:#777;font-size:11px}
+dialog{width:min(420px,calc(100% - 28px));border:1px solid #655321;border-radius:14px;background:#141414;color:white;padding:22px}
+dialog::backdrop{background:#000b}
+dialog h2{font-size:19px}
+dialog label{display:block;font-size:12px;color:#ccc;margin:14px 0 7px}
+dialog input{width:100%}
+.dialogactions{display:flex;gap:10px;margin-top:18px}
+@media(max-width:750px){.layout{display:block}.sidebar{width:100%;padding:13px}.brand{padding-bottom:12px}.navtitle{margin-top:13px}.nav{display:flex;overflow:auto;gap:5px}.nav a{white-space:nowrap;padding:10px}.main{width:100%;padding:18px}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.stat{padding:11px}.stat strong{font-size:22px}.stat span{font-size:10px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand">S.G INSTITUTE<small>OF LEARNING · ADMIN</small></div>
+  <div class="navtitle">WORKSPACE</div>
+  <nav class="nav">
+    <a href="admin.html">Dashboard</a>
+    <a class="active" href="students.html">Students</a>
+    <a href="courses.html">Courses</a>
+    <a href="tests.html">Tests</a>
+    <a href="questions.html">Questions</a>
+    <a href="assignments.html">Assignments</a>
+    <a href="reports.html">Reports</a>
+  </nav>
+  <div class="navtitle">ACCOUNT</div>
+  <nav class="nav">
+    <a href="index.html">View Website ↗</a>
+    <a href="#" id="logout">Sign Out</a>
+  </nav>
+</aside>
+
+<main class="main">
+<header class="top">
+  <div><h1>Student Management</h1><div class="sub">Manage accounts and review academic performance.</div></div>
+  <div class="badge">● ADMIN ACCESS</div>
+</header>
+
+<div id="message" class="status">Verifying administrator access…</div>
+
+<section class="stats">
+  <div class="stat"><span>TOTAL STUDENTS</span><strong id="total">—</strong></div>
+  <div class="stat"><span>TEST ATTEMPTS</span><strong id="attempts">—</strong></div>
+  <div class="stat"><span>RESULTS RECORDED</span><strong id="results">—</strong></div>
+</section>
+
+<section class="panel">
+  <h2 style="font-size:17px;margin:0">Registered Students</h2>
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search name or email…">
+    <select id="courseFilter"><option value="">All courses</option></select>
+    <button class="btn primary" id="refresh">↻ Refresh</button>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>STUDENT</th><th>COURSE</th><th>ATTEMPTS</th><th>AVG. SCORE</th><th>LATEST RESULT</th><th>ACTIONS</th></tr></thead>
+      <tbody id="studentRows"><tr><td colspan="6">Loading students…</td></tr></tbody>
+    </table>
+  </div>
+</section>
+<footer>S.G INSTITUTE OF LEARNING · STUDENT MANAGEMENT</footer>
+</main>
+</div>
+
+<dialog id="resetDialog">
+  <h2>Reset Student Password</h2>
+  <p id="resetStudent" class="sub"></p>
+  <label for="newPassword">New password (minimum 8 characters)</label>
+  <input id="newPassword" type="password" minlength="8" autocomplete="new-password">
+  <div class="dialogactions">
+    <button class="btn primary" id="confirmReset">Reset Password</button>
+    <button class="btn" id="cancelReset">Cancel</button>
+  </div>
+</dialog>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+const $=id=>document.getElementById(id);
+const message=$("message");
+let studentData=[];
+let courseData=[];
+let resetStudentId=null;
+let verifiedAdmin=false;
+
+function showMessage(text,type=""){
+  message.textContent=text;
+  message.className="status"+(type?" "+type:"");
+}
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+async function callFunction(name,body){
+  const {data:{session}}=await db.auth.getSession();
+  if(!session)throw new Error("Your session has expired. Please log in again.");
+  const response=await fetch(`${SUPABASE_URL}/functions/v1/${name}`,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${session.access_token}`,
+      "apikey":SUPABASE_ANON_KEY
+    },
+    body:JSON.stringify(body)
+  });
+  const result=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(result.error||result.message||`Request failed (${response.status})`);
+  if(result.error)throw new Error(result.error);
+  return result;
+}
+async function verifyAdmin(){
+  const {data:{session},error}=await db.auth.getSession();
+  if(error)throw error;
+  if(!session){location.replace("login.html");return false;}
+  const {data:profile,error:profileError}=await db.from("profiles")
+    .select("role").eq("id",session.user.id).maybeSingle();
+  if(profileError)throw profileError;
+  if(profile?.role!=="admin"){
+    showMessage("Access denied. Administrator privileges are required.","error");
+    await db.auth.signOut();
+    setTimeout(()=>location.replace("login.html"),1500);
+    return false;
+  }
+  verifiedAdmin=true;
+  return true;
+}
+async function loadStudents(){
+  if(!verifiedAdmin)return;
+  $("studentRows").innerHTML='<tr><td colspan="6">Loading student records…</td></tr>';
+  try{
+    const result=await callFunction("student-management",{action:"list"});
+    studentData=result.students||result.data?.students||[];
+    courseData=result.courses||result.data?.courses||[];
+    $("total").textContent=studentData.length;
+    $("attempts").textContent=studentData.reduce((sum,s)=>sum+Number(s.total_attempts||s.attempts_count||0),0);
+    $("results").textContent=studentData.reduce((sum,s)=>sum+Number(s.total_results||s.results_count||0),0);
+    const previous=$("courseFilter").value;
+    $("courseFilter").innerHTML='<option value="">All courses</option>'+courseData.map(c=>
+      `<option value="${esc(c.id)}">${esc(c.course_name||c.course_code)}</option>`).join("");
+    $("courseFilter").value=previous;
+    renderStudents();
+    showMessage(`Loaded ${studentData.length} student record(s).`,"success");
+  }catch(error){
+    $("studentRows").innerHTML='<tr><td colspan="6">Could not load student records.</td></tr>';
+    showMessage(error.message,"error");
+  }
+}
+function renderStudents(){
+  const q=$("search").value.trim().toLowerCase();
+  const selectedCourse=$("courseFilter").value;
+  const rows=studentData.filter(s=>{
+    const name=String(s.full_name||s.name||"").toLowerCase();
+    const email=String(s.email||"").toLowerCase();
+    const courseId=s.course_id||s.course?.id||"";
+    return (!q||name.includes(q)||email.includes(q))&&(!selectedCourse||courseId===selectedCourse);
+  });
+  if(!rows.length){
+    $("studentRows").innerHTML='<tr><td colspan="6">No matching students found.</td></tr>';
+    return;
+  }
+  $("studentRows").innerHTML=rows.map(s=>{
+    const course=s.course_name||s.course?.course_name||s.course?.course_code||
+      courseData.find(c=>c.id===(s.course_id||""))?.course_name||"Not assigned";
+    const attempts=Number(s.total_attempts??s.attempts_count??s.attempts??0);
+    const average=s.average_percentage??s.average_score??s.average_marks;
+    const latest=s.latest_result||s.latest_attempt||null;
+    const latestText=latest
+      ? `${esc(latest.marks_obtained??latest.score??"—")} / ${esc(latest.maximum_marks??latest.total_marks??"—")}`
+      : "No result";
+    return `<tr>
+      <td><div class="name">${esc(s.full_name||s.name||"Unnamed student")}</div><div class="email">${esc(s.email||"No email")}</div></td>
+      <td><span class="pill">${esc(course)}</span></td>
+      <td>${attempts}</td>
+      <td>${average==null?"—":esc(Number(average).toFixed(1)+"%")}</td>
+      <td>${latestText}</td>
+      <td><div class="rowactions">
+        <button class="btn" data-reset="${esc(s.id)}" data-email="${esc(s.email)}">Reset Password</button>
+        <button class="btn danger" data-delete="${esc(s.id)}" data-email="${esc(s.email)}">Delete</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+}
+$("studentRows").addEventListener("click",async e=>{
+  if(!verifiedAdmin)return;
+  const reset=e.target.closest("[data-reset]");
+  const del=e.target.closest("[data-delete]");
+  if(reset){
+    resetStudentId=reset.dataset.reset;
+    $("resetStudent").textContent="Account: "+reset.dataset.email;
+    $("newPassword").value="";
+    $("resetDialog").showModal();
+  }
+  if(del){
+    const id=del.dataset.delete;
+    const email=del.dataset.email;
+    if(!email||email==="undefined"){
+      showMessage("This record has no email address. Account deletion cancelled.","error");return;
+    }
+    const typed=prompt(`WARNING: This permanently deletes the student account and associated records.\n\nTo confirm, type this student's exact email:\n${email}`);
+    if(typed===null)return;
+    if(typed.trim().toLowerCase()!==email.trim().toLowerCase()){
+      showMessage("Email did not match. Nothing was deleted.","error");return;
+    }
+    if(!confirm("Final confirmation: permanently delete this student and their linked records?"))return;
+    try{
+      await callFunction("student-management",{action:"delete",student_id:id,confirm_email:typed.trim()});
+      showMessage("Student account deleted.","success");
+      await loadStudents();
+    }catch(err){showMessage(err.message,"error");}
+  }
+});
+$("confirmReset").addEventListener("click",async()=>{
+  if(!verifiedAdmin||!resetStudentId)return;
+  const password=$("newPassword").value;
+  if(password.length<8){alert("Password must contain at least 8 characters.");return;}
+  $("confirmReset").disabled=true;
+  try{
+    await callFunction("student-management",{
+      action:"reset_password",student_id:resetStudentId,new_password:password
+    });
+    $("resetDialog").close();
+    showMessage("Student password reset successfully.","success");
+  }catch(err){showMessage(err.message,"error");}
+  finally{$("confirmReset").disabled=false;}
+});
+$("cancelReset").addEventListener("click",()=>$("resetDialog").close());
+$("search").addEventListener("input",renderStudents);
+$("courseFilter").addEventListener("change",renderStudents);
+$("refresh").addEventListener("click",loadStudents);
+$("logout").addEventListener("click",async e=>{
+  e.preventDefault();await db.auth.signOut();location.replace("login.html");
+});
+(async()=>{
+  try{
+    if(await verifyAdmin())await loadStudents();
+  }catch(err){showMessage(err.message,"error");}
+})();
+</script>
+</body>
+</html>
