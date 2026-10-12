@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.G Institute | Student Registration</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--gold:#d4af37;--bg:#080808;--panel:#121212;--text:#f5f5f5;--muted:#aaa;--border:#2b2b2b}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#252014 0,#080808 45%);color:var(--text);font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:22px}
+.card{width:100%;max-width:470px;background:rgba(18,18,18,.97);border:1px solid #3b321a;border-radius:20px;padding:32px;box-shadow:0 20px 60px #000}
+.logo{width:62px;height:62px;border:2px solid var(--gold);border-radius:16px;display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:22px;margin:0 auto 14px}
+h1{text-align:center;font-size:27px;margin:0 0 8px}
+.gold{color:var(--gold)}
+.sub{text-align:center;color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:25px}
+label{display:block;font-size:13px;color:#ddd;margin:15px 0 7px}
+input,select{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:10px;background:#090909;color:white;font-size:15px;outline:none}
+input:focus,select:focus{border-color:var(--gold)}
+button{width:100%;padding:14px;border:0;border-radius:10px;background:var(--gold);color:#090909;font-weight:800;font-size:15px;cursor:pointer;margin-top:22px}
+button:disabled{opacity:.6;cursor:wait}
+.msg{display:none;margin-top:16px;padding:12px;border-radius:9px;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.error{display:block;background:#351818;color:#ffbaba}
+.success{display:block;background:#17301f;color:#b8f4c9}
+.bottom{text-align:center;color:var(--muted);font-size:14px;margin-top:22px}
+a{color:var(--gold);text-decoration:none}
+.back{text-align:center;margin-top:20px;font-size:13px}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="logo">SG</div>
+  <h1>Join <span class="gold">S.G Institute</span></h1>
+  <p class="sub">Create your student account to access tests, marks and performance reports.</p>
+
+  <form id="registerForm">
+    <label for="fullName">Full Name</label>
+    <input id="fullName" type="text" autocomplete="name" placeholder="Enter your full name" required maxlength="100">
+
+    <label for="email">Email Address</label>
+    <input id="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+
+    <label for="course">Select Your Course</label>
+    <select id="course" required>
+      <option value="">Loading courses...</option>
+    </select>
+
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required>
+
+    <label for="confirmPassword">Confirm Password</label>
+    <input id="confirmPassword" type="password" autocomplete="new-password" placeholder="Enter password again" minlength="8" required>
+
+    <p class="note">Use a valid email address. Depending on the institute's authentication settings, email confirmation may be required.</p>
+
+    <button id="submitBtn" type="submit">CREATE ACCOUNT</button>
+    <div id="message" class="msg" role="status" aria-live="polite"></div>
+  </form>
+
+  <div class="bottom">Already registered? <a href="login.html">Login here</a></div>
+  <div class="back"><a href="index.html">← Back to Home</a></div>
+</main>
+
+<script>
+const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const form = document.getElementById("registerForm");
+const courseSelect = document.getElementById("course");
+const message = document.getElementById("message");
+const submitBtn = document.getElementById("submitBtn");
+
+function showMessage(text, type) {
+  message.className = "msg " + type;
+  message.textContent = text;
+}
+
+async function loadCourses() {
+  courseSelect.innerHTML = '<option value="">Select your course</option>';
+
+  const { data, error } = await db
+    .from("courses")
+    .select("id, course_code, course_name")
+    .order("course_name");
+
+  if (error) {
+    courseSelect.innerHTML = '<option value="">Unable to load courses</option>';
+    showMessage("Courses could not be loaded. Please check the database connection and courses table.", "error");
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    courseSelect.innerHTML = '<option value="">No courses available</option>';
+    showMessage("No courses are available for registration yet. Please contact the institute administrator.", "error");
+    return;
+  }
+
+  data.forEach(course => {
+    const option = document.createElement("option");
+    option.value = course.id;
+    option.textContent = `${course.course_code} — ${course.course_name}`;
+    courseSelect.appendChild(option);
+  });
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  message.className = "msg";
+
+  const fullName = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const courseId = courseSelect.value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+
+  if (!fullName || !email || !courseId || !password) {
+    showMessage("Please complete every field and select a course.", "error");
+    return;
+  }
+
+  if (password.length < 8) {
+    showMessage("Your password must contain at least 8 characters.", "error");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    showMessage("Passwords do not match.", "error");
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "CREATING ACCOUNT...";
+
+  try {
+    const { data, error } = await db.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          course_id: courseId
+        },
+        emailRedirectTo: window.location.origin + window.location.pathname.replace("register.html", "login.html")
+      }
+    });
+
+    if (error) throw error;
+
+    if (data.session) {
+      showMessage(
+        "Registration successful! Your account has been created. Please log in.",
+        "success"
+      );
+      form.reset();
+      await loadCourses();
+    } else {
+      showMessage(
+        "Registration request received. If email confirmation is enabled, check your inbox and confirm your email before logging in. If confirmation is disabled, you can log in directly.",
+        "success"
+      );
+      form.reset();
+      await loadCourses();
+    }
+  } catch (error) {
+    showMessage(error.message || "Registration failed. Please try again.", "error");
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = "CREATE ACCOUNT";
+  }
+});
+
+loadCourses();
+</script>
+</body>
+</html>
