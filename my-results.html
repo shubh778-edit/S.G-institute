@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S.G Institute | My Results</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#090909;--panel:#141414;--gold:#d4af37;--text:#f5f5f5;--muted:#aaa;--border:#292929}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:235px;background:#101010;border-right:1px solid var(--border);padding:24px 15px;flex-shrink:0}
+.brand{color:var(--gold);font-size:21px;font-weight:bold}
+.brand-sub{font-size:11px;color:var(--muted);margin:7px 0 30px}
+.nav a{display:block;padding:12px 13px;margin:5px 0;border-radius:8px;text-decoration:none;color:#bbb;font-size:14px}
+.nav a:hover,.nav a.active{background:#29230f;color:var(--gold)}
+.nav-title{font-size:10px;color:#777;margin:22px 10px 10px;letter-spacing:1.5px}
+.main{flex:1;min-width:0;padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:25px}
+h1{font-size:27px;margin:0 0 8px}
+h2{font-size:17px;margin:0 0 8px}
+.sub{font-size:13px;color:var(--muted);line-height:1.6}
+.badge{border:1px solid #66531a;color:var(--gold);padding:9px 13px;border-radius:20px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:20px}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px}
+.stat{padding:18px}
+.stat strong{display:block;font-size:25px;color:var(--gold);margin-bottom:7px;overflow-wrap:anywhere}
+.stat span{font-size:12px;color:var(--muted)}
+.panel{padding:21px;margin-bottom:20px}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:17px}
+input,select{background:#0d0d0d;color:#eee;border:1px solid #353535;border-radius:8px;padding:12px;font-size:13px}
+input{flex:1;min-width:180px}
+button,.btn{display:inline-block;border:0;border-radius:8px;padding:11px 14px;font-size:12px;font-weight:bold;cursor:pointer;text-decoration:none}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th,td{text-align:left;padding:14px 10px;border-bottom:1px solid var(--border);font-size:12px}
+th{color:var(--muted);font-weight:normal}
+.pill{display:inline-block;padding:5px 8px;border-radius:5px;background:#292929;color:#ddd;font-size:11px}
+.pill.good{background:#153526;color:#8ce5b9}
+.notice{display:none;padding:13px;border-radius:8px;margin-bottom:15px;font-size:13px;overflow-wrap:anywhere}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.profile{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+.profile div{background:#0d0d0d;border:1px solid var(--border);padding:13px;border-radius:8px}
+.profile span{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
+.profile strong{font-size:13px;overflow-wrap:anywhere}
+.footer{color:#777;font-size:11px;line-height:1.6;margin-top:25px}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:850px){.layout{display:block}.sidebar{width:100%;padding:17px;border-right:0;border-bottom:1px solid var(--border)}.brand-sub{margin-bottom:15px}.nav{display:flex;overflow-x:auto;gap:5px}.nav a{white-space:nowrap;margin:0;padding:10px}.nav-title{display:none}.main{padding:18px}}
+@media(max-width:480px){.topbar{align-items:flex-start;flex-direction:column}h1{font-size:23px}.panel{padding:15px}.profile{grid-template-columns:1fr}}
+@media print{
+ body{background:#fff;color:#111}
+ .sidebar,.topbar .badge,.toolbar,.no-print{display:none!important}
+ .layout{display:block}.main{padding:0}
+ .panel,.stat{background:#fff;color:#111;border:1px solid #ccc;break-inside:avoid}
+ .stat strong{color:#8a6b00}
+ .stat span,.sub,th,.footer{color:#444}
+ table{min-width:0}th,td{color:#111;border-bottom:1px solid #ddd}
+ .stats{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand">S.G INSTITUTE</div>
+ <div class="brand-sub">OF LEARNING · STUDENT</div>
+ <nav class="nav">
+  <div class="nav-title">MY LEARNING</div>
+  <a href="dashboard.html">▦ Dashboard</a>
+  <a href="my-tests.html">▣ My Tests</a>
+  <a class="active" href="my-results.html">▥ My Results</a>
+  <a href="#" id="logout">↪ Logout</a>
+ </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div>
+  <h1>My Results</h1>
+  <div class="sub">Your examination history and performance report.</div>
+ </div>
+ <div class="badge">STUDENT REPORT</div>
+</header>
+
+<div id="notice" class="notice"></div>
+
+<section class="panel">
+ <h2>Student Information</h2>
+ <div class="sub" style="margin-bottom:15px">Personal performance record</div>
+ <div class="profile">
+  <div><span>Student Name</span><strong id="studentName">Loading...</strong></div>
+  <div><span>Email</span><strong id="studentEmail">Loading...</strong></div>
+ </div>
+ <button class="primary no-print" onclick="window.print()">Print / Save as PDF</button>
+</section>
+
+<section class="stats">
+ <div class="stat"><strong id="testCount">—</strong><span>Evaluated Tests</span></div>
+ <div class="stat"><strong id="average">—</strong><span>Average Percentage</span></div>
+ <div class="stat"><strong id="marks">—</strong><span>Total Marks Obtained</span></div>
+ <div class="stat"><strong id="best">—</strong><span>Best Percentage</span></div>
+</section>
+
+<section class="panel">
+ <div style="margin-bottom:17px">
+  <h2>Examination History</h2>
+  <div class="sub">Only evaluated attempts with saved results appear here.</div>
+ </div>
+
+ <div class="toolbar no-print">
+  <input id="search" type="search" placeholder="Search by test title...">
+  <select id="sort">
+   <option value="newest">Newest first</option>
+   <option value="highest">Highest percentage</option>
+   <option value="lowest">Lowest percentage</option>
+  </select>
+  <button class="secondary" id="refresh">Refresh</button>
+ </div>
+
+ <div class="table-wrap">
+  <table>
+   <thead>
+    <tr>
+     <th>Test Name</th>
+     <th>Marks</th>
+     <th>Correct</th>
+     <th>Wrong</th>
+     <th>Unanswered</th>
+     <th>Percentage</th>
+     <th>Date</th>
+    </tr>
+   </thead>
+   <tbody id="resultsTable">
+    <tr><td colspan="7" class="empty">Loading your results...</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<div class="footer">S.G Institute of Learning · Keep learning and improving with every assessment.</div>
+</main>
+</div>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+let reportRows=[];
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function dateFmt(v){
+ if(!v)return "—";
+ const d=new Date(v);
+ return Number.isNaN(d.getTime())?"—":d.toLocaleString();
+}
+function notice(msg,type="error"){
+ $("notice").textContent=msg;
+ $("notice").className="notice "+type;
+}
+$("logout").addEventListener("click",async e=>{
+ e.preventDefault();await db.auth.signOut();location.href="login.html";
+});
+$("search").addEventListener("input",render);
+$("sort").addEventListener("change",render);
+$("refresh").addEventListener("click",loadResults);
+
+async function loadResults(){
+ $("notice").className="notice";
+ $("resultsTable").innerHTML='<tr><td colspan="7" class="empty">Loading results...</td></tr>';
+
+ if(SUPABASE_ANON_KEY.includes("PASTE_YOUR")){
+  notice("Add your Supabase publishable/anon key in this file.");
+  return;
+ }
+
+ const {data:{session},error:sessionError}=await db.auth.getSession();
+ if(sessionError||!session){location.href="login.html";return;}
+
+ const {data:profile,error:profileError}=await db.from("profiles")
+  .select("id,full_name,email,role")
+  .eq("id",session.user.id).maybeSingle();
+
+ if(profileError||!profile){
+  notice("Could not load student profile: "+(profileError?.message||"Profile not found."));
+  return;
+ }
+ if(profile.role==="admin"){location.href="admin.html";return;}
+
+ $("studentName").textContent=profile.full_name||"Student";
+ $("studentEmail").textContent=profile.email||session.user.email||"—";
+
+ const {data:assignments,error:assignmentError}=await db.from("test_assignments")
+  .select("id,test_id,student_id")
+  .eq("student_id",profile.id);
+
+ if(assignmentError){notice("Could not load assignments: "+assignmentError.message);return;}
+
+ const assignmentRows=assignments||[];
+ if(!assignmentRows.length){
+  reportRows=[];updateStats();render();return;
+ }
+
+ const assignmentIds=assignmentRows.map(a=>a.id);
+ const testIds=[...new Set(assignmentRows.map(a=>a.test_id).filter(Boolean))];
+
+ const {data:attempts,error:attemptError}=await db.from("test_attempts")
+  .select("id,assignment_id,submitted_at,status")
+  .in("assignment_id",assignmentIds);
+
+ if(attemptError){notice("Could not load test attempts: "+attemptError.message);return;}
+
+ const attemptRows=attempts||[];
+ const attemptIds=attemptRows.map(a=>a.id);
+ if(!attemptIds.length){reportRows=[];updateStats();render();return;}
+
+ const {data:results,error:resultError}=await db.from("test_results")
+  .select("attempt_id,total_questions,correct_answers,wrong_answers,unanswered,marks_obtained,maximum_marks,percentage,evaluated_at")
+  .in("attempt_id",attemptIds);
+
+ if(resultError){notice("Could not load saved results: "+resultError.message);return;}
+
+ let testRows=[];
+ if(testIds.length){
+  const {data,error}=await db.from("tests").select("id,title").in("id",testIds);
+  if(error){notice("Could not load test names: "+error.message);return;}
+  testRows=testRows||[];
+  testRows=data||[];
+ }
+
+ const assignmentMap=new Map(assignmentRows.map(a=>[a.id,a]));
+ const attemptMap=new Map(attemptRows.map(a=>[a.id,a]));
+ const testMap=new Map(testRows.map(t=>[t.id,t]));
+
+ reportRows=(results||[]).map(r=>{
+  const attempt=attemptMap.get(r.attempt_id);
+  const assignment=attempt?assignmentMap.get(attempt.assignment_id):null;
+  const test=assignment?testMap.get(assignment.test_id):null;
+  return {...r,title:test?.title||"Test",date:r.evaluated_at||attempt?.submitted_at||null};
+ }).sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+
+ updateStats();
+ render();
+}
+
+function updateStats(){
+ $("testCount").textContent=reportRows.length;
+ if(!reportRows.length){
+  $("average").textContent="—";
+  $("marks").textContent="—";
+  $("best").textContent="—";
+  return;
+ }
+
+ const totalPercentage=reportRows.reduce((sum,r)=>sum+Number(r.percentage||0),0);
+ const totalMarks=reportRows.reduce((sum,r)=>sum+Number(r.marks_obtained||0),0);
+ const best=Math.max(...reportRows.map(r=>Number(r.percentage||0)));
+
+ $("average").textContent=(totalPercentage/reportRows.length).toFixed(1)+"%";
+ $("marks").textContent=totalMarks.toFixed(2).replace(/\.00$/,"");
+ $("best").textContent=best.toFixed(1)+"%";
+}
+
+function render(){
+ const term=$("search").value.trim().toLowerCase();
+ const sort=$("sort").value;
+
+ let rows=reportRows.filter(r=>(r.title||"").toLowerCase().includes(term));
+ if(sort==="highest")rows.sort((a,b)=>Number(b.percentage||0)-Number(a.percentage||0));
+ else if(sort==="lowest")rows.sort((a,b)=>Number(a.percentage||0)-Number(b.percentage||0));
+ else rows.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+
+ if(!rows.length){
+  $("resultsTable").innerHTML='<tr><td colspan="7" class="empty">No evaluated results found.</td></tr>';
+  return;
+ }
+
+ $("resultsTable").innerHTML=rows.map(r=>{
+  const percentage=Number(r.percentage||0);
+  return `<tr>
+   <td>${esc(r.title)}</td>
+   <td>${esc(r.marks_obtained??0)} / ${esc(r.maximum_marks??0)}</td>
+   <td>${esc(r.correct_answers??0)}</td>
+   <td>${esc(r.wrong_answers??0)}</td>
+   <td>${esc(r.unanswered??0)}</td>
+   <td><span class="pill ${percentage>=70?"good":""}">${percentage.toFixed(1)}%</span></td>
+   <td>${esc(dateFmt(r.date))}</td>
+  </tr>`;
+ }).join("");
+}
+
+loadResults().catch(error=>notice("Unexpected error: "+error.message));
+</script>
+</body>
+</html>
