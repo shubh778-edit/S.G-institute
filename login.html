@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08090d">
+
+  <title>Login | S.G. Institute of Learning</title>
+
+  <style>
+    :root {
+      --bg: #08090d;
+      --surface: #111218;
+      --gold: #d6b36a;
+      --gold-light: #f3d995;
+      --text: #f5f3ed;
+      --muted: #a3a4ad;
+      --border: rgba(214,179,106,.25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 25px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(214,179,106,.09), transparent 35%),
+        radial-gradient(circle at 90% 90%, rgba(214,179,106,.06), transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1040px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      overflow: hidden;
+      background: rgba(17,18,24,.96);
+      box-shadow: 0 30px 100px rgba(0,0,0,.4);
+    }
+
+    .welcome {
+      padding: 55px 45px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 620px;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(214,179,106,.13), transparent 55%),
+        #0c0d12;
+      border-right: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--gold);
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--gold-light);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .brand-name {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .brand-name span {
+      display: block;
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-top: 5px;
+    }
+
+    .welcome-content {
+      margin: 60px 0;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 3px;
+      margin-bottom: 22px;
+    }
+
+    .welcome h1 {
+      font-size: clamp(34px, 4vw, 48px);
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+
+    .welcome h1 span {
+      color: var(--gold-light);
+    }
+
+    .welcome-content p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.9;
+      max-width: 370px;
+    }
+
+    .welcome-footer {
+      color: #888994;
+      font-size: 11px;
+    }
+
+    .form-side {
+      padding: 55px 45px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-side h2 {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 9px;
+      color: #dedde4;
+    }
+
+    input {
+      width: 100%;
+      height: 49px;
+      padding: 0 14px;
+      background: #0b0c11;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.11);
+      border-radius: 9px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(214,179,106,.08);
+    }
+
+    input::placeholder {
+      color: #777984;
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap input {
+      padding-right: 70px;
+    }
+
+    .show-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold-light);
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .forgot {
+      display: block;
+      text-align: right;
+      color: var(--gold-light);
+      font-size: 12px;
+      margin-top: -7px;
+      margin-bottom: 25px;
+    }
+
+    .login-button {
+      width: 100%;
+      min-height: 49px;
+      border: none;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #17130a;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .login-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(214,179,106,.17);
+    }
+
+    .login-button:disabled {
+      opacity: .65;
+      cursor: wait;
+      transform: none;
+    }
+
+    .message {
+      display: none;
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .message.error {
+      display: block;
+      color: #ffb8b8;
+      background: rgba(255,70,70,.08);
+      border: 1px solid rgba(255,70,70,.22);
+    }
+
+    .message.success {
+      display: block;
+      color: #a9e6bb;
+      background: rgba(95,195,124,.08);
+      border: 1px solid rgba(95,195,124,.22);
+    }
+
+    .register-note {
+      text-align: center;
+      margin-top: 25px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .register-note a {
+      color: var(--gold-light);
+      font-weight: bold;
+    }
+
+    .back-home {
+      display: inline-block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 35px;
+    }
+
+    .back-home:hover,
+    .forgot:hover,
+    .register-note a:hover {
+      color: var(--gold);
+    }
+
+    .security-note {
+      text-align: center;
+      color: #777984;
+      font-size: 10px;
+      line-height: 1.7;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 15px;
+      }
+
+      .page {
+        max-width: 480px;
+        grid-template-columns: 1fr;
+      }
+
+      .welcome {
+        min-height: auto;
+        padding: 28px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .welcome-content {
+        margin: 30px 0 10px;
+      }
+
+      .welcome h1 {
+        font-size: 32px;
+      }
+
+      .welcome-content p {
+        font-size: 13px;
+      }
+
+      .welcome-footer {
+        display: none;
+      }
+
+      .form-side {
+        padding: 32px 25px;
+      }
+
+      .form-side h2 {
+        font-size: 27px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+
+    <section class="welcome">
+      <a class="brand" href="index.html">
+        <div class="logo">SG</div>
+        <div class="brand-name">
+          S.G. INSTITUTE
+          <span>OF LEARNING</span>
+        </div>
+      </a>
+
+      <div class="welcome-content">
+        <div class="eyebrow">WELCOME BACK</div>
+
+        <h1>
+          Your journey<br>
+          <span>continues here.</span>
+        </h1>
+
+        <p>
+          Sign in to access your learning dashboard, assigned
+          assessments and performance reports.
+        </p>
+      </div>
+
+      <div class="welcome-footer">
+        © <span id="year"></span> S.G. Institute of Learning
+      </div>
+    </section>
+
+
+    <section class="form-side">
+
+      <a class="back-home" href="index.html">← Back to homepage</a>
+
+      <h2>Sign In</h2>
+
+      <p class="subtitle">
+        Enter your registered email and password to continue.
+      </p>
+
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+
+      <form id="loginForm">
+
+        <div class="field">
+          <label for="email">Email Address</label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="username"
+            required>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+
+          <div class="password-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required>
+
+            <button
+              type="button"
+              class="show-password"
+              id="showPassword"
+              aria-label="Show password">
+              Show
+            </button>
+          </div>
+        </div>
+
+        <a href="forgot-password.html" class="forgot">
+          Forgot password?
+        </a>
+
+        <button type="submit" class="login-button" id="loginButton">
+          Sign In Securely →
+        </button>
+
+      </form>
+
+      <div class="register-note">
+        Don't have an account?
+        <a href="register.html">Create account</a>
+      </div>
+
+      <p class="security-note">
+        Your account access is verified through Supabase
+        authentication and your registered profile.
+      </p>
+
+    </section>
+
+  </main>
+
+
+  <script type="module">
+    import { createClient } from
+      "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+    /*
+      IMPORTANT:
+      Replace the placeholder values below with your own
+      Supabase Project URL and publishable/anon key.
+
+      Never place the service-role key in frontend code.
+    */
+
+    const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
+    const SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY_HERE";
+
+    const messageBox = document.getElementById("message");
+    const loginForm = document.getElementById("loginForm");
+    const loginButton = document.getElementById("loginButton");
+    const passwordInput = document.getElementById("password");
+    const showPasswordButton = document.getElementById("showPassword");
+
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+    const supabaseConfigured =
+      SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_ANON_KEY.includes("PASTE_YOUR_");
+
+    let supabase = null;
+
+    if (supabaseConfigured) {
+      supabase = createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+    }
+
+    function showMessage(text, type = "error") {
+      messageBox.textContent = text;
+      messageBox.className = "message " + type;
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    showPasswordButton.addEventListener("click", () => {
+      const isPassword = passwordInput.type === "password";
+
+      passwordInput.type = isPassword ? "text" : "password";
+      showPasswordButton.textContent = isPassword ? "Hide" : "Show";
+
+      showPasswordButton.setAttribute(
+        "aria-label",
+        isPassword ? "Hide password" : "Show password"
+      );
+    });
+
+    async function redirectAuthenticatedUser(user) {
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error || !profile) {
+        showMessage(
+          "Your account profile could not be loaded. Please contact the institute administrator."
+        );
+        return;
+      }
+
+      if (profile.role === "admin") {
+        window.location.replace("admin.html");
+      } else if (profile.role === "student") {
+        window.location.replace("dashboard.html");
+      } else {
+        showMessage("Your account role is not recognised.");
+      }
+    }
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessage();
+
+      if (!supabase) {
+        showMessage(
+          "Setup required: add your Supabase publishable/anon key in login.html."
+        );
+        return;
+      }
+
+      const email = document
+        .getElementById("email")
+        .value.trim();
+
+      const password = passwordInput.value;
+
+      loginButton.disabled = true;
+      loginButton.textContent = "Signing in...";
+
+      try {
+        const { data, error } =
+          await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+        if (error) {
+          showMessage(
+            error.message === "Invalid login credentials"
+              ? "Incorrect email or password. Please try again."
+              : error.message
+          );
+          return;
+        }
+
+        if (!data.user) {
+          showMessage("Login could not be completed. Please try again.");
+          return;
+        }
+
+        await redirectAuthenticatedUser(data.user);
+
+      } catch (error) {
+        console.error("Login error:", error);
+
+        showMessage(
+          "Unable to connect right now. Please check your internet connection and try again."
+        );
+      } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = "Sign In Securely →";
+      }
+    });
+
+    // If a valid session already exists, route the user appropriately.
+    async function checkExistingSession() {
+      if (!supabase) return;
+
+      try {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error || !data.session?.user) return;
+
+        await redirectAuthenticatedUser(data.session.user);
+
+      } catch (error) {
+        console.error("Session check failed:", error);
+      }
+    }
+
+    checkExistingSession();
+  </script>
+
+</body>
+</html>
