@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S.G Institute | Questions Manager</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --bg:#090909;
+  --panel:#141414;
+  --gold:#d4af37;
+  --text:#f5f5f5;
+  --muted:#a5a5a5;
+  --border:#292929;
+  --red:#ff5c5c;
+  --green:#55d69e;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,sans-serif;
+}
+.layout{display:flex;min-height:100vh}
+.sidebar{
+  width:235px;background:#101010;border-right:1px solid var(--border);
+  padding:24px 15px;flex-shrink:0;
+}
+.brand{color:var(--gold);font-size:21px;font-weight:bold;margin-bottom:7px}
+.brand-sub{font-size:11px;color:var(--muted);margin-bottom:32px}
+.nav-title{font-size:10px;color:#777;margin:22px 10px 10px;letter-spacing:1.5px}
+.nav a{
+  display:block;padding:12px 13px;margin:5px 0;border-radius:8px;
+  text-decoration:none;color:#bbb;font-size:14px;
+}
+.nav a:hover,.nav a.active{background:#29230f;color:var(--gold)}
+.main{flex:1;min-width:0;padding:28px}
+.topbar{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:25px}
+h1{font-size:26px;margin:0 0 8px}
+.subtitle{color:var(--muted);font-size:13px}
+.badge{border:1px solid #66531a;color:var(--gold);padding:9px 13px;border-radius:20px;font-size:12px}
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:14px;padding:22px;margin-bottom:20px;
+}
+.panel h2{font-size:17px;margin:0 0 18px}
+.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.field{flex:1;min-width:180px;margin-bottom:14px}
+label{display:block;color:#c8c8c8;font-size:12px;margin-bottom:8px}
+input,select,textarea{
+  width:100%;padding:12px;background:#0c0c0c;color:white;
+  border:1px solid #333;border-radius:8px;outline:none;font:inherit;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--gold)}
+textarea{min-height:95px;resize:vertical}
+button{
+  border:0;border-radius:8px;padding:11px 15px;cursor:pointer;
+  font-weight:bold;font-size:12px;
+}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+.danger{background:#3b1717;color:#ffaaaa}
+button:disabled{opacity:.5;cursor:not-allowed}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.stat{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:17px}
+.stat strong{display:block;font-size:25px;color:var(--gold);margin-bottom:6px}
+.stat span{font-size:12px;color:var(--muted)}
+.question-card{border:1px solid var(--border);border-radius:11px;padding:17px;margin-bottom:13px}
+.question-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.question-number{color:var(--gold);font-size:12px;margin-bottom:9px}
+.question-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.6}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.option{background:#0d0d0d;border:1px solid #292929;padding:10px;border-radius:7px;font-size:13px;overflow-wrap:anywhere}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tag{font-size:11px;padding:5px 8px;border-radius:5px;background:#292929;color:#ccc}
+.tag.answer{background:#153526;color:var(--green)}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+.empty{text-align:center;color:var(--muted);padding:35px 10px}
+.notice{display:none;padding:12px;border-radius:8px;margin-bottom:15px;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.small{font-size:11px;color:var(--muted);line-height:1.6}
+#loading{text-align:center;color:var(--muted);padding:20px}
+@media(max-width:850px){
+ .layout{display:block}.sidebar{width:100%;border-right:0;border-bottom:1px solid var(--border);padding:17px}
+ .brand-sub{margin-bottom:15px}.nav{display:flex;overflow-x:auto;gap:5px}
+ .nav-title{display:none}.nav a{white-space:nowrap;margin:0;padding:10px}
+ .main{padding:18px}.stats{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+ .stats{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}
+ .topbar{align-items:start;flex-direction:column}h1{font-size:23px}
+ .panel{padding:15px}
+}
+</style>
+</head>
+
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="brand">S.G INSTITUTE</div>
+  <div class="brand-sub">OF LEARNING · ADMIN</div>
+
+  <nav class="nav">
+    <div class="nav-title">MAIN MENU</div>
+    <a href="admin.html">▦ Dashboard</a>
+    <a href="students.html">♙ Students</a>
+    <a href="courses.html">▤ Courses</a>
+    <a href="tests.html">▣ Tests</a>
+    <a class="active" href="questions.html">☷ Questions</a>
+    <a href="assignments.html">⇧ Assignments</a>
+    <a href="reports.html">▥ Reports</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div>
+      <h1>Questions Manager</h1>
+      <div class="subtitle">Create and manage your examination MCQs.</div>
+    </div>
+    <div class="badge">ADMIN PANEL</div>
+  </header>
+
+  <div id="notice" class="notice"></div>
+
+  <section class="stats">
+    <div class="stat"><strong id="totalQuestions">0</strong><span>Total Questions</span></div>
+    <div class="stat"><strong id="totalMarks">0</strong><span>Total Question Marks</span></div>
+    <div class="stat"><strong id="hardQuestions">0</strong><span>Hard Questions</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>① Select Examination</h2>
+    <div class="row">
+      <div class="field" style="margin-bottom:0;flex:2">
+        <label for="testSelect">Select Test</label>
+        <select id="testSelect">
+          <option value="">Loading tests...</option>
+        </select>
+      </div>
+      <button class="secondary" id="refreshBtn" type="button">Refresh</button>
+    </div>
+    <p class="small">Select a test to view and manage its questions. Questions should be completed before publishing the test.</p>
+  </section>
+
+  <section class="panel" id="editorPanel">
+    <h2 id="editorTitle">② Add New Question</h2>
+
+    <form id="questionForm">
+      <input type="hidden" id="questionId">
+
+      <div class="field">
+        <label for="questionText">Question *</label>
+        <textarea id="questionText" required maxlength="10000"
+          placeholder="Enter the complete question here..."></textarea>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="optionA">Option A *</label>
+          <input id="optionA" required maxlength="2000" placeholder="Option A">
+        </div>
+        <div class="field">
+          <label for="optionB">Option B *</label>
+          <input id="optionB" required maxlength="2000" placeholder="Option B">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="optionC">Option C *</label>
+          <input id="optionC" required maxlength="2000" placeholder="Option C">
+        </div>
+        <div class="field">
+          <label for="optionD">Option D *</label>
+          <input id="optionD" required maxlength="2000" placeholder="Option D">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="correctOption">Correct Answer *</label>
+          <select id="correctOption" required>
+            <option value="A">Option A</option>
+            <option value="B">Option B</option>
+            <option value="C">Option C</option>
+            <option value="D">Option D</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="marks">Marks *</label>
+          <input type="number" id="marks" min="0.01" max="1000" step="0.01" value="1" required>
+        </div>
+
+        <div class="field">
+          <label for="difficulty">Difficulty *</label>
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="questionOrder">Question Order</label>
+          <input type="number" id="questionOrder" min="1" step="1" value="1" required>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="saveBtn" type="submit">Save Question</button>
+        <button class="secondary" id="cancelBtn" type="button">Clear Form</button>
+      </div>
+    </form>
+
+    <p class="small">
+      Correct answers are sent to the protected backend function and should be stored
+      in the test_answer_keys table, not exposed to students before submission.
+    </p>
+  </section>
+
+  <section class="panel">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:15px">
+      <div>
+        <h2 style="margin-bottom:6px">③ Questions List</h2>
+        <div class="subtitle" id="selectedTestLabel">Select a test first.</div>
+      </div>
+      <div style="min-width:150px">
+        <label for="searchInput">Search Questions</label>
+        <input id="searchInput" placeholder="Search..." type="search">
+      </div>
+    </div>
+
+    <div id="loading">Select a test to load its questions.</div>
+    <div id="questionsList"></div>
+  </section>
+
+</main>
+</div>
+
+<script>
+/*
+  IMPORTANT:
+  Replace the placeholder below with your Supabase publishable/anon key.
+  Never use a service-role key in browser code.
+*/
+const SUPABASE_URL = "https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const $ = id => document.getElementById(id);
+let currentUser = null;
+let allTests = [];
+let allQuestions = [];
+let currentTestId = "";
+
+function showNotice(message, type="success") {
+  const el = $("notice");
+  el.textContent = message;
+  el.className = "notice " + type;
+  el.scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+function clearNotice() {
+  $("notice").textContent = "";
+  $("notice").className = "notice";
+}
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[char]));
+}
+
+async function verifyAdmin() {
+  const {data:{session}, error:sessionError} = await db.auth.getSession();
+
+  if (sessionError || !session) {
+    location.href = "login.html";
+    return false;
+  }
+
+  currentUser = session.user;
+
+  const {data:profile, error} = await db
+    .from("profiles")
+    .select("role")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  if (error || !profile || profile.role !== "admin") {
+    alert("Admin access required.");
+    await db.auth.signOut();
+    location.href = "login.html";
+    return false;
+  }
+
+  return true;
+}
+
+async function callFunction(action, payload={}) {
+  const {data:{session}, error:sessionError} = await db.auth.getSession();
+
+  if (sessionError || !session) throw new Error("Your session has expired. Please log in again.");
+
+  const response = await fetch(
+    SUPABASE_URL + "/functions/v1/question-management",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + session.access_token,
+        "apikey":SUPABASE_ANON_KEY
+      },
+      body:JSON.stringify({action, ...payload})
+    }
+  );
+
+  const text = await response.text();
+  let result = {};
+
+  try { result = text ? JSON.parse(text) : {}; }
+  catch { result = {message:text}; }
+
+  if (!response.ok || result.error) {
+    throw new Error(result.error || result.message || ("Request failed: HTTP " + response.status));
+  }
+
+  return result;
+}
+
+async function loadTests() {
+  $("testSelect").innerHTML = '<option value="">Loading tests...</option>';
+
+  try {
+    const result = await db
+      .from("tests")
+      .select("id,title,status,total_marks,duration_minutes")
+      .order("created_at", {ascending:false});
+
+    if (result.error) throw result.error;
+
+    allTests = result.data || [];
+
+    $("testSelect").innerHTML = '<option value="">-- Choose a test --</option>';
+
+    allTests.forEach(test => {
+      const option = document.createElement("option");
+      option.value = test.id;
+      option.textContent = `${test.title} (${test.status})`;
+      $("testSelect").appendChild(option);
+    });
+
+    if (!allTests.length) {
+      $("loading").textContent = "No tests found. Create a test first in Tests Management.";
+      return;
+    }
+
+    if (currentTestId && allTests.some(t => t.id === currentTestId)) {
+      $("testSelect").value = currentTestId;
+      await loadQuestions();
+    } else {
+      $("loading").textContent = "Select a test to load its questions.";
+    }
+  } catch(error) {
+    $("testSelect").innerHTML = '<option value="">Unable to load tests</option>';
+    $("loading").textContent = "Could not load tests: " + error.message;
+  }
+}
+
+async function loadQuestions() {
+  clearNotice();
+  currentTestId = $("testSelect").value;
+  allQuestions = [];
+  $("questionsList").innerHTML = "";
+  resetForm();
+
+  if (!currentTestId) {
+    $("loading").style.display = "block";
+    $("loading").textContent = "Select a test to load its questions.";
+    $("selectedTestLabel").textContent = "Select a test first.";
+    updateStats();
+    return;
+  }
+
+  const selectedTest = allTests.find(t => t.id === currentTestId);
+  $("selectedTestLabel").textContent = selectedTest
+    ? `${selectedTest.title} · ${selectedTest.total_marks} marks · ${selectedTest.duration_minutes} minutes`
+    : "Selected test";
+
+  $("loading").style.display = "block";
+  $("loading").textContent = "Loading questions...";
+
+  try {
+    const result = await callFunction("list", {test_id:currentTestId});
+
+    allQuestions = result.questions || result.data?.questions || [];
+
+    // If your Edge Function returns a different response shape, inspect its response
+    // and adjust the mapping above.
+    allQuestions.sort((a,b) => Number(a.question_order || 0) - Number(b.question_order || 0));
+
+    $("loading").style.display = allQuestions.length ? "none" : "block";
+    $("loading").textContent = allQuestions.length
+      ? ""
+      : "No questions yet. Use the form above to add your first question.";
+
+    updateStats();
+    renderQuestions();
+  } catch(error) {
+    $("loading").style.display = "block";
+    $("loading").textContent = "Could not load questions: " + error.message;
+    showNotice(error.message, "error");
+  }
+}
+
+function updateStats() {
+  $("totalQuestions").textContent = allQuestions.length;
+  $("totalMarks").textContent = allQuestions.reduce((sum,q) => sum + Number(q.marks || 0), 0);
+  $("hardQuestions").textContent = allQuestions.filter(q => q.difficulty === "hard").length;
+}
+
+function renderQuestions() {
+  const search = $("searchInput").value.trim().toLowerCase();
+  const filtered = allQuestions.filter(q =>
+    String(q.question_text || "").toLowerCase().includes(search) ||
+    ["option_a","option_b","option_c","option_d"].some(k =>
+      String(q[k] || "").toLowerCase().includes(search)
+    )
+  );
+
+  const container = $("questionsList");
+  container.innerHTML = "";
+
+  if (!filtered.length) {
+    $("loading").style.display = "block";
+    $("loading").textContent = allQuestions.length
+      ? "No questions match your search."
+      : "No questions yet. Use the form above to add your first question.";
+    return;
+  }
+
+  $("loading").style.display = "none";
+
+  filtered.forEach((q,index) => {
+    const card = document.createElement("article");
+    card.className = "question-card";
+
+    const answer = q.correct_option || q.test_answer_keys?.correct_option || "";
+
+    card.innerHTML = `
+      <div class="question-head">
+        <div style="flex:1;min-width:0">
+          <div class="question-number">QUESTION ${escapeHTML(q.question_order ?? index+1)}</div>
+          <div class="question-text">${escapeHTML(q.question_text)}</div>
+        </div>
+        <span class="tag">${escapeHTML(q.marks ?? 1)} marks</span>
+      </div>
+
+      <div class="options">
+        <div class="option"><b>A.</b> ${escapeHTML(q.option_a)}</div>
+        <div class="option"><b>B.</b> ${escapeHTML(q.option_b)}</div>
+        <div class="option"><b>C.</b> ${escapeHTML(q.option_c)}</div>
+        <div class="option"><b>D.</b> ${escapeHTML(q.option_d)}</div>
+      </div>
+
+      <div class="meta">
+        <span class="tag">${escapeHTML(q.difficulty || "medium")}</span>
+        ${answer ? `<span class="tag answer">Correct answer: ${escapeHTML(answer)}</span>` : ""}
+      </div>
+
+      <div class="actions">
+        <button class="secondary" type="button" data-edit="${escapeHTML(q.id)}">Edit</button>
+        <button class="danger" type="button" data-delete="${escapeHTML(q.id)}">Delete</button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function resetForm() {
+  $("questionForm").reset();
+  $("questionId").value = "";
+  $("marks").value = "1";
+  $("difficulty").value = "medium";
+  $("correctOption").value = "A";
+  $("questionOrder").value = String(allQuestions.length + 1);
+  $("editorTitle").textContent = "② Add New Question";
+  $("saveBtn").textContent = "Save Question";
+}
+
+function editQuestion(id) {
+  const q = allQuestions.find(item => String(item.id) === String(id));
+  if (!q) return;
+
+  $("questionId").value = q.id;
+  $("questionText").value = q.question_text || "";
+  $("optionA").value = q.option_a || "";
+  $("optionB").value = q.option_b || "";
+  $("optionC").value = q.option_c || "";
+  $("optionD").value = q.option_d || "";
+  $("correctOption").value = q.correct_option || q.test_answer_keys?.correct_option || "A";
+  $("marks").value = q.marks ?? 1;
+  $("difficulty").value = q.difficulty || "medium";
+  $("questionOrder").value = q.question_order || 1;
+  $("editorTitle").textContent = "② Edit Question";
+  $("saveBtn").textContent = "Update Question";
+
+  $("editorPanel").scrollIntoView({behavior:"smooth"});
+}
+
+async function deleteQuestion(id) {
+  const q = allQuestions.find(item => String(item.id) === String(id));
+  if (!q) return;
+
+  if (!confirm("Delete this question? This action cannot be undone.")) return;
+
+  try {
+    await callFunction("delete", {
+      id:q.id,
+      question_id:q.id,
+      test_id:currentTestId
+    });
+
+    showNotice("Question deleted successfully.");
+    await loadQuestions();
+  } catch(error) {
+    showNotice("Delete failed: " + error.message, "error");
+  }
+}
+
+$("questionForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearNotice();
+
+  if (!currentTestId) {
+    showNotice("Please select a test first.", "error");
+    return;
+  }
+
+  const marks = Number($("marks").value);
+  const order = Number($("questionOrder").value);
+
+  if (!Number.isFinite(marks) || marks <= 0) {
+    showNotice("Marks must be greater than zero.", "error");
+    return;
+  }
+
+  if (!Number.isInteger(order) || order < 1) {
+    showNotice("Question order must be a positive whole number.", "error");
+    return;
+  }
+
+  const question = {
+    test_id:currentTestId,
+    question_text:$("questionText").value.trim(),
+    option_a:$("optionA").value.trim(),
+    option_b:$("optionB").value.trim(),
+    option_c:$("optionC").value.trim(),
+    option_d:$("optionD").value.trim(),
+    correct_option:$("correctOption").value,
+    marks,
+    difficulty:$("difficulty").value,
+    question_order:order
+  };
+
+  if (!question.question_text || !question.option_a ||
+      !question.option_b || !question.option_c || !question.option_d) {
+    showNotice("Please complete the question and all four options.", "error");
+    return;
+  }
+
+  const id = $("questionId").value;
+  $("saveBtn").disabled = true;
+  $("saveBtn").textContent = id ? "Updating..." : "Saving...";
+
+  try {
+    if (id) {
+      await callFunction("update", {
+        ...question,
+        id,
+        question_id:id
+      });
+      showNotice("Question updated successfully.");
+    } else {
+      await callFunction("create", question);
+      showNotice("Question added successfully.");
+    }
+
+    resetForm();
+    await loadQuestions();
+  } catch(error) {
+    showNotice("Save failed: " + error.message, "error");
+  } finally {
+    $("saveBtn").disabled = false;
+    $("saveBtn").textContent = $("questionId").value ? "Update Question" : "Save Question";
+  }
+});
+
+$("testSelect").addEventListener("change", async () => {
+  currentTestId = $("testSelect").value;
+  await loadQuestions();
+});
+
+$("refreshBtn").addEventListener("click", loadTests);
+$("cancelBtn").addEventListener("click", () => {
+  resetForm();
+  clearNotice();
+});
+
+$("searchInput").addEventListener("input", renderQuestions);
+
+$("questionsList").addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit]");
+  const deleteButton = event.target.closest("[data-delete]");
+
+  if (editButton) editQuestion(editButton.dataset.edit);
+  if (deleteButton) deleteQuestion(deleteButton.dataset.delete);
+});
+
+(async function init() {
+  if (SUPABASE_ANON_KEY.includes("PASTE_YOUR")) {
+    $("loading").textContent = "Add your Supabase publishable/anon key in this file before using the page.";
+    return;
+  }
+
+  const isAdmin = await verifyAdmin();
+  if (!isAdmin) return;
+
+  await loadTests();
+})();
+</script>
+</body>
+</html>
