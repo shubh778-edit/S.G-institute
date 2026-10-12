@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S.G Institute | My Tests</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#090909;--panel:#141414;--gold:#d4af37;--text:#f5f5f5;--muted:#aaa;--border:#292929}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:235px;background:#101010;border-right:1px solid var(--border);padding:24px 15px;flex-shrink:0}
+.brand{color:var(--gold);font-size:21px;font-weight:bold}
+.brand-sub{font-size:11px;color:var(--muted);margin:7px 0 30px}
+.nav a{display:block;padding:12px 13px;margin:5px 0;border-radius:8px;text-decoration:none;color:#bbb;font-size:14px}
+.nav a:hover,.nav a.active{background:#29230f;color:var(--gold)}
+.nav-title{font-size:10px;color:#777;margin:22px 10px 10px;letter-spacing:1.5px}
+.main{flex:1;min-width:0;padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:25px}
+h1{font-size:27px;margin:0 0 8px}
+h2{font-size:18px;margin:0 0 8px}
+.sub{color:var(--muted);font-size:13px;line-height:1.6}
+.badge{border:1px solid #66531a;color:var(--gold);padding:9px 13px;border-radius:20px;font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:23px}
+.stat,.card,.toolbar{background:var(--panel);border:1px solid var(--border);border-radius:13px}
+.stat{padding:18px}
+.stat strong{display:block;font-size:25px;color:var(--gold);margin-bottom:7px}
+.stat span{font-size:12px;color:var(--muted)}
+.toolbar{padding:16px;display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+input,select{background:#0d0d0d;color:#eee;border:1px solid #353535;border-radius:8px;padding:12px;font-size:13px;outline:none}
+input{flex:1;min-width:180px}
+select{min-width:140px}
+input:focus,select:focus{border-color:var(--gold)}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{padding:21px;min-width:0}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:17px}
+.pill{display:inline-block;padding:6px 9px;border-radius:6px;background:#292929;color:#ddd;font-size:11px;white-space:nowrap}
+.pill.good{background:#153526;color:#8ce5b9}
+.pill.gold{background:#30280e;color:#f0d77b}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.meta div{background:#0d0d0d;border:1px solid #282828;padding:12px;border-radius:8px;min-width:0}
+.meta span{display:block;font-size:11px;color:var(--muted);margin-bottom:7px}
+.meta strong{font-size:13px;overflow-wrap:anywhere}
+button,.btn{display:inline-block;border:0;border-radius:8px;padding:12px 15px;font-size:12px;font-weight:bold;cursor:pointer;text-decoration:none}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+.disabled{background:#292929;color:#777;cursor:not-allowed}
+.empty{grid-column:1/-1;text-align:center;padding:35px 15px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:12px}
+.notice{display:none;padding:13px;border-radius:8px;margin-bottom:15px;font-size:13px;overflow-wrap:anywhere}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.footer{color:#777;font-size:11px;margin-top:24px;line-height:1.6}
+@media(max-width:950px){.cards{grid-template-columns:1fr}}
+@media(max-width:850px){
+.layout{display:block}.sidebar{width:100%;padding:17px;border-right:0;border-bottom:1px solid var(--border)}
+.brand-sub{margin-bottom:15px}.nav{display:flex;overflow-x:auto;gap:5px}.nav a{white-space:nowrap;margin:0;padding:10px}
+.nav-title{display:none}.main{padding:18px}
+}
+@media(max-width:500px){.stats{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.meta{grid-template-columns:1fr 1fr}.card{padding:16px}h1{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+ <div class="brand">S.G INSTITUTE</div>
+ <div class="brand-sub">OF LEARNING · STUDENT</div>
+ <nav class="nav">
+  <div class="nav-title">MY LEARNING</div>
+  <a href="dashboard.html">▦ Dashboard</a>
+  <a class="active" href="my-tests.html">▣ My Tests</a>
+  <a href="my-results.html">▥ My Results</a>
+  <a href="#" id="logout">↪ Logout</a>
+ </nav>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div>
+  <h1>My Tests</h1>
+  <div class="sub">View your assigned examinations and their current status.</div>
+ </div>
+ <div class="badge">EXAMINATION PORTAL</div>
+</header>
+
+<div id="notice" class="notice"></div>
+
+<section class="stats">
+ <div class="stat"><strong id="total">—</strong><span>Total Assigned</span></div>
+ <div class="stat"><strong id="pending">—</strong><span>Pending / In Progress</span></div>
+ <div class="stat"><strong id="completed">—</strong><span>Completed</span></div>
+</section>
+
+<div class="toolbar">
+ <input id="search" type="search" placeholder="Search test by name...">
+ <select id="statusFilter">
+  <option value="all">All statuses</option>
+  <option value="assigned">Pending</option>
+  <option value="started">In Progress</option>
+  <option value="completed">Completed</option>
+ </select>
+ <button class="secondary" id="refresh">Refresh</button>
+</div>
+
+<section id="testCards" class="cards">
+ <div class="empty">Loading your assigned tests...</div>
+</section>
+
+<div class="footer">
+S.G Institute of Learning · Your answer selections and results are processed through the examination system. Never share your account password.
+</div>
+</main>
+</div>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+let allTests=[];
+
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function dateFmt(v){
+ if(!v)return "No deadline";
+ const d=new Date(v);
+ return Number.isNaN(d.getTime())?"No deadline":d.toLocaleString();
+}
+function notice(msg,type="error"){
+ $("notice").textContent=msg;
+ $("notice").className="notice "+type;
+}
+async function logout(){
+ await db.auth.signOut();
+ location.href="login.html";
+}
+$("logout").addEventListener("click",async e=>{e.preventDefault();await logout();});
+$("refresh").addEventListener("click",()=>loadPage());
+$("search").addEventListener("input",render);
+$("statusFilter").addEventListener("change",render);
+
+async function loadPage(){
+ $("notice").className="notice";
+ $("testCards").innerHTML='<div class="empty">Loading your assigned tests...</div>';
+
+ if(SUPABASE_ANON_KEY.includes("PASTE_YOUR")){
+  notice("Please add your Supabase publishable/anon key in this file.");
+  $("testCards").innerHTML='<div class="empty">Configuration required.</div>';
+  return;
+ }
+
+ const {data:{session},error:sessionError}=await db.auth.getSession();
+ if(sessionError||!session){location.href="login.html";return;}
+
+ const {data:profile,error:profileError}=await db.from("profiles")
+  .select("id,role").eq("id",session.user.id).maybeSingle();
+
+ if(profileError||!profile){
+  notice("Could not verify your profile: "+(profileError?.message||"Profile not found."));
+  return;
+ }
+ if(profile.role==="admin"){location.href="admin.html";return;}
+
+ const {data:assignments,error:assignmentError}=await db.from("test_assignments")
+  .select("id,test_id,assigned_at,due_at,status")
+  .eq("student_id",profile.id)
+  .order("assigned_at",{ascending:false});
+
+ if(assignmentError){
+  notice("Could not load assigned tests: "+assignmentError.message);
+  $("testCards").innerHTML='<div class="empty">Unable to load tests. Check your database permissions.</div>';
+  return;
+ }
+
+ const rows=assignments||[];
+ const testIds=[...new Set(rows.map(a=>a.test_id).filter(Boolean))];
+ let tests=[];
+
+ if(testIds.length){
+  const {data,error}=await db.from("tests")
+   .select("id,title,description,total_marks,duration_minutes,status")
+   .in("id",testIds);
+  if(error){
+   notice("Could not load test information: "+error.message);
+   $("testCards").innerHTML='<div class="empty">Test information is unavailable.</div>';
+   return;
+  }
+  tests=data||[];
+ }
+
+ const testMap=new Map(tests.map(t=>[t.id,t]));
+ allTests=rows.map(a=>({...a,test:testMap.get(a.test_id)||null}));
+ updateStats();
+ render();
+}
+
+function updateStats(){
+ $("total").textContent=allTests.length;
+ $("pending").textContent=allTests.filter(a=>a.status==="assigned"||a.status==="started").length;
+ $("completed").textContent=allTests.filter(a=>a.status==="completed").length;
+}
+
+function render(){
+ const term=$("search").value.trim().toLowerCase();
+ const status=$("statusFilter").value;
+ const filtered=allTests.filter(a=>{
+  const title=(a.test?.title||"Untitled Test").toLowerCase();
+  return title.includes(term)&&(status==="all"||a.status===status);
+ });
+
+ if(!filtered.length){
+  $("testCards").innerHTML='<div class="empty">No tests match your search or selected filter.</div>';
+  return;
+ }
+
+ $("testCards").innerHTML=filtered.map(a=>{
+  const t=a.test||{};
+  const state=a.status||"assigned";
+  const isCompleted=state==="completed";
+  const isStarted=state==="started";
+  const due=a.due_at?new Date(a.due_at):null;
+  const expired=due&&!Number.isNaN(due.getTime())&&due.getTime()<Date.now()&&!isCompleted;
+
+  let pillClass=isCompleted?"good":isStarted?"gold":"";
+  let buttonText=isCompleted?"View Results":isStarted?"Continue Test":"Start Test";
+  let buttonClass=isCompleted?"secondary":"primary";
+  let buttonAction=isCompleted?"results": "start";
+  let disabled=expired;
+
+  return `<article class="card">
+   <div class="card-top">
+    <div>
+     <h2>${esc(t.title||"Untitled Test")}</h2>
+     <div class="sub">${esc(t.description||"Assigned examination")}</div>
+    </div>
+    <span class="pill ${pillClass}">${esc(state.replace("_"," "))}</span>
+   </div>
+   <div class="meta">
+    <div><span>Total Marks</span><strong>${esc(t.total_marks??"—")}</strong></div>
+    <div><span>Duration</span><strong>${esc(t.duration_minutes??"—")} minutes</strong></div>
+    <div><span>Due Date</span><strong>${esc(dateFmt(a.due_at))}</strong></div>
+    <div><span>Assigned On</span><strong>${esc(dateFmt(a.assigned_at))}</strong></div>
+   </div>
+   ${expired?'<p class="sub">This assignment is past its due date. Contact your institute if you need access.</p>':""}
+   <button class="${disabled?"disabled":buttonClass}" ${disabled?"disabled":""}
+    onclick="handleTest('${esc(a.id)}','${buttonAction}')">
+    ${expired?"Deadline Passed":buttonText}
+   </button>
+  </article>`;
+ }).join("");
+}
+
+function handleTest(assignmentId,action){
+ if(action==="results"){
+  location.href="my-results.html";
+  return;
+ }
+
+ /*
+  The examination runner must create/retrieve an attempt,
+  enforce the timer, save answers and submit through the
+  submit-test Edge Function. Do not expose answer keys here.
+ */
+ location.href="take-test.html?assignment_id="+encodeURIComponent(assignmentId);
+}
+
+loadPage().catch(error=>{
+ notice("Unexpected error: "+error.message);
+ $("testCards").innerHTML='<div class="empty">An unexpected error occurred.</div>';
+});
+</script>
+</body>
+</html>
