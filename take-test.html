@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>S.G Institute | Online Examination</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#090909;--panel:#141414;--gold:#d4af37;--text:#f5f5f5;--muted:#aaa;--border:#292929}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{background:#101010;border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{color:var(--gold);font-weight:bold;font-size:18px}
+.timer{padding:10px 15px;border:1px solid #66531a;border-radius:9px;color:var(--gold);font-weight:bold;min-width:105px;text-align:center}
+.timer.warning{color:#ff7777;border-color:#853838}
+main{max-width:1100px;margin:25px auto;padding:0 18px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:20px}
+h1{font-size:25px;margin:0 0 8px}
+.sub{color:var(--muted);font-size:13px;line-height:1.6}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:22px;min-width:0}
+.progress-line{height:5px;background:#303030;border-radius:9px;margin:14px 0 22px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:var(--gold);transition:width .2s}
+.question-label{color:var(--gold);font-size:12px;font-weight:bold;margin-bottom:14px}
+.question-text{font-size:18px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:22px}
+.option{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid #333;border-radius:9px;margin:10px 0;cursor:pointer;line-height:1.5;font-size:14px}
+.option:hover{border-color:#8a7228;background:#1a180f}
+.option.selected{border-color:var(--gold);background:#25200e}
+.option input{accent-color:var(--gold);margin-top:3px}
+.option span{overflow-wrap:anywhere}
+.controls{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:25px}
+button{border:0;border-radius:8px;padding:12px 16px;font-weight:bold;font-size:12px;cursor:pointer}
+.primary{background:var(--gold);color:#111}
+.secondary{background:#292929;color:#eee}
+button:disabled{opacity:.45;cursor:not-allowed}
+.side-title{font-size:15px;margin:0 0 12px}
+.legend{font-size:11px;color:var(--muted);line-height:2}
+.legend span{display:inline-block;width:9px;height:9px;border-radius:2px;background:#303030;margin-right:5px}
+.legend .answered{background:var(--gold)}
+.legend .current{outline:1px solid white}
+.question-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:15px 0 20px}
+.q-number{padding:10px 0;background:#242424;color:#eee;border:1px solid #383838}
+.q-number.answered{background:#554716;color:#fff}
+.q-number.current{outline:2px solid var(--gold);outline-offset:1px}
+.summary{font-size:12px;color:var(--muted);line-height:1.8;margin:12px 0 18px}
+.notice{display:none;padding:13px;border-radius:8px;margin-bottom:16px;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+.notice.error{display:block;background:#3b1717;color:#ffaaaa}
+.notice.success{display:block;background:#123022;color:#8ce5b9}
+.notice.info{display:block;background:#29230f;color:#f0d77b}
+.overlay{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}
+.dialog{width:100%;max-width:430px;background:#151515;border:1px solid #4b3d18;border-radius:14px;padding:24px}
+.dialog h2{margin-top:0}
+.dialog p{color:#bbb;font-size:13px;line-height:1.7}
+.dialog-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.hidden{display:none!important}
+footer{text-align:center;padding:25px;color:#777;font-size:11px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.top{flex-direction:column}.question-grid{grid-template-columns:repeat(8,minmax(0,1fr))}}
+@media(max-width:450px){header{padding:14px}.brand{font-size:14px}main{padding:0 11px}.panel{padding:16px}.question-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.question-text{font-size:16px}}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="brand">S.G INSTITUTE OF LEARNING</div>
+ <div class="timer" id="timer">--:--:--</div>
+</header>
+
+<main>
+ <div class="top">
+  <div>
+   <h1 id="testTitle">Loading examination...</h1>
+   <div class="sub" id="testMeta">Verifying your assignment and loading questions.</div>
+  </div>
+  <button class="secondary" id="exitBtn">Exit Test</button>
+ </div>
+
+ <div id="notice" class="notice"></div>
+
+ <div class="layout">
+  <section class="panel" id="questionPanel">
+   <div class="question-label" id="questionLabel">QUESTION —</div>
+   <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+   <div class="question-text" id="questionText">Please wait...</div>
+   <div id="options"></div>
+   <div class="controls">
+    <button class="secondary" id="previousBtn">← Previous</button>
+    <button class="primary" id="nextBtn">Next →</button>
+   </div>
+  </section>
+
+  <aside class="panel">
+   <h2 class="side-title">Question Navigator</h2>
+   <div class="legend">
+    <span class="answered"></span> Answered
+    &nbsp; <span></span> Unanswered
+   </div>
+   <div class="question-grid" id="questionGrid"></div>
+   <div class="summary">
+    Total Questions: <strong id="totalQuestions">0</strong><br>
+    Answered: <strong id="answeredCount">0</strong><br>
+    Remaining: <strong id="remainingCount">0</strong>
+   </div>
+   <button class="primary" id="submitBtn" style="width:100%">Submit Examination</button>
+   <p class="sub" style="margin-top:13px">Review your answers before submitting. Submission is final.</p>
+  </aside>
+ </div>
+</main>
+
+<footer>S.G Institute of Learning · Online Examination Portal</footer>
+
+<div class="overlay" id="confirmOverlay">
+ <div class="dialog">
+  <h2 id="dialogTitle">Submit examination?</h2>
+  <p id="dialogText">Please review your answers before final submission.</p>
+  <div class="dialog-actions">
+   <button class="secondary" id="cancelDialog">Go Back</button>
+   <button class="primary" id="confirmDialog">Confirm</button>
+  </div>
+ </div>
+</div>
+
+<script>
+const SUPABASE_URL="https://ywsedmdfacwgvskkiuzy.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_LSM3kXWUKw9K7OEroiabkw_zVTdAoEM";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const assignmentId=params.get("assignment_id");
+
+let currentUser=null;
+let assignment=null;
+let test=null;
+let questions=[];
+let answers={};
+let currentIndex=0;
+let deadline=0;
+let timerInterval=null;
+let submitting=false;
+let confirmAction=null;
+
+function esc(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function showNotice(message,type="info"){
+ $("notice").textContent=message;
+ $("notice").className="notice "+type;
+}
+function clearNotice(){
+ $("notice").className="notice";
+}
+function lockExam(message){
+ clearInterval(timerInterval);
+ document.querySelectorAll("button").forEach(b=>b.disabled=true);
+ showNotice(message,"error");
+}
+function openDialog(title,message,action){
+ $("dialogTitle").textContent=title;
+ $("dialogText").textContent=message;
+ confirmAction=action;
+ $("confirmOverlay").style.display="flex";
+}
+function closeDialog(){
+ $("confirmOverlay").style.display="none";
+ confirmAction=null;
+}
+$("cancelDialog").addEventListener("click",closeDialog);
+$("confirmDialog").addEventListener("click",async()=>{
+ const action=confirmAction;
+ closeDialog();
+ if(action)await action();
+});
+
+$("exitBtn").addEventListener("click",()=>{
+ openDialog("Exit examination?","Your current answers may not be submitted if you exit. Are you sure you want to leave?",()=>{
+  location.href="my-tests.html";
+ });
+});
+
+$("previousBtn").addEventListener("click",()=>{
+ if(currentIndex>0){currentIndex--;renderQuestion();}
+});
+$("nextBtn").addEventListener("click",()=>{
+ if(currentIndex<questions.length-1){currentIndex++;renderQuestion();}
+});
+$("submitBtn").addEventListener("click",()=>{
+ const remaining=questions.length-Object.keys(answers).length;
+ openDialog(
+  "Submit examination?",
+  `You have answered ${Object.keys(answers).length} of ${questions.length} questions. ${remaining} unanswered. Submit now?`,
+  submitExam
+ );
+});
+
+async function start(){
+ if(SUPABASE_ANON_KEY.includes("PASTE_YOUR")){
+  showNotice("Add your Supabase publishable/anon key to take-test.html first.","error");
+  return;
+ }
+ if(!assignmentId){
+  showNotice("Missing assignment ID. Open the test using the Start Test button on My Tests.","error");
+  return;
+ }
+
+ const {data:{session},error:sessionError}=await db.auth.getSession();
+ if(sessionError||!session){location.href="login.html";return;}
+ currentUser=session.user;
+
+ const {data:profile,error:profileError}=await db.from("profiles")
+  .select("id,role").eq("id",currentUser.id).maybeSingle();
+ if(profileError||!profile){showNotice("Unable to verify your student profile.","error");return;}
+ if(profile.role==="admin"){location.href="admin.html";return;}
+
+ const {data:assignmentData,error:assignmentError}=await db.from("test_assignments")
+  .select("id,student_id,test_id,status,due_at")
+  .eq("id",assignmentId).eq("student_id",profile.id).maybeSingle();
+
+ if(assignmentError||!assignmentData){
+  showNotice("This assignment could not be found or you do not have access to it.","error");
+  return;
+ }
+ assignment=assignmentData;
+
+ if(assignment.status==="completed"){
+  showNotice("This test has already been completed. Open My Results to review your performance.","info");
+  $("testTitle").textContent="Test Already Completed";
+  $("testMeta").textContent="This assignment is no longer available to attempt.";
+  $("questionPanel").classList.add("hidden");
+  $("submitBtn").disabled=true;
+  return;
+ }
+
+ if(assignment.due_at&&new Date(assignment.due_at).getTime()<Date.now()){
+  showNotice("The due date for this assignment has passed. Contact your institute if you need access.","error");
+  return;
+ }
+
+ const {data:testData,error:testError}=await db.from("tests")
+  .select("id,title,description,total_marks,duration_minutes,status")
+  .eq("id",assignment.test_id).maybeSingle();
+
+ if(testError||!testData){showNotice("Could not load this test.","error");return;}
+ test=testData;
+
+ if(test.status!=="published"){
+  showNotice("This test is not currently published.","error");
+  return;
+ }
+
+ const {data:questionData,error:questionError}=await db.from("questions")
+  .select("id,question_text,option_a,option_b,option_c,option_d,marks,question_order")
+  .eq("test_id",test.id).order("question_order",{ascending:true});
+
+ if(questionError){showNotice("Could not load questions: "+questionError.message,"error");return;}
+ questions=questionData||[];
+
+ if(!questions.length){
+  showNotice("This test does not have any questions yet. Contact your institute.","error");
+  return;
+ }
+
+ $("testTitle").textContent=test.title;
+ $("testMeta").textContent=`${questions.length} questions · ${test.total_marks} marks · ${test.duration_minutes} minutes`;
+
+ /*
+  IMPORTANT:
+  The browser does not read the answer-key table.
+  However, a production exam needs a trusted backend to
+  create/resume attempts, save answers, enforce the timer,
+  and submit answers to the submit-test Edge Function.
+  This page currently maintains selected answers in memory.
+ */
+
+ const durationMs=Math.max(1,Number(test.duration_minutes)||90)*60*1000;
+ deadline=Date.now()+durationMs;
+ $("totalQuestions").textContent=questions.length;
+ renderQuestion();
+ startTimer();
+}
+
+function renderQuestion(){
+ const q=questions[currentIndex];
+ if(!q)return;
+
+ $("questionLabel").textContent=`QUESTION ${currentIndex+1} OF ${questions.length}`;
+ $("questionText").textContent=q.question_text||"Question text unavailable.";
+
+ const options=[
+  ["A",q.option_a],["B",q.option_b],["C",q.option_c],["D",q.option_d]
+ ];
+ $("options").innerHTML=options.map(([key,value])=>`
+  <label class="option ${answers[q.id]===key?"selected":""}">
+   <input type="radio" name="answer" value="${key}" ${answers[q.id]===key?"checked":""}>
+   <span><strong>${key}.</strong> ${esc(value||"")}</span>
+  </label>
+ `).join("");
+
+ document.querySelectorAll('input[name="answer"]').forEach(input=>{
+  input.addEventListener("change",()=>{
+   answers[q.id]=input.value;
+   renderQuestion();
+  });
+ });
+
+ $("previousBtn").disabled=currentIndex===0;
+ $("nextBtn").disabled=currentIndex===questions.length-1;
+ $("progressFill").style.width=((currentIndex+1)/questions.length*100)+"%";
+
+ $("questionGrid").innerHTML=questions.map((item,index)=>`
+  <button class="q-number ${answers[item.id]?"answered":""} ${index===currentIndex?"current":""}"
+   onclick="goToQuestion(${index})">${index+1}</button>
+ `).join("");
+
+ const answered=Object.keys(answers).length;
+ $("answeredCount").textContent=answered;
+ $("remainingCount").textContent=questions.length-answered;
+}
+function goToQuestion(index){
+ if(index>=0&&index<questions.length){currentIndex=index;renderQuestion();}
+}
+function startTimer(){
+ clearInterval(timerInterval);
+ updateTimer();
+ timerInterval=setInterval(updateTimer,1000);
+}
+function updateTimer(){
+ const remaining=Math.max(0,deadline-Date.now());
+ const totalSeconds=Math.ceil(remaining/1000);
+ const h=Math.floor(totalSeconds/3600);
+ const m=Math.floor((totalSeconds%3600)/60);
+ const s=totalSeconds%60;
+ $("timer").textContent=[h,m,s].map(n=>String(n).padStart(2,"0")).join(":");
+
+ if(remaining<=5*60*1000)$("timer").classList.add("warning");
+ if(remaining<=0){
+  clearInterval(timerInterval);
+  openDialog("Time is over","The exam timer has ended. Submit your answers now.",submitExam);
+ }
+}
+
+/*
+  Do not replace this with direct client-side scoring.
+  The submit-test Edge Function must verify assignment access,
+  read the private answer key, calculate marks on the server,
+  store results, and update assignment status.
+*/
+async function submitExam(){
+ if(submitting)return;
+ submitting=true;
+ clearInterval(timerInterval);
+ $("submitBtn").disabled=true;
+ showNotice("Submitting your answers. Please do not close this page.","info");
+
+ try{
+  const {data:{session},error:sessionError}=await db.auth.getSession();
+  if(sessionError||!session)throw new Error("Your session has expired. Please log in again.");
+
+  const response=await fetch(SUPABASE_URL+"/functions/v1/submit-test",{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer "+session.access_token,
+    "apikey":SUPABASE_ANON_KEY
+   },
+   body:JSON.stringify({
+    assignment_id:assignment.id,
+    answers:questions.map(q=>({
+     question_id:q.id,
+     selected_option:answers[q.id]||null
+    }))
+   })
+  });
+
+  const raw=await response.text();
+  let result={};
+  try{result=raw?JSON.parse(raw):{};}catch{}
+
+  if(!response.ok){
+   throw new Error(result.error||result.message||raw||"Submission failed. Please contact your institute.");
+  }
+
+  showNotice("Submission accepted. Opening your results page...","success");
+  setTimeout(()=>location.href="my-results.html",1200);
+ }catch(error){
+  submitting=false;
+  $("submitBtn").disabled=false;
+  showNotice("Submission failed: "+error.message+". Your selected answers are still in this page while it remains open. Do not refresh; contact your institute if the problem continues.","error");
+ }
+}
+
+start().catch(error=>showNotice("Examination error: "+error.message,"error"));
+</script>
+</body>
+</html>
